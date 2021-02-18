@@ -11,7 +11,13 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import psycopg2
 from pathlib import Path
-
+import os
+# settings.py
+from dotenv import load_dotenv
+from pathlib import Path
+# env_path = Path('.') / '.env'
+# load_dotenv(dotenv_path=env_path)
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -90,17 +96,17 @@ WSGI_APPLICATION = 'manga_reader.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+        'NAME': os.getenv("NAME"),
+        'USER': os.getenv("USER"),
+        'PASSWORD': os.getenv("PASSWORD"),
+        'HOST': os.getenv("HOST"),
+        'PORT': os.getenv("PORT"),
         'OPTIONS': {
             'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_REPEATABLE_READ,
         }
     }
 }
-AUTH_USER_MODEL = 'my_auth.User'
+AUTH_USER_MODEL = 'my_auth.Profile'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
