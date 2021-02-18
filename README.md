@@ -1,2 +1,2 @@
 # backend for manga reader
-PostgreSQL + Django
+PostgreSQL(libpq-dev) + Django. Auth - DRF + JWT.
