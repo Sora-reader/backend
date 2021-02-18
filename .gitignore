@@ -8,6 +8,9 @@ __pycache__/
 # C extensions
 *.so
 
+# configurations files
+development.py
+
 # Distribution / packaging
 .Python
 build/
