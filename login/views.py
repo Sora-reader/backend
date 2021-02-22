@@ -3,15 +3,26 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db.utils import IntegrityError
 
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
+
+from rest_framework_simplejwt.views import (
+    TokenObtainSlidingView,
+)
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .queries import ProfileQueries
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class RegistrationView(ObtainAuthToken):
+class RegistrationView(TokenObtainSlidingView):
+
+    def __get_token_for_user(self, user):
+        refresh = RefreshToken.for_user(user)
+
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
 
     def __register(self, request):
         username = request.POST.get('username')
@@ -19,19 +30,13 @@ class RegistrationView(ObtainAuthToken):
         try:
             return ProfileQueries.create(username, password)
         except IntegrityError:
-            return HttpResponse("User already exists", status=500)
+            return HttpResponse({'error': 'User already exists'}, status=500)
 
     def post(self, request, *args, **kwargs):
-        self.__register(request)
-
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
+        user = self.__register(request)
+        token = self.__get_token_for_user(user)
 
         return Response({
-            'token': token.key,
-            'user_id': user.pk,
+            'token': token['access'],
             'username': user.username,
-        })
+        }, status=200)

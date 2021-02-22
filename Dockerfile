@@ -14,3 +14,5 @@ RUN . /venv/bin/activate
 RUN python -m pip install poetry
 
 RUN python -m poetry install
+
+
