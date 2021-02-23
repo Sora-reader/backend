@@ -6,6 +6,5 @@ from django.conf.urls.static import static
 from .views import RegistrationView
 
 urlpatterns = [
-    path(r'api-auth/', include('rest_framework.urls')),
     path(r'sign-up/', RegistrationView.as_view())
 ]

@@ -2,7 +2,6 @@ FROM python:3.8 as base
 
 RUN apt-get update && apt-get install -y git
 
-RUN mkdir -p /backend
 WORKDIR /backend
 
 ENV PYTHONBUFFERED=1
@@ -15,4 +14,11 @@ RUN python -m pip install poetry
 
 RUN python -m poetry install
 
+COPY docker-entrypoint.sh manage.py ./
+
+RUN chmod +x docker-entrypoint.sh
+
+EXPOSE 8000
+
+CMD ["./docker-entrypoint.sh"]
 
