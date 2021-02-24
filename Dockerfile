@@ -6,13 +6,13 @@ WORKDIR /backend
 
 ENV PYTHONBUFFERED=1
 
-COPY . /backend
+COPY . .
 
 RUN python -m venv /venv
-RUN . /venv/bin/activate 
+
 RUN python -m pip install poetry
 
-RUN python -m poetry install
+RUN . /venv/bin/activate && poetry install
 
 COPY docker-entrypoint.sh manage.py ./
 
@@ -21,4 +21,3 @@ RUN chmod +x docker-entrypoint.sh
 EXPOSE 8000
 
 CMD ["./docker-entrypoint.sh"]
-
