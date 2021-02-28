@@ -3,7 +3,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db.utils import IntegrityError
 
-
 from rest_framework_simplejwt.views import (
     TokenObtainSlidingView,
 )
@@ -11,7 +10,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .queries import ProfileQueries
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RegistrationView(TokenObtainSlidingView):
