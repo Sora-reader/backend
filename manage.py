@@ -7,6 +7,7 @@ CONFIG_LOCATIONS ={
     'development': 'manga_reader.config.development'
 }
 
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', CONFIG_LOCATIONS['default'])
