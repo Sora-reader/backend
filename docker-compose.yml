@@ -1,17 +1,28 @@
-db:
-  build: psql_docker
-  environment: 
-    - POSTGRES_PASSWORD=$$(PSQL_DATABASE_PASSWORD)
-    - POSTGRES_DB=$$(PSQL_DATABASE_NAME)
-    - POSTGRES_USER=$$(PSQL_DATABASE_USER)
-  volumes:
-    - ./entry-point.sh:/docker-entrypoint-initdb.d/entry-point.sh
-    - ./get_env.awk:/docker-entrypoint-initdb.d/get_env.awk
-backend:
-  build: .
-  env_file: 
-    - ./manga_reader/config/.env
-  ports: 
-    - 8000:8000
-  links: 
-    - db
+version: '3.7'
+
+services:
+  backend:
+    build: .
+    # Collect env variables from this file and set them in container
+    env_file:
+      - .envs/dev.env
+    ports:
+      - 8000:8000
+    # wait until 'db' process starts and then run
+    depends_on:
+      - db
+
+  db:
+    image: postgres:12
+    # Persist container's '/var/lib/postgresql/data/' in volume named 'postgres_data'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      # Allow connecting to container db from localhost:5433
+      - 5433:5432
+    env_file:
+      - .envs/dev.env
+
+volumes:
+  # postgres_data volume (docker will handle local path)
+  postgres_data:

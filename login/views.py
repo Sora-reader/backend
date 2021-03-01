@@ -1,20 +1,21 @@
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.db.utils import IntegrityError
-
+from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import (
     TokenObtainSlidingView,
 )
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from .queries import ProfileQueries
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RegistrationView(TokenObtainSlidingView):
 
-    def __get_token_for_user(self, user):
+    @staticmethod
+    def get_token_for_user(user):
         refresh = RefreshToken.for_user(user)
 
         return {
@@ -22,7 +23,8 @@ class RegistrationView(TokenObtainSlidingView):
             'access': str(refresh.access_token),
         }
 
-    def __register(self, request):
+    @staticmethod
+    def register(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         try:
@@ -31,8 +33,8 @@ class RegistrationView(TokenObtainSlidingView):
             return HttpResponse({'error': 'User already exists'}, status=500)
 
     def post(self, request, *args, **kwargs):
-        user = self.__register(request)
-        token = self.__get_token_for_user(user)
+        user = self.register(request)
+        token = self.get_token_for_user(user)
 
         return Response({
             'token': token['access'],

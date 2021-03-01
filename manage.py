@@ -1,16 +1,12 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+
 import os
 import sys
-CONFIG_LOCATIONS ={
-    'default':  'manga_reader.config.settings',
-    'development': 'manga_reader.config.development'
-}
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', CONFIG_LOCATIONS['default'])
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', "manga_reader.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
