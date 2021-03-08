@@ -10,25 +10,10 @@ from scrapy.item import Item, Field
 class Manga(scrapy.Item):
     name = Field()
     genres = Field()
+    author = Field()
     chapters = Field()
     category = Field()
     status = Field()
     year = Field()
-
-
-class NewItem(scrapy.Item):
-
-    main_headline = Field()
-    headline = Field()
-
-    url = Field()
-    project = Field()
-    spider = Field()
-    server = Field()
-    date = Field()
-
-
-class TestItem(scrapy.Item):
-    id = Field()
-    name = Field()
+    translators = Field()
     description = Field()
