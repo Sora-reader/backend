@@ -6,8 +6,17 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+from readmanga_parser.models import (
+    Manga,
+    Author,
+    Category,
+    Genre,
+    Status,
+    Translator
+)
 
 
 class ReadmangaPipeline:
     def process_item(self, item, spider):
+        print(item)
         return item

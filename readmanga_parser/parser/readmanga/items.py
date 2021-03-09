@@ -3,36 +3,14 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/items.html
 
-from readmanga_parser.models import (
-    Author,
-    Category,
-    Genre,
-    Manga,
-    Status,
-    Translator
-)
-from scrapy_djangoitem import DjangoItem
+from scrapy.item import Item, Field
 
 
-class AuthorItem(DjangoItem):
-    django_model = Author
-
-
-class CategoryItems(DjangoItem):
-    django_model = Category
-
-
-class StatusItem(DjangoItem):
-    django_model = Status
-
-
-class GenreItem(DjangoItem):
-    django_model = Genre
-
-
-class TranslatorItem(DjangoItem):
-    django_model = Translator
-
-
-class MangaItem(DjangoItem):
-    django_model = Manga
+class MangaItem(Item):
+    year = Field()
+    author = Field()
+    manga = Field()
+    name = Field()
+    genres = Field()
+    translators = Field()
+    description = Field()

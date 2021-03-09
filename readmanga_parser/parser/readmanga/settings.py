@@ -12,6 +12,8 @@ BOT_NAME = 'readmanga'
 SPIDER_MODULES = ['readmanga.spiders']
 NEWSPIDER_MODULE = 'readmanga.spiders'
 
+FEED_FORMAT = 'json',
+FEED_URI = 'result.json'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'readmanga (+http://www.yourdomain.com)'

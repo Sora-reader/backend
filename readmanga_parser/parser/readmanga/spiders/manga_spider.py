@@ -1,6 +1,6 @@
 import scrapy
 from readmanga_parser.parser.readmanga.readmanga_map import get_manga_urls
-from readmanga_parser.parser.readmanga.items import Manga
+from readmanga_parser.parser.readmanga.items import MangaItem
 from readmanga_parser.parser.readmanga.spiders.consts import (
     TRANSLATORS_TAG,
     AUTHOR_TAG,
@@ -29,7 +29,7 @@ class QuotesSpider(scrapy.Spider):
 
     def parse(self, response):
 
-        manga = Manga()
+        manga = MangaItem()
         manga['year'] = get_first_or_empty(response, YEAR_TAG)
         manga['author'] = get_first_or_empty(response, AUTHOR_TAG)
         # didnt handle that one due to only technical urls have no names
