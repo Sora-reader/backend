@@ -145,3 +145,8 @@ cython_debug/
 
 .idea/
 .envs/
+
+# sitemaps
+readmanga_sitemap.txt
+quotes-readmanga.live.xml
+manga.json
