@@ -3,7 +3,7 @@ name = "backend"
 version = "0.1.0"
 description = "backend for manga reader"
 authors = ["ScriptHound <grinkiko@gmail.com>"]
-license = "MIT"
+license = "GPLv3"
 
 [tool.poetry.dependencies]
 python = "3.8.1"
@@ -50,3 +50,4 @@ use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 120
 skip_gitignore = true
+skip_glob = "**/migrations/**"
