@@ -1,5 +1,4 @@
 from django.db.utils import IntegrityError
-from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
@@ -30,7 +29,7 @@ class SignUpView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         try:
             # If user exists
-            if Profile.objects.filter(username=request.username).exists():
+            if Profile.objects.filter(username=request.POST.get("username")).exists():
                 return Response(
                     {
                         "error": "User already exists",
@@ -51,4 +50,4 @@ class SignUpView(TokenObtainPairView):
             )
         except (IntegrityError, AttributeError, KeyError) as e:
             # On an exception return 500
-            return HttpResponse({"error": str(e)}, status=500)
+            return Response({"error": str(e)}, status=500)
