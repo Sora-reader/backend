@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".envs" / ".env")
+load_dotenv(BASE_DIR / ".envs" / "local.env")
 
 
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "login",
     "readmanga_parser",
+    "django_extensions",
 ]
 
 REST_FRAMEWORK = {
