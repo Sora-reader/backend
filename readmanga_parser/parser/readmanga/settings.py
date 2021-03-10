@@ -9,11 +9,11 @@
 
 BOT_NAME = 'readmanga'
 
-SPIDER_MODULES = ['readmanga.spiders']
-NEWSPIDER_MODULE = 'readmanga.spiders'
+SPIDER_MODULES = ['readmanga_parser.parser.readmanga.spiders']
+NEWSPIDER_MODULE = 'readmanga_parser.parser.readmanga.spiders'
 
-FEED_FORMAT = 'json',
-FEED_URI = 'result.json'
+# FEED_FORMAT = 'json',
+# FEED_URI = 'result.json'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'readmanga (+http://www.yourdomain.com)'
@@ -46,9 +46,9 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
+# SPIDER_MIDDLEWARES = {
 #    'readmanga.middlewares.ReadmangaSpiderMiddleware': 543,
-#}
+# }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
@@ -64,9 +64,12 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'readmanga.pipelines.ReadmangaPipeline': 300,
-#}
+from readmanga_parser.parser.readmanga.pipelines import ReadmangaPipeline
+ITEM_PIPELINES = {
+    ReadmangaPipeline: 300,
+}
+
+
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
