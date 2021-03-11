@@ -1,15 +1,20 @@
 import time
 import scrapy
+<<<<<<< HEAD
 import logging
 from readmanga_parser.parser.readmanga.readmanga_map import get_manga_urls
+=======
+
+>>>>>>> 452965109cdb98e9be2a806b1247e01db94aa5d6
 from readmanga_parser.parser.readmanga.items import MangaItem
+from readmanga_parser.parser.readmanga.readmanga_map import get_manga_urls
 from readmanga_parser.parser.readmanga.spiders.consts import (
-    TRANSLATORS_TAG,
     AUTHOR_TAG,
-    NAME_TAG,
-    YEAR_TAG,
+    DESCRIPTION_TAG,
     GENRES_TAG,
-    DESCRIPTION_TAG
+    NAME_TAG,
+    TRANSLATORS_TAG,
+    YEAR_TAG,
 )
 logging.basicConfig(level=logging.ERROR)
 
@@ -22,7 +27,7 @@ def get_first_or_empty(response, tag: str) -> str:
 
 
 class QuotesSpider(scrapy.Spider):
-    name = 'manga'
+    name = "manga"
 
     def start_requests(self):
         urls = get_manga_urls()[:50]
@@ -34,6 +39,7 @@ class QuotesSpider(scrapy.Spider):
     def parse(self, response):
 
         manga = MangaItem()
+<<<<<<< HEAD
         manga['year'] = get_first_or_empty(response, YEAR_TAG)
         manga['author'] = get_first_or_empty(response, AUTHOR_TAG)
         # special handeling. Mangas without dont exist, so itll be technical page
@@ -44,7 +50,15 @@ class QuotesSpider(scrapy.Spider):
 
         manga['genres'] = response.xpath(GENRES_TAG).extract()
         manga['translators'] = response.xpath(TRANSLATORS_TAG).extract()
+=======
+        manga["year"] = get_first_or_empty(response, YEAR_TAG)
+        manga["author"] = get_first_or_empty(response, AUTHOR_TAG)
+        # didnt handle that one due to only technical urls have no names
+        manga["name"] = response.xpath(NAME_TAG).extract()[0]
+        manga["genres"] = response.xpath(GENRES_TAG).extract()
+        manga["translators"] = response.xpath(TRANSLATORS_TAG).extract()
+>>>>>>> 452965109cdb98e9be2a806b1247e01db94aa5d6
 
-        manga['description'] = get_first_or_empty(response, DESCRIPTION_TAG)
+        manga["description"] = get_first_or_empty(response, DESCRIPTION_TAG)
 
         return manga
