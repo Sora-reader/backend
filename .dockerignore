@@ -1,5 +1,4 @@
-.idea
-.vscode
+ # Created by .ignore support plugin (hsz.mobi)
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -9,14 +8,11 @@ __pycache__/
 # C extensions
 *.so
 
-# configurations files
-development.py
-
 # Distribution / packaging
 .Python
 build/
 develop-eggs/
-dist/
+../dist/
 downloads/
 eggs/
 .eggs/
@@ -111,7 +107,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+.envs/.env
 .venv
 env/
 venv/
@@ -144,10 +140,11 @@ dmypy.json
 cython_debug/
 
 .idea/
+.vscode/
+.git/
 .envs/
-
-# sitemaps
-readmanga_sitemap.txt
-quotes-readmanga.live.xml
-manga.json
-items.json
+.flake8
+.github
+.gitignore
+LICENSE
+README.md
