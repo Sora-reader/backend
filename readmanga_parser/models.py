@@ -21,11 +21,9 @@ class Category(TimeStampedModel, models.Model):
 
 
 class Manga(TimeStampedModel, models.Model):
-<<<<<<< HEAD
-
-=======
->>>>>>> 6451835cb83e8493e697b0a700853de3a9169e39
-    title = TextField("manga_title", unique=True)
+    title = TextField("manga_title",
+                      unique=True,
+                      db_index=True)
     description = TextField("manga_description")
     status = TextField("status")
     year = TextField("year")
