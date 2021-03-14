@@ -1,13 +1,23 @@
 import urllib.request
+from http.client import IncompleteRead
 from xml.etree import ElementTree
+import logging
+logging.basicConfig(level=logging.ERROR)
+
+
+def get_readmanga_map() -> str:
+    while True:
+        try:
+            url = "https://readmanga.live/sitemap.xml"
+            with urllib.request.urlopen(url) as u:
+                return u.read().decode()
+        except IncompleteRead:
+            logging.error("Getting readmanga map failure: retrying")
+            continue
 
 
 def get_manga_urls():
-
-    schema = ""
-    url = "https://readmanga.live/sitemap.xml"
-    with urllib.request.urlopen(url) as u:
-        schema = u.read().decode()
+    schema = get_readmanga_map()
 
     namespaces = {"sitemap": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
