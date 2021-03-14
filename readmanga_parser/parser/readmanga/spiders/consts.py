@@ -6,4 +6,5 @@ YEAR_TAG = '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementList"]/sp
             /a[@class = "element-link"]/text()'
 TRANSLATORS_TAG = '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementList"]/span[@class = "elem_translator "] \
             /a[@class = "person-link"]/text()'
-DESCRIPTION_TAG = '//div[@class = "manga-description"]/p/span/text()'
+DESCRIPTION_TAG = '//div[@class = "manga-description"]//text()'
+DESCRIPTION_ALT_TAG = '//div[@class = "manga-description"]/p/text()'

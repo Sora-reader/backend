@@ -29,6 +29,9 @@ class ReadmangaPipeline:
         translators = item.get("translators")
         year = item.get("year")
 
+        if not name:
+            return item
+
         author, _ = Author.objects.get_or_create(name=author)
         genres = bulk_get_or_create(Genre, genres)
         translators = bulk_get_or_create(Translator, translators)
