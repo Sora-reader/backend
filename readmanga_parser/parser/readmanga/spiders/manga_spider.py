@@ -16,7 +16,7 @@ from readmanga_parser.parser.readmanga.spiders.consts import (
     TRANSLATORS_TAG,
     YEAR_TAG,
 )
-logging.basicConfig(level=logging.ERROR)
+logging.getLogger(__name__)
 
 
 def extract_description(response) -> str:
@@ -40,7 +40,7 @@ class QuotesSpider(scrapy.Spider):
     name = "manga"
 
     def start_requests(self):
-        urls = get_manga_urls()[:50]
+        urls = get_manga_urls()
 
         for url in urls:
             time.sleep(1)
