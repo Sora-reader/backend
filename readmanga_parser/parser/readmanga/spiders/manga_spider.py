@@ -15,6 +15,7 @@ from readmanga_parser.parser.readmanga.spiders.consts import (
     NAME_TAG,
     TRANSLATORS_TAG,
     YEAR_TAG,
+    IMAGE_TAG
 )
 logging.getLogger(__name__)
 
@@ -54,8 +55,9 @@ class QuotesSpider(scrapy.Spider):
         # special handeling. Mangas without dont exist, so itll be technical page
         try:
             manga['name'] = response.xpath(NAME_TAG).extract()[0]
+            manga['image'] = handle_xpath_response(response, IMAGE_TAG)[0]
         except IndexError:
-            logging.error("No manga name, likely it was technical URL")
+            logging.error("No manga name or image, likely it was technical URL")
 
         manga['genres'] = response.xpath(GENRES_TAG).extract()
         manga['translators'] = response.xpath(TRANSLATORS_TAG).extract()

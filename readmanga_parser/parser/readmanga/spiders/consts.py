@@ -8,3 +8,4 @@ TRANSLATORS_TAG = '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementLi
             /a[@class = "person-link"]/text()'
 DESCRIPTION_TAG = '//div[@class = "manga-description"]//text()'
 DESCRIPTION_ALT_TAG = '//div[@class = "manga-description"]/p/text()'
+IMAGE_TAG = '//div[@class = "flex-row"]//img/@src'

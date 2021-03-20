@@ -27,6 +27,7 @@ class Manga(TimeStampedModel, models.Model):
     description = TextField("manga_description")
     status = TextField("status")
     year = TextField("year")
+    image_url = TextField("url", null=True, blank=True)
 
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
