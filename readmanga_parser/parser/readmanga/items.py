@@ -8,6 +8,7 @@ from scrapy.item import Field, Item
 
 class MangaItem(Item):
     year = Field()
+    image = Field()
     author = Field()
     manga = Field()
     name = Field()
