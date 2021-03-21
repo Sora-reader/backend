@@ -15,3 +15,4 @@ class MangaItem(Item):
     genres = Field()
     translators = Field()
     description = Field()
+    chapters = Field()

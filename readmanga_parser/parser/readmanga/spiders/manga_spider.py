@@ -1,3 +1,4 @@
+import re
 import time
 import scrapy
 import logging
@@ -15,7 +16,8 @@ from readmanga_parser.parser.readmanga.spiders.consts import (
     NAME_TAG,
     TRANSLATORS_TAG,
     YEAR_TAG,
-    IMAGE_TAG
+    IMAGE_TAG,
+    CHAPTERS_TAG,
 )
 logging.getLogger(__name__)
 
@@ -35,6 +37,21 @@ def handle_xpath_response(response, tag: str) -> str:
         return response.xpath(tag).extract()
     except IndexError:
         return ""
+
+
+def chapters_into_dict(chapters: list) -> dict:
+    regex = '[\n]+|[ ]{2,}'
+    chapters = [re.sub(regex, '', chapter) for chapter in chapters]
+    readmanga_base_url = 'https://readmanga.live'
+    links = filter(lambda m: m.startswith('/'), chapters)
+    names = filter(lambda n: not n.startswith('/'), chapters)
+
+    chapters_catalogue = {}
+    for link, name in zip(links, names):
+        chapters_catalogue.update(
+            {readmanga_base_url + link: name})
+
+    return chapters_catalogue
 
 
 class QuotesSpider(scrapy.Spider):
@@ -63,4 +80,7 @@ class QuotesSpider(scrapy.Spider):
         manga['translators'] = response.xpath(TRANSLATORS_TAG).extract()
 
         manga["description"] = extract_description(response)
+
+        chapters = handle_xpath_response(response, CHAPTERS_TAG)
+        manga['chapters'] = chapters_into_dict(chapters)
         return manga

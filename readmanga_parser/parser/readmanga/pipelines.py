@@ -29,6 +29,7 @@ class ReadmangaPipeline:
         translators = item.get("translators")
         year = item.get("year")
         image = item.get("image")
+        chapters = item.get("chapters")
 
         if not name:
             return item
@@ -40,7 +41,8 @@ class ReadmangaPipeline:
                                                description=description,
                                                year=year,
                                                author=author,
-                                               photo_url=image)
+                                               image_url=image,
+                                               chapters=chapters)
         manga.genres.add(*genres)
         manga.translators.add(*translators)
 

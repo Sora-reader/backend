@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.fields import TextField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django_extensions.db.models import TimeStampedModel
+from django.contrib.postgres.fields import HStoreField
 
 
 class Author(TimeStampedModel, models.Model):
@@ -28,6 +29,8 @@ class Manga(TimeStampedModel, models.Model):
     status = TextField("status")
     year = TextField("year")
     image_url = TextField("url", null=True, blank=True)
+    # There can be manga with no chapters, i.e. future releases
+    chapters = HStoreField(null=True, blank=True)
 
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
