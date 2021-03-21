@@ -9,3 +9,4 @@ TRANSLATORS_TAG = '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementLi
 DESCRIPTION_TAG = '//div[@class = "manga-description"]//text()'
 DESCRIPTION_ALT_TAG = '//div[@class = "manga-description"]/p/text()'
 IMAGE_TAG = '//div[@class = "flex-row"]//img/@src'
+CHAPTERS_TAG = '//table[@class = "table table-hover"]//a/@href|//table[@class = "table table-hover"]//a/text()'
