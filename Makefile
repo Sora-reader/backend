@@ -9,6 +9,7 @@ PYTHON = $(shell which python3 || which python)
  		test-ignore show-build-files \
  		run stop dev
 
+.ONESHELL:
 .DEFAULT: help
 help:
 	@echo "Project"
@@ -122,4 +123,3 @@ test-ignore:
 	@docker build -f Dockerfile.build-context -t build-context .
 	@docker run --rm -it build-context
 	@rm Dockerfile.build-context
-	@EOF
