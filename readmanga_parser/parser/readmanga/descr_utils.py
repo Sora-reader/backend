@@ -11,7 +11,7 @@ def is_valid_description(description: Union[list, str]) -> bool:
 
     word_count = 0
     if description:
-        word_count = len(description.split(' '))
+        word_count = len(description.split(" "))
     else:
         return False
 
@@ -22,9 +22,9 @@ def is_valid_description(description: Union[list, str]) -> bool:
 
 
 def clear_string(s: str) -> Union[str, None]:
-    s = re.sub(r'[\n(\xa0)\r]+', '', s)
-    if re.fullmatch(r'\s+', s):
-        return ''
+    s = re.sub(r"[\n(\xa0)\r]+", "", s)
+    if re.fullmatch(r"\s+", s):
+        return ""
     return s
 
 
@@ -32,10 +32,10 @@ def clear_list_description(descs: list) -> str:
     cleaned = [clear_string(s) for s in descs]
 
     if cleaned is None:
-        return ''
+        return ""
 
     cleaned = list(filter(any, cleaned))
     if len(cleaned) > 0:
         return cleaned[0]
     else:
-        return ''
+        return ""

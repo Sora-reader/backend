@@ -6,4 +6,4 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("login.urls")),
     path("api/readmanga/", include("readmanga_parser.urls")),
-    ]
+]

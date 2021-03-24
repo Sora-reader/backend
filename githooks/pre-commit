@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo Formatting; echo;
+. venv/bin/activate && make fix
+echo; echo Linting; echo;
+. venv/bin/activate && make check

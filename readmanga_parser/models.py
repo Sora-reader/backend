@@ -1,8 +1,8 @@
+from django.contrib.postgres.fields import HStoreField
 from django.db import models
 from django.db.models.fields import TextField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django_extensions.db.models import TimeStampedModel
-from django.contrib.postgres.fields import HStoreField
 
 
 class Author(TimeStampedModel, models.Model):
@@ -22,9 +22,7 @@ class Category(TimeStampedModel, models.Model):
 
 
 class Manga(TimeStampedModel, models.Model):
-    title = TextField("manga_title",
-                      unique=True,
-                      db_index=True)
+    title = TextField("manga_title", unique=True, db_index=True)
     description = TextField("manga_description")
     status = TextField("status")
     year = TextField("year")

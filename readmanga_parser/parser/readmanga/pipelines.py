@@ -37,12 +37,9 @@ class ReadmangaPipeline:
         author, _ = Author.objects.get_or_create(name=author)
         genres = bulk_get_or_create(Genre, genres)
         translators = bulk_get_or_create(Translator, translators)
-        manga, _ = Manga.objects.get_or_create(title=name,
-                                               description=description,
-                                               year=year,
-                                               author=author,
-                                               image_url=image,
-                                               chapters=chapters)
+        manga, _ = Manga.objects.get_or_create(
+            title=name, description=description, year=year, author=author, image_url=image, chapters=chapters
+        )
         manga.genres.add(*genres)
         manga.translators.add(*translators)
 

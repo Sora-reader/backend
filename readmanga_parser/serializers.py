@@ -1,20 +1,14 @@
 from rest_framework import serializers
+
 from readmanga_parser.models import Manga
 
 
 class MangaSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field='name',
-                                          read_only=True)
-    genres = serializers.SlugRelatedField(many=True,
-                                          slug_field='name',
-                                          read_only=True)
-    translators = serializers.SlugRelatedField(many=True,
-                                               slug_field='name',
-                                               read_only=True)
-    categories = serializers.SlugRelatedField(many=True,
-                                              slug_field='name',
-                                              read_only=True)
+    author = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    genres = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
+    translators = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
+    categories = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
 
     class Meta:
         model = Manga
-        fields = '__all__'
+        fields = "__all__"

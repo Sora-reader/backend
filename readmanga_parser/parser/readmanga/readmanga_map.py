@@ -1,7 +1,8 @@
+import logging
 import urllib.request
 from http.client import IncompleteRead
 from xml.etree import ElementTree
-import logging
+
 logging.basicConfig(level=logging.ERROR)
 
 

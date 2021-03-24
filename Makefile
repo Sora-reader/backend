@@ -4,7 +4,7 @@
 
 PYTHON = $(shell which python3 || which python)
 
-.PHONY: help env venv shell \
+.PHONY: help env venv githooks shell \
  		test check fix \
  		test-ignore show-build-files \
  		run stop dev
@@ -58,6 +58,10 @@ venv:
 	@$(PYTHON) -m pip install poetry==1.1.4
 	@$(PYTHON) -m venv venv
 	@. venv/bin/activate && poetry install
+
+githooks:
+	@cd .git/hooks; \
+	ln -sf ../../githooks/pre-commit .;
 
 shell:
 	@. venv/bin/activate && ./manage.py shell_plus --ipython
@@ -118,3 +122,4 @@ test-ignore:
 	@docker build -f Dockerfile.build-context -t build-context .
 	@docker run --rm -it build-context
 	@rm Dockerfile.build-context
+	@EOF

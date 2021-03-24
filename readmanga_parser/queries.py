@@ -1,4 +1,5 @@
 from typing import Any, Union
+
 from readmanga_parser.models import Manga
 
 

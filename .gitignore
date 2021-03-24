@@ -151,3 +151,4 @@ readmanga_sitemap.txt
 quotes-readmanga.live.xml
 manga.json
 items.json
+*.code-workspace

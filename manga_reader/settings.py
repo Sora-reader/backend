@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     "login",
     "readmanga_parser",
     "django_extensions",
-    "django.contrib.postgres"
+    "django.contrib.postgres",
 ]
 
 REST_FRAMEWORK = {
