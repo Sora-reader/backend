@@ -4,10 +4,10 @@ import time
 
 import scrapy
 
-from readmanga_parser.parser.readmanga.descr_utils import clear_list_description, is_valid_description
-from readmanga_parser.parser.readmanga.items import MangaItem
-from readmanga_parser.parser.readmanga.readmanga_map import get_manga_urls
-from readmanga_parser.parser.readmanga.spiders.consts import (
+from apps.readmanga_parser.parser.readmanga.descr_utils import clear_list_description, is_valid_description
+from apps.readmanga_parser.parser.readmanga.items import MangaItem
+from apps.readmanga_parser.parser.readmanga.readmanga_map import get_manga_urls
+from apps.readmanga_parser.parser.readmanga.spiders.consts import (
     AUTHOR_TAG,
     CHAPTERS_TAG,
     DESCRIPTION_ALT_TAG,

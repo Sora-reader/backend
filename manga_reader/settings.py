@@ -24,8 +24,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
-    "login",
-    "readmanga_parser",
+    "apps.login",
+    "apps.readmanga_parser",
     "django_extensions",
     "django.contrib.postgres",
 ]
@@ -156,7 +156,7 @@ JAZZMIN_SETTINGS = {
     "related_modal_active": True,
     "custom_css": None,
     "custom_js": None,
-    "show_ui_builder": True,
+    "show_ui_builder": False,
     "changeform_format": "horizontal_tabs",
     "language_chooser": False,
 }

@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from readmanga_parser.queries import MangaQuery
-from readmanga_parser.serializers import MangaSerializer
+from apps.readmanga_parser.queries import MangaQuery
+from apps.readmanga_parser.serializers import MangaSerializer
 
 
 class SearchAPIView(APIView):

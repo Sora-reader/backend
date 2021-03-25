@@ -1,6 +1,6 @@
 from typing import Any, Union
 
-from readmanga_parser.models import Manga
+from apps.readmanga_parser.models import Manga
 
 
 def get_or_none(cls, **kwargs) -> Union[Any, None]:

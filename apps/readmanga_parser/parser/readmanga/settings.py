@@ -1,4 +1,4 @@
-from readmanga_parser.parser.readmanga.pipelines import ReadmangaPipeline
+from apps.readmanga_parser.parser.readmanga.pipelines import ReadmangaPipeline
 
 # Scrapy settings for readmanga project
 #

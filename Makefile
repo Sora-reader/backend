@@ -18,6 +18,8 @@ help:
 	@echo "	   copy env examples and init .envs directory"
 	@echo "make venv"
 	@echo "	   create virtual environment and install all dependencies"
+	@echo "make githooks"
+	@echo "	   install git hooks"
 	@echo "make shell"
 	@echo "	   run django-extension's shell_plus"
 	@echo;

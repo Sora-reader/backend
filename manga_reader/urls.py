@@ -3,8 +3,8 @@ from django.contrib import admin
 from django.urls import path
 
 apipatterns = [
-    path("auth/", include("login.urls")),
-    path("readmanga/", include("readmanga_parser.urls")),
+    path("auth/", include("apps.login.urls")),
+    path("readmanga/", include("apps.readmanga_parser.urls")),
 ]
 
 urlpatterns = [
