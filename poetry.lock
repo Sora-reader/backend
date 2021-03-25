@@ -227,6 +227,17 @@ python-versions = ">=3.5"
 Django = ">=2.2"
 
 [[package]]
+name = "django-jazzmin"
+version = "2.4.4"
+description = "Drop-in theme for django admin, that utilises AdminLTE 3 & Bootstrap 4 to make yo' admin look jazzy"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+django = ">=2"
+
+[[package]]
 name = "djangorestframework"
 version = "3.12.2"
 description = "Web APIs for Django, made easy."
@@ -904,7 +915,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8.1"
-content-hash = "00acc11608f3735263e029df5ac8633429f5405db2a1b34013acf0866067e944"
+content-hash = "72b24914fb2994c6af1bfe3f47406dafed7460d950834116b023639aa3159c23"
 
 [metadata.files]
 appdirs = [
@@ -1046,9 +1057,12 @@ django-filter = [
     {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
     {file = "django_filter-2.4.0-py3-none-any.whl", hash = "sha256:e00d32cebdb3d54273c48f4f878f898dced8d5dfaad009438fe61ebdf535ace1"},
 ]
+django-jazzmin = [
+    {file = "django-jazzmin-2.4.4.tar.gz", hash = "sha256:888a9a46612609dc60967147b1a0869675d600116793a98eece4cb0b3e7105ad"},
+    {file = "django_jazzmin-2.4.4-py3-none-any.whl", hash = "sha256:2f4bb114aaec46ddd54cdc3c19d9845778a38c72dd2e41e0c2177c783e718bba"},
+]
 djangorestframework = [
     {file = "djangorestframework-3.12.2-py3-none-any.whl", hash = "sha256:0209bafcb7b5010fdfec784034f059d512256424de2a0f084cb82b096d6dd6a7"},
-    {file = "djangorestframework-3.12.2.tar.gz", hash = "sha256:0898182b4737a7b584a2c73735d89816343369f259fea932d90dc78e35d8ac33"},
 ]
 djangorestframework-simplejwt = [
     {file = "djangorestframework_simplejwt-4.6.0-py3-none-any.whl", hash = "sha256:bd587700b6ab34a6c6b12d426cce4fa580d57ef1952ad4ba3b79707784619ed3"},
