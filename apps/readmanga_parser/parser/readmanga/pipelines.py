@@ -9,7 +9,7 @@ from typing import List, Tuple
 
 from django.db import transaction
 
-from apps.readmanga_parser.models import Author, Genre, Manga, Translator
+from apps.readmanga_parser.models import Genre, Manga
 
 
 @transaction.atomic
