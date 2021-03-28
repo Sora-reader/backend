@@ -31,7 +31,7 @@ class Manga(TimeStampedModel, models.Model):
     chapters = HStoreField(null=True, blank=True)
 
     genres = ManyToManyField("Genre", related_name="mangas")
-    categories = ManyToManyField("Category", 
+    categories = ManyToManyField("Category",
                                  related_name="mangas")
     author = ForeignKey("Author",
                         related_name="mangas",
