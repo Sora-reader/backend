@@ -36,6 +36,6 @@ def clear_list_description(descs: list) -> str:
 
     cleaned = list(filter(any, cleaned))
     if len(cleaned) > 0:
-        return cleaned[0]
+        return cleaned
     else:
         return ""

@@ -11,8 +11,8 @@ from apps.readmanga_parser.parser.readmanga.pipelines import ReadmangaPipeline
 
 BOT_NAME = "readmanga"
 
-SPIDER_MODULES = ["readmanga_parser.parser.readmanga.spiders"]
-NEWSPIDER_MODULE = "readmanga_parser.parser.readmanga.spiders"
+SPIDER_MODULES = ["apps.readmanga_parser.parser.readmanga.spiders"]
+NEWSPIDER_MODULE = "apps.readmanga_parser.parser.readmanga.spiders"
 
 # FEED_FORMAT = 'json',
 # FEED_URI = 'result.json'

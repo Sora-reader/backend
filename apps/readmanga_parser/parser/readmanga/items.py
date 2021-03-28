@@ -7,12 +7,7 @@ from scrapy.item import Field, Item
 
 
 class MangaItem(Item):
-    year = Field()
-    image = Field()
-    author = Field()
-    manga = Field()
-    name = Field()
+    image_url = Field()
+    title = Field()
     genres = Field()
-    translators = Field()
     description = Field()
-    chapters = Field()

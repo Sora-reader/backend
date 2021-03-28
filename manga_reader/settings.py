@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".envs" / "local.env")
 
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = "b$3$(q=t1@__2f+rz*35y9cqkf=!nf@wohl-%=+0dfytwtw+hm"
 DEBUG = int(os.getenv("DEBUG", 1))
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(" ")
 

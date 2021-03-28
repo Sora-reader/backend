@@ -22,25 +22,20 @@ def bulk_get_or_create(cls, names: List[str]) -> Tuple:
 
 class ReadmangaPipeline:
     def process_item(self, item, spider):
-        author = item.get("author")
+        print(item)
         description = item.get("description")
         genres = item.get("genres")
-        name = item.get("name")
-        translators = item.get("translators")
-        year = item.get("year")
-        image = item.get("image")
-        chapters = item.get("chapters")
+        title = item.get("title")
+        image = item.get("image_url")
 
-        if not name:
-            return item
+        if not title:
+            raise KeyError("No title name was set")
 
-        author, _ = Author.objects.get_or_create(name=author)
         genres = bulk_get_or_create(Genre, genres)
-        translators = bulk_get_or_create(Translator, translators)
-        manga, _ = Manga.objects.get_or_create(
-            title=name, description=description, year=year, author=author, image_url=image, chapters=chapters
-        )
+        manga, _ = Manga.objects.get_or_create(title=title,
+                                               description=description,
+                                               image_url=image,
+                                               )
         manga.genres.add(*genres)
-        manga.translators.add(*translators)
 
         return item
