@@ -155,3 +155,4 @@ items.json
 *.session.sql
 *.css.map
 .sass-cache/
+staticfiles/

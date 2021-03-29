@@ -1,6 +1,23 @@
 #!/bin/bash
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NORMAL="$(tput sgr0)"
 
-echo Formatting; echo;
-. venv/bin/activate && make fix
-echo; echo Linting; echo;
-. venv/bin/activate && make check
+py_changed=$(git diff --staged --name-only -- '*.py' | wc -l)
+diff=0
+
+if [ $py_changed -ne 0 ]; then
+    printf "${GREEN}Python files changed, linting${NORMAL}\n\n"
+    . venv/bin/activate && make check
+    diff=$?
+    if [ $diff -ne 0 ]; then
+        printf "\n${RED}Lint failed, formatting${NORMAL}\n\n"
+        . venv/bin/activate && make fix
+        printf "\n${YELLOW}Formatted, run \"git add\" again and commit${NORMAL}\n"
+    else
+        printf "\n${GREEN}Lint succeeded${NORMAL}\n"
+    fi
+fi
+
+exit $diff

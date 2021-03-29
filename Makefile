@@ -69,6 +69,9 @@ githooks:
 shell:
 	@. venv/bin/activate && ./manage.py shell_plus --ipython
 
+dev:
+	@. .envs/local.env && if [ "$$DEBUG" = 0 ]; then python manage.py collectstatic --noinput --clear; fi
+	@. venv/bin/activate && ./manage.py runserver 8000
 
 ###############
 # Code checks #
@@ -80,9 +83,16 @@ test:
 	@poetry run pytest
 
 check:
-	@echo "flake8"
-	@echo "======"
-	@poetry run flake8
+	@echo "flake8" && \
+	echo "======" && \
+	poetry run flake8 && \
+	echo "OK" && echo "" && \
+	echo "black" && \
+	echo "======" && \
+	poetry run black --check . && echo "" &&\
+	echo "isort" && \
+	echo "======" && \
+	poetry run isort --check-only .
 
 fix:
 	@echo "black"
@@ -107,9 +117,6 @@ run:
 
 stop:
 	@docker-compose down
-
-dev:
-	@. venv/bin/activate && ./manage.py runserver 8000
 
 show-build-files:
 	@docker build -t test-dockerfile .
