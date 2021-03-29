@@ -1,20 +1,20 @@
 import logging
 import time
 
-import scrapy
-from scrapy.http import HtmlResponse
-from lxml import etree
 import requests
+import scrapy
+from lxml import etree
+from scrapy.http import HtmlResponse
 
-from apps.readmanga_parser.parser.readmanga.spiders.utils import extract_description
 from apps.readmanga_parser.parser.readmanga.items import MangaItem
 from apps.readmanga_parser.parser.readmanga.spiders.consts import (
-    DESCRIPTIONS_DESCRIPTOR,
     DESC_TEXT_DESCRIPTOR,
+    DESCRIPTIONS_DESCRIPTOR,
     GENRES_DESCRIPTOR,
-    TITLE_DESCRIPTOR,
     IMG_URL_DESCRIPTOR,
+    TITLE_DESCRIPTOR,
 )
+from apps.readmanga_parser.parser.readmanga.spiders.utils import extract_description
 
 logging.getLogger(__name__)
 
