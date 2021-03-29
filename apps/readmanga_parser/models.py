@@ -17,26 +17,15 @@ class Genre(TimeStampedModel, models.Model):
     name = TextField("genre_name", unique=True)
 
 
-class Category(TimeStampedModel, models.Model):
-    name = TextField("category_name", unique=True)
-
-
 class Manga(TimeStampedModel, models.Model):
     title = TextField("manga_title", unique=True, db_index=True)
     description = TextField("manga_description")
     status = TextField("status", null=True, blank=True)
     year = TextField("year", null=True, blank=True)
-    image_url = TextField("url", default='')
+    image_url = TextField("url", default="")
     # There can be manga with no chapters, i.e. future releases
     chapters = HStoreField(null=True, blank=True)
 
     genres = ManyToManyField("Genre", related_name="mangas")
-    categories = ManyToManyField("Category",
-                                 related_name="mangas")
-    author = ForeignKey("Author",
-                        related_name="mangas",
-                        on_delete=models.CASCADE,
-                        null=True,
-                        blank=True)
-    translators = ManyToManyField("Translator",
-                                  related_name="mangas")
+    author = ForeignKey("Author", related_name="mangas", on_delete=models.CASCADE, null=True, blank=True)
+    translators = ManyToManyField("Translator", related_name="mangas")

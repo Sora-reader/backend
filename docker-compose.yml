@@ -6,23 +6,25 @@ services:
     # Collect env variables from this file and set them in container
     env_file:
       - .envs/dev.env
+    environment:
+      - PORT=8000
     ports:
-      - 8000:8000
+      - 5500:8000
     # wait until 'db' process starts and then run
     depends_on:
       - db
 
   db:
     image: postgres:12
-    # Persist container's '/var/lib/postgresql/data/' in volume named 'postgres_data'
+    # Persist container's '/var/lib/postgresql/data/' in volume named 'sora_postgres'
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - sora_postgres:/var/lib/postgresql/data/
     ports:
       # Allow connecting to container db from localhost:5433
-      - 5433:5432
+      - 5502:5432
     env_file:
       - .envs/dev.env
 
 volumes:
-  # postgres_data volume (docker will handle local path)
-  postgres_data:
+  # sora_postgres volume (docker will handle local path)
+  sora_postgres:

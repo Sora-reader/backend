@@ -38,7 +38,7 @@ help:
 	@echo "	   test local .dockerignore, output local files after build"
 	@echo "make show-build-files"
 	@echo "	   build Dockerfile and output WORKDIR files"
-	@echo "make start / make stop"
+	@echo "make run / make stop"
 	@echo "	   run or stop production containers"
 
 ###########

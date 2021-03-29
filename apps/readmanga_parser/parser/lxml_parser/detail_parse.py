@@ -1,17 +1,17 @@
 import logging
 
-import requests
 import lxml.html as lh
+import requests
 
 from apps.readmanga_parser.parser.readmanga.spiders.consts import (
     AUTHOR_TAG,
-    YEAR_TAG,
-    TRANSLATORS_TAG,
     CHAPTERS_TAG,
-    NAME_TAG
+    NAME_TAG,
+    TRANSLATORS_TAG,
+    YEAR_TAG,
 )
 
-logger = logging.getLogger('Detailed manga parser')
+logger = logging.getLogger("Detailed manga parser")
 
 
 def get_detailed_info(url: str) -> dict:
@@ -26,13 +26,14 @@ def get_detailed_info(url: str) -> dict:
     chapters = manga_html.xpath(CHAPTERS_TAG)
 
     detailed_info = {
-        'name': name_to_save_by,
-        'author': author,
-        'year': year,
-        'translators': translators,
-        'chapters': chapters,
+        "name": name_to_save_by,
+        "author": author,
+        "year": year,
+        "translators": translators,
+        "chapters": chapters,
     }
     return detailed_info
+
 
 # TODO
 # def save_parsed(**kwargs) -> None:
