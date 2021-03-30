@@ -152,3 +152,7 @@ quotes-readmanga.live.xml
 manga.json
 items.json
 *.code-workspace
+*.session.sql
+*.css.map
+.sass-cache/
+staticfiles/

@@ -24,8 +24,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
-    "apps.login",
-    "apps.readmanga_parser",
+    "apps.login.apps.LoginConfig",
+    "apps.readmanga_parser.apps.ReadmangaParserConfig",
     "django_extensions",
     "django.contrib.postgres",
 ]
@@ -42,6 +42,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -112,6 +113,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -129,7 +131,7 @@ JAZZMIN_SETTINGS = {
     # square logo to use for your site, must be present in static files, used for favicon and brand on top left
     "site_logo": "favicon.ico",
     "welcome_sign": "Admin panel",
-    "copyright": "Sora",
+    "copyright": '<a target="_blank" href="https://github.com/sora-reader">Sora</a>',
     "search_model": "readmanga_parser.manga",
     "user_avatar": None,
     ############
@@ -144,19 +146,36 @@ JAZZMIN_SETTINGS = {
     #############
     "show_sidebar": True,
     "navigation_expanded": True,
+    "sidebar_fixed": True,
     "hide_apps": [],
     "hide_models": [],
     "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
+        "readmanga_parser.manga": "fas fa-book-open",
+        "readmanga_parser.author": "fas fa-user-edit",
+        "readmanga_parser.genre": "fas fa-theater-masks",
+        "readmanga_parser.translator": "fas fa-language",
+        "login.profile": "fas fa-user",
+        "auth.group": "fas fa-users",
     },
+    "order_with_respect_to": [
+        "readmanga_parser",
+        "readmanga_parser.manga",
+        "readmanga_parser.author",
+        "readmanga_parser.genre",
+        "auth",
+        "login",
+        "authtoken",
+    ],
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
     "related_modal_active": True,
-    "custom_css": None,
+    "custom_css": "admin/css/custom_jazzmin.css",
     "custom_js": None,
     "show_ui_builder": False,
     "changeform_format": "horizontal_tabs",
     "language_chooser": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "sidebar_fixed": True,
 }

@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class MyAuthConfig(AppConfig):
-    name = "login"
+class LoginConfig(AppConfig):
+    name = "apps.login"

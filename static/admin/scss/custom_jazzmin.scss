@@ -1,0 +1,94 @@
+$teal-main: #4db6ac;
+$teal-dark: #00ad96;
+$teal-darker: #008c7a;
+
+// General
+.btn-outline-primary {
+    border-color: $teal-main !important;
+    color: $teal-main !important;
+
+    &:hover {
+        background-color: $teal-dark !important;
+        color: white !important;
+    }
+}
+
+.accent-primary {
+    .btn-link, a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn) {
+        color: $teal-dark;
+
+        &:hover {
+            color: $teal-darker;
+        }
+    }
+}
+
+a {
+    color: $teal-dark;
+
+    &:hover {
+        color: $teal-darker;
+    }
+}
+
+.sidebar .info a {
+    color: #c2c7d0 !important;
+}
+
+.card-primary.card-outline {
+    border-top: 3px solid $teal-main;
+}
+
+// Sidebar
+.sidebar .nav-link.active {
+    background-color: $teal-main !important;
+}
+
+// Breadcrumb
+.breadcrumb {
+    a {
+        color: $teal-main !important;
+    }
+
+    i {
+        color: $teal-main !important;
+    }
+}
+
+// Content
+.dashboard tbody tr td:first-child a {
+    color: $teal-main !important;
+}
+
+#result_list a {
+    color: $teal-main !important;
+}
+
+/* sidebar scrolling */
+.layout-fixed #jazzy-sidebar {
+    top: 0;
+    bottom: 0;
+
+    /* Enable y scroll */
+    overflow-y: scroll;
+
+    /* May inherit scroll, so we need to explicitly hide */
+    overflow-x: hidden;
+
+    /* calculate height to fit content, we don't to enable scrolling if the content fits */
+    .sidebar {
+        height: auto !important;
+    }
+
+    /* Hide scrollbar */
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        width: 0;
+    }
+}
+
+/* nav-item will overflow container in width if scrollbar is visible */
+#jazzy-sidebar .nav-sidebar > .nav-item {
+    width: 100%;
+}

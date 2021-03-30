@@ -2,12 +2,13 @@
 # Config #
 ##########
 
+# TODO: check venv, remove hadrcoding venv/bin/activate
+
 PYTHON = $(shell which python3 || which python)
 
-.PHONY: help env venv githooks shell \
+.PHONY: help env venv githooks shell run \
  		test check fix \
- 		test-ignore show-build-files \
- 		run stop dev
+ 		run stop test-ignore show-build-files
 
 .ONESHELL:
 .DEFAULT: help
@@ -22,24 +23,26 @@ help:
 	@echo "	   install git hooks"
 	@echo "make shell"
 	@echo "	   run django-extension's shell_plus"
+	@echo "make dev (make dev port=1234)"
+	@echo "	   run dev server any port or 8000"
 	@echo;
 	@echo "Code checks"
 	@echo "==========="
 	@echo "make test"
 	@echo "	   test code with pytest"
 	@echo "make check"
-	@echo "	   lint code with flake8"
+	@echo "	   run linters"
 	@echo "make fix"
-	@echo "	   format code with black, autoflake and isort"
+	@echo "	   run code formatters"
 	@echo;
 	@echo "Docker"
 	@echo "======"
+	@echo "make run / make stop"
+	@echo "	   run or stop production containers"
 	@echo "make test-ignore"
 	@echo "	   test local .dockerignore, output local files after build"
 	@echo "make show-build-files"
 	@echo "	   build Dockerfile and output WORKDIR files"
-	@echo "make start / make stop"
-	@echo "	   run or stop production containers"
 
 ###########
 # Project #
@@ -69,6 +72,9 @@ githooks:
 shell:
 	@. venv/bin/activate && ./manage.py shell_plus --ipython
 
+dev:
+	@. .envs/local.env && if [ "$$DEBUG" = 0 ]; then python manage.py collectstatic --noinput --clear; fi
+	@. venv/bin/activate && ./manage.py runserver $(port)
 
 ###############
 # Code checks #
@@ -80,9 +86,16 @@ test:
 	@poetry run pytest
 
 check:
-	@echo "flake8"
-	@echo "======"
-	@poetry run flake8
+	@echo "flake8" && \
+	echo "======" && \
+	poetry run flake8 && \
+	echo "OK" && echo "" && \
+	echo "black" && \
+	echo "======" && \
+	poetry run black --check . && echo "" &&\
+	echo "isort" && \
+	echo "======" && \
+	poetry run isort --check-only .
 
 fix:
 	@echo "black"
@@ -107,9 +120,6 @@ run:
 
 stop:
 	@docker-compose down
-
-dev:
-	@. venv/bin/activate && ./manage.py runserver 8000
 
 show-build-files:
 	@docker build -t test-dockerfile .
