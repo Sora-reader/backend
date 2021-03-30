@@ -4,15 +4,15 @@ from apps.readmanga_parser.parser.readmanga.descr_utils import clear_list_descri
 
 
 def extract_description(response, descriptor) -> str:
-    desc = handle_xpath_response(response, descriptor)
+    desc = response.xpath(descriptor).extract()
     desc = clear_list_description(desc)
     desc = " ".join(desc)
     return desc
 
 
-def handle_xpath_response(response, tag: str) -> str:
+def handle_xpath_response(html_lxml, tag: str) -> str:
     try:
-        return response.xpath(tag).extract()
+        return html_lxml.xpath(tag)[0]
     except IndexError:
         return ""
 
