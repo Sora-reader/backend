@@ -11,7 +11,6 @@ from apps.readmanga_parser.parser.readmanga.spiders.consts import (
     TRANSLATORS_TAG,
     YEAR_TAG,
 )
-
 from apps.readmanga_parser.parser.readmanga.spiders.utils import chapters_into_dict, handle_xpath_response
 
 logger = logging.getLogger("Detailed manga parser")
@@ -29,7 +28,6 @@ def get_detailed_info(url: str) -> dict:
 
     chapters = manga_html.xpath(CHAPTERS_TAG)
     chapters = chapters_into_dict(chapters)
-
 
     detailed_info = {
         "name": name_to_save_by,
