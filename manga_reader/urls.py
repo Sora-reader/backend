@@ -9,5 +9,5 @@ apipatterns = [
 
 urlpatterns = [
     path("", admin.site.urls),
-    path("api", include(apipatterns)),
+    path("api/", include(apipatterns)),
 ]

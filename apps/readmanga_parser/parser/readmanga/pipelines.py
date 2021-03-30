@@ -33,7 +33,7 @@ class ReadmangaPipeline:
 
         genres = bulk_get_or_create(Genre, genres)
         manga, _ = Manga.objects.get_or_create(
-            title=title,
+            name=title,
             description=description,
             image_url=image,
         )

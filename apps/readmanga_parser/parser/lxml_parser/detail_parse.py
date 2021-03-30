@@ -3,6 +3,7 @@ import logging
 import lxml.html as lh
 import requests
 
+from apps.readmanga_parser.models import Author, Manga, Translator
 from apps.readmanga_parser.parser.readmanga.spiders.consts import (
     AUTHOR_TAG,
     CHAPTERS_TAG,
@@ -10,6 +11,7 @@ from apps.readmanga_parser.parser.readmanga.spiders.consts import (
     TRANSLATORS_TAG,
     YEAR_TAG,
 )
+from apps.readmanga_parser.parser.readmanga.spiders.utils import chapters_into_dict, handle_xpath_response
 
 logger = logging.getLogger("Detailed manga parser")
 
@@ -18,12 +20,14 @@ def get_detailed_info(url: str) -> dict:
     manga_html = requests.get(url).text
     manga_html = lh.fromstring(manga_html)
 
-    name_to_save_by = manga_html.xpath(NAME_TAG)
+    name_to_save_by = manga_html.xpath(NAME_TAG)[0]
 
-    author = manga_html.xpath(AUTHOR_TAG)
-    year = manga_html.xpath(YEAR_TAG)
+    author = handle_xpath_response(manga_html, AUTHOR_TAG)
+    year = handle_xpath_response(manga_html, YEAR_TAG)
     translators = manga_html.xpath(TRANSLATORS_TAG)
+
     chapters = manga_html.xpath(CHAPTERS_TAG)
+    chapters = chapters_into_dict(chapters)
 
     detailed_info = {
         "name": name_to_save_by,
@@ -35,14 +39,18 @@ def get_detailed_info(url: str) -> dict:
     return detailed_info
 
 
-# TODO
-# def save_parsed(**kwargs) -> None:
-#     try:
-#         name = kwargs['name']
-#     except KeyError:
-#         logger.critical('Unable to save - name not specified')
+def save_detailed_manga_info(name, author=None, year=None, translators=None, chapters=None) -> None:
+    print(name)
+    manga = Manga.objects.filter(name__icontains=name).first()
 
-#     author = kwargs.get('author')
-#     year = kwargs.get('year')
-#     translators = kwargs.get('translators')
-#     chapters = kwargs.get('chapters')
+    manga.year = year
+    manga.chapters = chapters
+
+    # FIXME bulk_get_or_create instead of get_or_create
+    author, _ = Author.objects.get_or_create(name=author)
+    translator, _ = Translator.objects.get_or_create(name=translators[0])
+
+    author.mangas.add(manga)
+    manga.translators.add(translator.id)
+
+    manga.save()

@@ -12,7 +12,7 @@ class SearchAPIView(APIView):
 
     def get(self, request, **kwargs):
         title = kwargs.get("title")
-        manga = MangaQuery().get_manga_by_title(title=title)
+        manga = MangaQuery.get_manga_by_title(title=title)
         manga_serializer = MangaSerializer(manga)
 
         return Response(manga_serializer.data)
