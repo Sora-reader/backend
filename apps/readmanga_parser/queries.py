@@ -11,8 +11,10 @@ def get_or_none(cls, **kwargs) -> Union[Any, None]:
 
 
 class MangaQuery:
+    @staticmethod
     def get_manga_by_title(self, title: str) -> Union[Manga, None]:
-        return get_or_none(Manga, title__icontains=title)
+        return get_or_none(Manga, name__icontains=title)
 
-    def get_manga_by_pk(self, _id: int) -> Union[Manga, None]:
-        return get_or_none(Manga, id__icontains=_id)
+    # @staticmethod
+    # def get_manga_by_pk(self, _id: int) -> Union[Manga, None]:
+    #     return get_or_none(Manga, id__icontains=_id)

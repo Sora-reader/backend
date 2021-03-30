@@ -32,10 +32,11 @@ class ReadmangaPipeline:
             raise KeyError("No title name was set")
 
         genres = bulk_get_or_create(Genre, genres)
-        manga, _ = Manga.objects.get_or_create(title=title,
-                                               description=description,
-                                               image_url=image,
-                                               )
+        manga, _ = Manga.objects.get_or_create(
+            name=title,
+            description=description,
+            image_url=image,
+        )
         manga.genres.add(*genres)
 
         return item

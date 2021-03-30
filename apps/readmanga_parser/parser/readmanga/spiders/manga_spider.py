@@ -23,7 +23,7 @@ class MangaSpider(scrapy.Spider):
     name = "manga"
 
     def start_requests(self):
-        mangas_list = requests.get('https://readmanga.live/list').text
+        mangas_list = requests.get("https://readmanga.live/list").text
 
         xpath_selector = '//a[@class = "step"]/text()'
         html_parser = etree.HTML(mangas_list)
@@ -31,7 +31,7 @@ class MangaSpider(scrapy.Spider):
         standart_offset = 70
         maximum_offset = (int(maximum_page) - 1) * standart_offset
 
-        base_url = 'https://readmanga.live/list?&offset='
+        base_url = "https://readmanga.live/list?&offset="
         offsets = [offset for offset in range(0, maximum_offset, standart_offset)]
         urls = [base_url + str(offset) for offset in offsets]
 
@@ -44,19 +44,17 @@ class MangaSpider(scrapy.Spider):
         descriptions = response.xpath(DESCRIPTIONS_DESCRIPTOR).extract()
         for description in descriptions:
             manga = MangaItem()
-            response = HtmlResponse(url='',
-                                    body=description,
-                                    encoding='utf-8')
+            response = HtmlResponse(url="", body=description, encoding="utf-8")
             title = response.xpath(TITLE_DESCRIPTOR).extract()[0]
             # this is neccesary due to cleanse description from garbage
             desc_text = extract_description(response, DESC_TEXT_DESCRIPTOR)
             genres = response.xpath(GENRES_DESCRIPTOR).extract()
             image_url = response.xpath(IMG_URL_DESCRIPTOR).extract()[0]
 
-            manga['genres'] = genres
-            manga['description'] = desc_text
-            manga['title'] = title
-            manga['image_url'] = image_url
+            manga["genres"] = genres
+            manga["description"] = desc_text
+            manga["title"] = title
+            manga["image_url"] = image_url
 
             mangas.append(manga)
 

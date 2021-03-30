@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Profile
-from .queries import ProfileQueries
+from apps.login.models import Profile
+from apps.login.queries import ProfileQueries
 
 
 @method_decorator(csrf_exempt, name="dispatch")

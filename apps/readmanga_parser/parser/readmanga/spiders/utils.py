@@ -10,9 +10,9 @@ def extract_description(response, descriptor) -> str:
     return desc
 
 
-def handle_xpath_response(response, tag: str) -> str:
+def handle_xpath_response(html_lxml, tag: str) -> str:
     try:
-        return response.xpath(tag).extract()
+        return html_lxml.xpath(tag)[0]
     except IndexError:
         return ""
 
