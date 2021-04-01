@@ -1,6 +1,8 @@
+import datetime as dt
 import logging
 
 import lxml.html as lh
+import pytz
 import requests
 
 from apps.readmanga_parser.models import Author, Manga, Translator
@@ -40,7 +42,6 @@ def get_detailed_info(url: str) -> dict:
 
 
 def save_detailed_manga_info(name, author=None, year=None, translators=None, chapters=None) -> None:
-    print(name)
     manga = Manga.objects.filter(name__icontains=name).first()
 
     manga.year = year
@@ -52,5 +53,8 @@ def save_detailed_manga_info(name, author=None, year=None, translators=None, cha
 
     author.mangas.add(manga)
     manga.translators.add(translator.id)
+
+    time_detailed = str(dt.datetime.now(tz=pytz.UTC))
+    manga.technical_params.update({'time_detailed': time_detailed})
 
     manga.save()

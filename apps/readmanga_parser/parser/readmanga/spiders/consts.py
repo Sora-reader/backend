@@ -14,5 +14,6 @@ DESCRIPTIONS_DESCRIPTOR = '//div[@class = "tiles row"]//div[contains(@class, "ti
 
 DESC_TEXT_DESCRIPTOR = '//div[@class = "hidden long-description-holder"]//text()'
 TITLE_DESCRIPTOR = "//h3/a/@title"
+TITLE_URL_DESCRIPTOR = "//h3/a/@href"
 GENRES_DESCRIPTOR = '//div[@class = "tile-info"]//a[@class = "element-link"]/text()'
 IMG_URL_DESCRIPTOR = '//img[@class = "lazy img-responsive"]/@data-original'

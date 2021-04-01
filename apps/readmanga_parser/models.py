@@ -1,6 +1,6 @@
 from django.contrib.postgres.fields import HStoreField
 from django.db import models
-from django.db.models.fields import TextField
+from django.db.models.fields import TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django_extensions.db.models import TimeStampedModel
 
@@ -29,10 +29,11 @@ class Genre(TimeStampedModel, ReprMixin, models.Model):
 
 class Manga(TimeStampedModel, ReprMixin, models.Model):
     name = TextField("manga_name", unique=True, db_index=True)
+    self_url = URLField("manga_url", max_length=1000)
     description = TextField("manga_description")
     status = TextField("status", null=True, blank=True)
     year = TextField("year", null=True, blank=True)
-    image_url = TextField("url", default="")
+    image_url = URLField("image_url", default="")
     # There can be manga with no chapters, i.e. future releases
     chapters = HStoreField(null=True, blank=True)
 
@@ -41,4 +42,4 @@ class Manga(TimeStampedModel, ReprMixin, models.Model):
     author = ForeignKey("Author", related_name="mangas", on_delete=models.CASCADE, null=True, blank=True)
     translators = ManyToManyField("Translator", related_name="mangas")
 
-    technical_params = models.JSONField(null=True, blank=True)
+    technical_params = models.JSONField(default=dict)
