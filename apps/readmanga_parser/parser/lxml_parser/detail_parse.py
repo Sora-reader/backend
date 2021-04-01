@@ -55,6 +55,6 @@ def save_detailed_manga_info(name, author=None, year=None, translators=None, cha
     manga.translators.add(translator.id)
 
     time_detailed = str(dt.datetime.now(tz=pytz.UTC))
-    manga.technical_params.update({'time_detailed': time_detailed})
+    manga.technical_params.update({"time_detailed": time_detailed})
 
     manga.save()

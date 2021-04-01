@@ -13,8 +13,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         manga = Manga.objects.get(name__icontains="Поднятие уровня в одиночку")
         url = manga.self_url
-        if detailed := manga.technical_params.get('time_detailed'):
-            detailed = dt.datetime.strptime(detailed, '%Y-%m-%d %H:%M:%S')
+        if detailed := manga.technical_params.get("time_detailed"):
+            detailed = dt.datetime.strptime(detailed, "%Y-%m-%d %H:%M:%S")
             detailed.tzinfo = pytz.UTC
             update_deadline = detailed - dt.timedelta(minutes=30)
             if dt.datetime.now(pytz.UTC) > update_deadline:
