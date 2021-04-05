@@ -1,14 +1,11 @@
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 ###########
 # Project #
 ###########
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR.parent / ".envs" / "local.env")
 ROOT_URLCONF = "manga_reader.urls"
 WSGI_APPLICATION = "manga_reader.wsgi.application"
 
