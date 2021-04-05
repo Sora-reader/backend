@@ -2,53 +2,27 @@
 # Config #
 ##########
 
-# TODO: check venv, remove hadrcoding venv/bin/activate
-
-PYTHON = $(shell which python3 || which python)
-
 .PHONY: help env venv githooks shell run \
  		test check fix \
- 		run stop test-ignore show-build-files
+		run stop test-ignore show-build-files \
+		check-venv
 
 .ONESHELL:
+
 .DEFAULT: help
 help:
-	@echo "Project"
-	@echo "======="
-	@echo "make env"
-	@echo "	   copy env examples and init .envs directory"
-	@echo "make venv"
-	@echo "	   create virtual environment and install all dependencies"
-	@echo "make githooks"
-	@echo "	   install git hooks"
-	@echo "make shell"
-	@echo "	   run django-extension's shell_plus"
-	@echo "make dev (make dev port=1234)"
-	@echo "	   run dev server any port or 8000"
-	@echo;
-	@echo "Code checks"
-	@echo "==========="
-	@echo "make test"
-	@echo "	   test code with pytest"
-	@echo "make check"
-	@echo "	   run linters"
-	@echo "make fix"
-	@echo "	   run code formatters"
-	@echo;
-	@echo "Docker"
-	@echo "======"
-	@echo "make run / make stop"
-	@echo "	   run or stop production containers"
-	@echo "make test-ignore"
-	@echo "	   test local .dockerignore, output local files after build"
-	@echo "make show-build-files"
-	@echo "	   build Dockerfile and output WORKDIR files"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 ###########
 # Project #
 ###########
 
-env:
+check-venv: ## Check that the virtual env is active and error if not.
+ifndef VIRTUAL_ENV
+	$(error Not in a virtual environment. Activate your venv and try again)
+endif
+
+env: ## Copy env examples and init .envs directory
 	@mkdir -p .envs
 	@cp -R .envs.example/. .envs
 	@for file in .envs/*.example; do \
@@ -60,45 +34,49 @@ env:
 	@done
 	@echo "Done"
 
-venv:
-	@$(PYTHON) -m pip install poetry==1.1.4
-	@$(PYTHON) -m venv venv
-	@. venv/bin/activate && poetry install
+venv: ## Create virtual environment and install all dependencies
+	@python3.8 -m pip install poetry==1.1.4
+	@python3.8 -m venv venv || exit 1
+	@. venv/bin/activate && poetry install && \
+	echo; echo "activate virtual environment with \". venv/bin/activate\""
 
-githooks:
-	@cd .git/hooks; \
-	ln -sf ../../githooks/pre-commit .;
+githooks: ## Install git hooks
+	@cd .git/hooks
+	@ln -sf ../../githooks/pre-commit . && \
+	echo "Installed git hooks"
 
-shell:
-	@. venv/bin/activate && ./manage.py shell_plus --ipython
+shell: check-venv ## Run django-extension's shell_plus
+	@./manage.py shell_plus --ipython
 
-dev:
+dev: check-venv ## Run dev server on port 8000, or specify with "make dev port=1234"
 	@. .envs/local.env && if [ "$$DEBUG" = 0 ]; then python manage.py collectstatic --noinput --clear; fi
 	@. .envs/local.env && python manage.py migrate --noinput
-	@. venv/bin/activate && ./manage.py runserver $(port)
+	@./manage.py runserver $(port)
 
 ###############
 # Code checks #
 ###############
 
-test:
+test: check-venv ## Test code with pytest
 	@echo "pytest"
 	@echo "======"
 	@poetry run pytest
 
-check:
-	@echo "flake8" && \
-	echo "======" && \
-	poetry run flake8 && \
-	echo "OK" && echo "" && \
-	echo "black" && \
-	echo "======" && \
-	poetry run black --check . && echo "" &&\
-	echo "isort" && \
-	echo "======" && \
-	poetry run isort --check-only .
+check: check-venv ## Run linters
+	@echo "flake8"
+	@echo "======"
+	@poetry run flake8 || exit 1
+	@echo "OK"
+	@echo;
+	@echo "black"
+	@echo "======"
+	@poetry run black --check . || exit 1
+	@echo;
+	@echo "isort"
+	@echo "======"
+	@poetry run isort --check-only .
 
-fix:
+fix: check-venv ## Run code formatters
 	@echo "black"
 	@echo "====="
 	@poetry run black .
@@ -116,19 +94,19 @@ fix:
 # Docker #
 ##########
 
-run:
-	@docker-compose up -d --build
+run: ## Run production containers
+	@docker-compose up -d --build || exit 1
 	@echo;
 	@echo "Backend is running on http://localhost:5500, the db is available at localhost:5502"
 
-stop:
+stop: ## Stop production containers
 	@docker-compose down
 
-show-build-files:
-	@docker build -t test-dockerfile .
-	@docker run --rm --entrypoint=/bin/sh test-dockerfile -c find .
+show-build-files: ## Test local .dockerignore, output local files after build
+	@docker build -t test-dockerfile . && \
+	docker run --rm --entrypoint=/bin/sh test-dockerfile -c find .
 
-test-ignore:
+test-ignore: ## Build Dockerfile and output WORKDIR files
 	@cat <<EOF > Dockerfile.build-context
 	@FROM busybox
 	@COPY $(COMPOSE_DIR) /build-context
