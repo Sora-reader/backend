@@ -19,18 +19,17 @@ help:
 
 interpreter = $(shell ([ -d .venv ] && echo "poetry run") || ([ -n "$(VIRTUAL_ENV)" ] && echo "python") )
 
-ifeq ($(interpreter),)
-$(error No virtual environment found, either run "make venv" or activate existing)
-endif
+check-venv:
+	$(if $(interpreter),, $(error No virtual environment $(interpreter) found, either run "make venv" or activate existing))
 
 env: ## Copy env examples and init .envs directory
 	@mkdir -p .envs
 	@cp -R .envs.example/. .envs
 	@for file in .envs/*.example; do \
-		if [ -f "$(file%%.example)" ]; then
-			rm "$(file)"
+		if [ -f "$${file%%.example}" ]; then
+			rm "$$file"
 		else
-			mv --backup=numbered "$(file)" "$(file%%.example)"
+			mv --backup=numbered "$$file" "$${file%%.example}"
 		fi;
 	@done
 	@echo "Done"
@@ -40,15 +39,14 @@ venv: ## Create virtual environment and install all dependencies
 	@poetry install && \
 	echo; echo "Created .venv/ and installed all dependencies"
 
-activate: ## activate poetry's virtual environment
 
-githooks: ## Install git hooks
+githooks: check-venv  ## Install git hooks
 	@$(interpreter) pre-commit install -t=pre-commit
 
-shell: ## Run django-extension's shell_plus
+shell: check-venv ## Run django-extension's shell_plus
 	@$(interpreter) ./manage.py shell_plus --ipython
 
-dev: ## Run dev server on port 8000, or specify with "make dev port=1234"
+dev: check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
 	@. .envs/local.env && if [ "$(DEBUG)" = 0 ]; then $(interpreter) ./manage.py collectstatic --noinput --clear; fi
 	@. .envs/local.env && $(interpreter) ./manage.py migrate --noinput
 	@$(interpreter) ./manage.py runserver $(port)
@@ -57,12 +55,12 @@ dev: ## Run dev server on port 8000, or specify with "make dev port=1234"
 # Code checks #
 ###############
 
-test: ## Test code with pytest
+test: check-venv ## Test code with pytest
 	@echo "pytest"
 	@echo "======"
 	@$(interpreter) pytest
 
-check: ## Run linters
+check: check-venv ## Run linters
 	@echo "flake8"
 	@echo "======"
 	@$(interpreter) flake8 || exit 1
@@ -76,7 +74,7 @@ check: ## Run linters
 	@echo "======"
 	@$(interpreter) isort --check-only .
 
-fix: ## Run code formatters
+fix: check-venv ## Run code formatters
 	@echo "black"
 	@echo "====="
 	@$(interpreter) black .
