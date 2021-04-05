@@ -2,7 +2,7 @@
 name = "backend"
 version = "0.1.0"
 description = "backend for manga reader"
-authors = ["ScriptHound <grinkiko@gmail.com>"]
+authors = ["ScriptHound <grinkiko@gmail.com>", "dhvcc <1337kwiz@gmail.com>"]
 license = "GPLv3"
 
 [tool.poetry.dependencies]
@@ -17,7 +17,7 @@ djangorestframework-simplejwt = "^4.6.0"
 Scrapy = "^2.4.1"
 argon2-cffi = "^20.1.0"
 django-extensions = "^3.1.1"
-django-jazzmin = {git = "https://github.com/farridav/django-jazzmin.git"}
+django-jazzmin = {git = "https://github.com/farridav/django-jazzmin.git", rev = "v2.4.5"}
 whitenoise = "^5.2.0"
 
 [tool.poetry.dev-dependencies]

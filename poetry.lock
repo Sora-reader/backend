@@ -241,8 +241,8 @@ django = ">=2"
 [package.source]
 type = "git"
 url = "https://github.com/farridav/django-jazzmin.git"
-reference = "master"
-resolved_reference = "9383099a3fd56dccc9f2d92467e2cb3a3de769d0"
+reference = "v2.4.5"
+resolved_reference = "aa142c54187e02d15155c31bd15c21d0f00a7a32"
 
 [[package]]
 name = "djangorestframework"
@@ -933,7 +933,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8.1"
-content-hash = "b84441ed54f692d1c4cb0a66df3fc5f82ac8e6180987e696849e21f26032497f"
+content-hash = "862b91937d2fb4281d2d4dd05d82aa89af9d4478ff10c9516ff11692945c59db"
 
 [metadata.files]
 appdirs = [

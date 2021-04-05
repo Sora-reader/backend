@@ -74,6 +74,7 @@ shell:
 
 dev:
 	@. .envs/local.env && if [ "$$DEBUG" = 0 ]; then python manage.py collectstatic --noinput --clear; fi
+	@. .envs/local.env && python manage.py migrate --noinput
 	@. venv/bin/activate && ./manage.py runserver $(port)
 
 ###############
@@ -117,6 +118,8 @@ fix:
 
 run:
 	@docker-compose up -d --build
+	@echo;
+	@echo "Backend is running on http://localhost:5500, the db is available at localhost:5502"
 
 stop:
 	@docker-compose down
