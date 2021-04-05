@@ -19,6 +19,8 @@ argon2-cffi = "^20.1.0"
 django-extensions = "^3.1.1"
 django-jazzmin = {git = "https://github.com/farridav/django-jazzmin.git"}
 whitenoise = "^5.2.0"
+celery = "^5.0.5"
+redis = "^3.5.3"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

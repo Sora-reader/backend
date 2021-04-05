@@ -6,6 +6,9 @@ services:
     # Collect env variables from this file and set them in container
     env_file:
       - .envs/dev.env
+    command: bash -c "source /venv/bin/activate &&
+                      celery -A manga_reader.celery.app worker -n manga@%h
+                      --loglevel=INFO -B"
     environment:
       - PORT=8000
     ports:
@@ -13,6 +16,7 @@ services:
     # wait until 'db' process starts and then run
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:12
@@ -24,7 +28,18 @@ services:
       - 5502:5432
     env_file:
       - .envs/dev.env
-
+  
+  redis:
+    image: "redis:alpine"
+    # launch redis server
+    command: redis-server
+    expose:
+      - "6379"
+    volumes:
+      - $PWD/redis-data:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_REPLICATION_MODE=master
 volumes:
   # sora_postgres volume (docker will handle local path)
   sora_postgres:
