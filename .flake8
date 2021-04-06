@@ -1,3 +1,3 @@
 [flake8]
-max-line-length = 120
-exclude = .git,__pycache__,old,build,dist,migrations,venv
+max-line-length = 100
+exclude = .git,__pycache__,old,build,dist,migrations,venv,.venv

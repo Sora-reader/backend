@@ -27,5 +27,7 @@ class Manga(TimeStampedModel, models.Model):
     chapters = HStoreField(null=True, blank=True)
 
     genres = ManyToManyField("Genre", related_name="mangas")
-    author = ForeignKey("Author", related_name="mangas", on_delete=models.CASCADE, null=True, blank=True)
+    author = ForeignKey(
+        "Author", related_name="mangas", on_delete=models.CASCADE, null=True, blank=True
+    )
     translators = ManyToManyField("Translator", related_name="mangas")
