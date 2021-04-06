@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 JAZZMIN_SETTINGS = {
     "site_title": "Admin",
     "site_header": "Sora",
-    # square logo to use for your site, must be present in static files, used for favicon and brand on top left
+    # logo for your site, must be present in static files, used for favicon and brand on top left
     "site_logo": "favicon.ico",
     "welcome_sign": "Admin panel",
     "copyright": '<a target="_blank" href="https://github.com/sora-reader">Sora</a>',
@@ -55,7 +55,11 @@ JAZZMIN_SETTINGS = {
     ############
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Support", "url": "https://github.com/sora-reader/backend/issues", "new_window": True},
+        {
+            "name": "Support",
+            "url": "https://github.com/sora-reader/backend/issues",
+            "new_window": True,
+        },
     ],
     #############
     # Side Menu #
