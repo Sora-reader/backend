@@ -36,7 +36,7 @@ class Genre(TimeStampedModel, ReprMixin, models.Model):
 
 
 class Manga(TimeStampedModel, ReprMixin, models.Model):
-    name = TextField("manga_name")
+    name = TextField("manga_name", null=True, blank=True)
     self_url = URLField("manga_url", max_length=1000, unique=True)
     description = TextField("manga_description")
     status = TextField("status", null=True, blank=True)
