@@ -100,6 +100,17 @@ def save_detailed_manga_info(
     manga.save()
 
 
+def was_manga_updated(manga):
+    if detailed := manga.technical_params.get("time_detailed"):
+        detailed = parser.parse(detailed, tzinfos=[pytz.UTC])
+        update_deadline = detailed - dt.timedelta(minutes=30)
+        if dt.datetime.now(pytz.UTC) > update_deadline:
+            msg = f"Manga {manga.name} has been already updated 30 mins ago"
+            logger.error(msg)
+            return True
+    return False
+
+
 def deepen_manga_info(name: str) -> Optional[dict]:
     manga = Manga.objects.filter(name__icontains=name).first()
     if manga is None:
@@ -108,13 +119,8 @@ def deepen_manga_info(name: str) -> Optional[dict]:
 
     # check if it wasnt updated for a while
     url = manga.self_url
-    if detailed := manga.technical_params.get("time_detailed"):
-        detailed = parser.parse(detailed, tzinfos=[pytz.UTC])
-        update_deadline = detailed - dt.timedelta(minutes=30)
-        if dt.datetime.now(pytz.UTC) > update_deadline:
-            msg = f"Manga {manga.name} has been already updated 30 mins ago"
-            logger.error(msg)
-            return
+    if was_manga_updated(manga):
+        return
 
     info: dict = get_detailed_info(url)
     save_detailed_manga_info(**info)
