@@ -145,6 +145,17 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "commonmark"
+version = "0.9.1"
+description = "Python parser for the CommonMark Markdown spec"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.extras]
+test = ["flake8 (==3.7.8)", "hypothesis (==3.55.3)"]
+
+[[package]]
 name = "constantly"
 version = "15.1.0"
 description = "Symbolic constants in Python"
@@ -796,6 +807,23 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "rich"
+version = "10.1.0"
+description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+colorama = ">=0.4.0,<0.5.0"
+commonmark = ">=0.9.0,<0.10.0"
+pygments = ">=2.6.0,<3.0.0"
+typing-extensions = ">=3.7.4,<4.0.0"
+
+[package.extras]
+jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
+
+[[package]]
 name = "scrapy"
 version = "2.4.1"
 description = "A high-level Web Crawling and Web Scraping framework"
@@ -1000,7 +1028,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "9b7a0e775802f4415fcbefc80093771399633585c0cdc27eb8ed5ed5dfd8c9ec"
+content-hash = "7f3119a41961a02981616f0c13ff45327ff830bdd085355639402ac3ec015c4a"
 
 [metadata.files]
 appdirs = [
@@ -1104,6 +1132,10 @@ click = [
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
+]
+commonmark = [
+    {file = "commonmark-0.9.1-py2.py3-none-any.whl", hash = "sha256:da2f38c92590f83de410ba1a3cbceafbc74fee9def35f9251ba9a971d6d66fd9"},
+    {file = "commonmark-0.9.1.tar.gz", hash = "sha256:452f9dc859be7f06631ddcb328b6919c67984aca654e5fefb3914d54691aed60"},
 ]
 constantly = [
     {file = "constantly-15.1.0-py2.py3-none-any.whl", hash = "sha256:dd2fa9d6b1a51a83f0d7dd76293d734046aa176e384bf6e33b7e44880eb37c5d"},
@@ -1479,6 +1511,10 @@ regex = [
     {file = "regex-2020.11.13-cp39-cp39-win32.whl", hash = "sha256:f8f295db00ef5f8bae530fc39af0b40486ca6068733fb860b42115052206466f"},
     {file = "regex-2020.11.13-cp39-cp39-win_amd64.whl", hash = "sha256:a15f64ae3a027b64496a71ab1f722355e570c3fac5ba2801cafce846bf5af01d"},
     {file = "regex-2020.11.13.tar.gz", hash = "sha256:83d6b356e116ca119db8e7c6fc2983289d87b27b3fac238cfe5dca529d884562"},
+]
+rich = [
+    {file = "rich-10.1.0-py3-none-any.whl", hash = "sha256:60cd6d6ea697a1704f2057e791e3062b506b5c74a6e2ad2ced71eccb37557259"},
+    {file = "rich-10.1.0.tar.gz", hash = "sha256:8f05431091601888c50341697cfc421dc398ce37b12bca0237388ef9c7e2c9e9"},
 ]
 scrapy = [
     {file = "Scrapy-2.4.1-py2.py3-none-any.whl", hash = "sha256:27621ab491706ec8cc41168cdbdff07e7fe8c344c8640e9e9faebd7cf84008e2"},

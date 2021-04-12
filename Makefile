@@ -43,8 +43,10 @@ venv: ## Create virtual environment and install all dependencies
 githooks: check-venv  ## Install git hooks
 	@$(interpreter) pre-commit install -t=pre-commit
 
-shell: check-venv ## Run django-extension's shell_plus
-	@$(interpreter) ./manage.py shell_plus --ipython
+shell: check-venv ## Run django-extension's shell_plus, enable rich pretty printing and import 'inspect'
+	@$(interpreter) ./manage.py shell_plus --ipython -- -i -c """from rich import pretty, inspect
+	pretty.install()
+	"""
 
 dev: check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
 	@. .envs/local.env && if [ "$(DEBUG)" = 0 ]; then $(interpreter) ./manage.py collectstatic --noinput --clear; fi
