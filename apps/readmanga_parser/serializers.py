@@ -8,6 +8,8 @@ class MangaSerializer(serializers.ModelSerializer):
     genres = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
     translators = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
     categories = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
+    illustrators = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
+    screenwriters = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
 
     class Meta:
         model = Manga

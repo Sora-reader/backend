@@ -1,10 +1,9 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.login.models import Profile
 
-
-class ProfileSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     def get_token(self) -> dict:
         refresh = RefreshToken.for_user(self.instance)
 
@@ -14,9 +13,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         }
 
     class Meta:
-        model = Profile
+        model = User
         fields = ("username", "password")
 
     def create(self, validated_data):
-        self.instance = Profile.objects.create_user(**validated_data)
+        self.instance = User.objects.create_user(**validated_data)
         return self.instance

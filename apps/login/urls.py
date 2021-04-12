@@ -2,12 +2,12 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
-from apps.login.views import ProfileSignupViewset
+from apps.login.views import UserSignupViewset
 
 app_name = "auth"
 
 router = DefaultRouter()
-router.register("", viewset=ProfileSignupViewset, basename="sign_up")
+router.register("", viewset=UserSignupViewset, basename="sign_up")
 
 urlpatterns = [
     path("", include(router.urls)),

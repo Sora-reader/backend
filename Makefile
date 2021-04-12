@@ -49,8 +49,8 @@ shell: check-venv ## Run django-extension's shell_plus, enable rich pretty print
 	"""
 
 dev: check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
-	@. .envs/local.env && if [ "$(DEBUG)" = 0 ]; then $(interpreter) ./manage.py collectstatic --noinput --clear; fi
-	@. .envs/local.env && $(interpreter) ./manage.py migrate --noinput
+	@. ./.envs/local.env && if [ "$(DEBUG)" = 0 ]; then $(interpreter) ./manage.py collectstatic --noinput --clear; fi
+	@. ./.envs/local.env && $(interpreter) ./manage.py migrate --noinput
 	@$(interpreter) ./manage.py runserver $(port)
 
 ###############

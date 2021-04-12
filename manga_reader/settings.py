@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "rest_framework.authtoken",
     "apps.login.apps.LoginConfig",
     "apps.readmanga_parser.apps.ReadmangaParserConfig",
     "django_extensions",
@@ -74,7 +73,7 @@ JAZZMIN_SETTINGS = {
         "readmanga_parser.author": "fas fa-user-edit",
         "readmanga_parser.genre": "fas fa-theater-masks",
         "readmanga_parser.translator": "fas fa-language",
-        "login.profile": "fas fa-user",
+        "auth.user": "fas fa-user",
         "auth.group": "fas fa-users",
     },
     "order_with_respect_to": [
@@ -107,7 +106,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
     ),
 }
 
@@ -145,7 +143,6 @@ DATABASES = {
 # Authorization #
 #################
 
-AUTH_USER_MODEL = "login.Profile"
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",

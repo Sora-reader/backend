@@ -1,8 +1,11 @@
+import logging
 from typing import List, Tuple
 
 from django.db import transaction
 
 from apps.readmanga_parser.models import Genre, Manga
+
+logger = logging.getLogger()
 
 
 @transaction.atomic
@@ -15,10 +18,11 @@ def bulk_get_or_create(cls, names: List[str]) -> Tuple:
 
 class ReadmangaPipeline:
     def process_item(self, item, spider):
-        print(item)
+        logger.info(item)
         description = item.get("description")
         genres = item.get("genres")
         title = item.get("title")
+        title_url = item.get("title_url")
         image = item.get("image_url")
 
         if not title:
@@ -26,9 +30,7 @@ class ReadmangaPipeline:
 
         genres = bulk_get_or_create(Genre, genres)
         manga, _ = Manga.objects.get_or_create(
-            title=title,
-            description=description,
-            image_url=image,
+            name=title, description=description, image_url=image, self_url=title_url
         )
         manga.genres.add(*genres)
 
