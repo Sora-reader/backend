@@ -3,11 +3,12 @@ from django.contrib import admin
 from django.urls import path
 
 apipatterns = [
-    path("", include("apps.login.urls")),
+    path("docs/", include("apps.api_docs.urls")),
     path("readmanga/", include("apps.readmanga_parser.urls")),
+    path("", include("apps.login.urls")),
 ]
 
 urlpatterns = [
-    path("", admin.site.urls),
     path("api/", include(apipatterns)),
+    path("", admin.site.urls),
 ]
