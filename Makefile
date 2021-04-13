@@ -16,11 +16,14 @@ help:
 # Project #
 ###########
 
+interpreter := $(shell (poetry env info --path > /dev/null 2>&1 && echo "poetry run") || ([ -n "$(VIRTUAL_ENV)" ] && echo "python") )
 
-interpreter = $(shell ([ -d .venv ] && echo "poetry run") || ([ -n "$(VIRTUAL_ENV)" ] && echo "python") )
+check-dotenv:
+	@$(eval DOTENVS := $(shell test -f ./.envs/dev.env && test -f ./.envs/local.env && echo 'nonzero string'))
+	$(if $(DOTENVS),,$(error No .env files found, maybe run "make env"?))
 
 check-venv:
-	$(if $(interpreter),, $(error No virtual environment $(interpreter) found, either run "make venv" or activate existing))
+	$(if $(interpreter),, $(error No virtual environment found, either run "make venv" or activate existing))
 
 env: ## Copy env examples and init .envs directory
 	@mkdir -p .envs
@@ -32,7 +35,7 @@ env: ## Copy env examples and init .envs directory
 			mv --backup=numbered "$$file" "$${file%%.example}"
 		fi;
 	@done
-	@echo "Done"
+	@echo "Generated .env files to .envs/"
 
 venv: ## Create virtual environment and install all dependencies
 	@python3.8 -m pip install poetry==1.1.4
@@ -43,14 +46,14 @@ venv: ## Create virtual environment and install all dependencies
 githooks: check-venv  ## Install git hooks
 	@$(interpreter) pre-commit install -t=pre-commit
 
-shell: check-venv ## Run django-extension's shell_plus, enable rich pretty printing and import 'inspect'
+shell: check-dotenv check-venv ## Run django-extension's shell_plus, enable rich pretty printing and import 'inspect'
 	@$(interpreter) ./manage.py shell_plus --ipython -- -i -c """from rich import pretty, inspect
 	pretty.install()
 	"""
 
-dev: check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
+dev: check-dotenv check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
 	@. ./.envs/local.env && if [ "$(DEBUG)" = 0 ]; then $(interpreter) ./manage.py collectstatic --noinput --clear; fi
-	@. ./.envs/local.env && $(interpreter) ./manage.py migrate --noinput
+	@$(interpreter) ./manage.py migrate --noinput
 	@$(interpreter) ./manage.py runserver $(port)
 
 ###############
@@ -89,7 +92,7 @@ fix: check-venv ## Run code formatters
 # Docker #
 ##########
 
-run: ## Run production containers
+run: check-dotenv ## Run production containers
 	@docker-compose up -d --build || exit 1
 	@echo;
 	@echo "Backend is running on http://localhost:5500, the db is available at localhost:5502"
