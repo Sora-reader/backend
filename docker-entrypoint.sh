@@ -13,5 +13,7 @@ if [ -n $DEBUG ]; then
     echo;
 fi
 echo "Running the server on port $PORT"
+celery -A manga_reader.celery.app worker -n manga@%h --loglevel=INFO -B;
 python manage.py runserver 0.0.0.0:$PORT
 echo;
+
