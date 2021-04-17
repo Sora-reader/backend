@@ -6,9 +6,6 @@ services:
     # Collect env variables from this file and set them in container
     env_file:
       - .envs/dev.env
-    command: bash -c "source /venv/bin/activate &&
-                      celery -A manga_reader.celery.app worker -n manga@%h
-                      --loglevel=INFO -B"
     environment:
       - PORT=8000
     ports:
