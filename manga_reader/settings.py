@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
     "corsheaders",
     "apps.api_docs",
@@ -69,8 +70,8 @@ JAZZMIN_SETTINGS = {
     "show_sidebar": True,
     "navigation_expanded": True,
     "sidebar_fixed": True,
-    "hide_apps": [],
-    "hide_models": [],
+    "hide_apps": ["token_blacklist"],
+    "hide_models": ["auth.group"],
     "icons": {
         "readmanga_parser.manga": "fas fa-book-open",
         "readmanga_parser.author": "fas fa-user-edit",
