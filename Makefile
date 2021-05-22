@@ -2,9 +2,11 @@
 # Config #
 ##########
 
-.PHONY: help env venv githooks shell run \
- 		test check fix \
-		run stop test-ignore show-build-files
+COMPOSE=docker-compose.yml
+port?=8000
+
+.PHONY: help env venv shell dev \
+ 		check fix
 
 .ONESHELL:
 
@@ -16,10 +18,10 @@ help:
 # Project #
 ###########
 
-interpreter := $(shell (poetry env info --path > /dev/null 2>&1 && echo "poetry run") || ([ -n "$(VIRTUAL_ENV)" ] && echo "python") )
+interpreter := $(shell [ -d "$$(poetry env info --path)" ] && echo "poetry run")
 
 check-dotenv:
-	@$(eval DOTENVS := $(shell test -f ./.envs/dev.env && test -f ./.envs/local.env && echo 'nonzero string'))
+	@$(eval DOTENVS := $(shell test -f ../.envs/docker.env && test -f ../.envs/local.env && echo 'nonzero string'))
 	$(if $(DOTENVS),,$(error No .env files found, maybe run "make env"?))
 
 check-venv:
@@ -35,35 +37,38 @@ env: ## Copy env examples and init .envs directory
 			mv --backup=numbered "$$file" "$${file%%.example}"
 		fi;
 	@done
-	@echo "Generated .env files to .envs/"
+	@echo "Done"
+
 
 venv: ## Create virtual environment and install all dependencies
 	@python3.8 -m pip install poetry==1.1.4
 	@poetry install && \
-	echo; echo "Created .venv/ and installed all dependencies"
+	echo; echo "Created venv and installed all dependencies"
 
+shell: check-dotenv check-venv ## Run django-extension's shell_plus
+	@$(interpreter) ./manage.py shell_plus --ipython
 
-githooks: check-venv  ## Install git hooks
-	@$(interpreter) pre-commit install -t=pre-commit
-
-shell: check-dotenv check-venv ## Run django-extension's shell_plus, enable rich pretty printing and import 'inspect'
-	@$(interpreter) ./manage.py shell_plus --ipython -- -i -c """from rich import pretty, inspect
-	pretty.install()
-	"""
-
-dev: check-dotenv check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
-	@. ./.envs/local.env && if [ "$(DEBUG)" = 0 ]; then $(interpreter) ./manage.py collectstatic --noinput --clear; fi
+runserver: check-dotenv check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
+	@. ../.envs/local.env && if [ "$(DEBUG)" = 0 ]; then $(interpreter) ./manage.py collectstatic --noinput --clear; fi
 	@$(interpreter) ./manage.py migrate --noinput
 	@$(interpreter) ./manage.py runserver $(port)
+	@echo "Backend is running on localhost:$(port)"
+
+development: ## run dev docker
+	@# Force recreate to reload NGINX config
+	@# as it won't rebuild because the config is passed as a volume
+	@docker-compose -f ${COMPOSE} up -d --build --force-recreate
+	@echo "Backend is running on localhost:8880"
+
+stop: ## stop docker containers
+	@docker-compose -f ${COMPOSE} down
+
+clear: ## down containers and clear volumes
+	@docker-compose -f ${COMPOSE} down --volumes
 
 ###############
 # Code checks #
 ###############
-
-test: check-venv ## Test code with pytest
-	@echo "pytest"
-	@echo "======"
-	@$(interpreter) pytest
 
 check: check-venv ## Run linters
 	@echo "flake8"
@@ -80,6 +85,10 @@ check: check-venv ## Run linters
 	@$(interpreter) isort --check-only .
 
 fix: check-venv ## Run code formatters
+	@echo "autoflake"
+	@echo "========="
+	@extract_ignores=$(shell echo "$$(grep ':F401' .flake8 | sed 's/:F401//' | sed -E 's/\W+//' | sed -E 'N;s/\n/,/' | sed -r 's/\x1B\[(;?[0-9]{1,3})+[mGK]//g')")
+	@$(interpreter) autoflake -ri --remove-all-unused-imports --exclude $$extract_ignores .
 	@echo "black"
 	@echo "====="
 	@$(interpreter) black .
@@ -87,30 +96,3 @@ fix: check-venv ## Run code formatters
 	@echo "isort"
 	@echo "====="
 	@$(interpreter) isort .
-
-##########
-# Docker #
-##########
-
-run: check-dotenv ## Run production containers
-	@docker-compose up -d --build || exit 1
-	@echo;
-	@echo "Backend is running on http://localhost:5500, the db is available at localhost:5502"
-
-stop: ## Stop production containers
-	@docker-compose down
-
-show-build-files: ## Test local .dockerignore, output local files after build
-	@docker build -t test-dockerfile . && \
-	docker run --rm --entrypoint=/bin/sh test-dockerfile -c find .
-
-test-ignore: ## Build Dockerfile and output WORKDIR files
-	@cat <<EOF > Dockerfile.build-context
-	@FROM busybox
-	@COPY $(COMPOSE_DIR) /build-context
-	@WORKDIR /build-context
-	@CMD find .
-	@EOF
-	@docker build -f Dockerfile.build-context -t build-context .
-	@docker run --rm -it build-context
-	@rm Dockerfile.build-context

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "backend"
 version = "0.1.0"
-description = "backend for manga reader"
+description = "Backend for Sora Reader"
 authors = ["ScriptHound <grinkiko@gmail.com>", "dhvcc <1337kwiz@gmail.com>"]
 license = "GPLv3"
 

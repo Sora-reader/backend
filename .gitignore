@@ -157,3 +157,5 @@ items.json
 *.css.map
 .sass-cache/
 staticfiles/
+redis-data
+redis.conf
