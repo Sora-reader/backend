@@ -159,3 +159,4 @@ items.json
 staticfiles/
 redis-data
 redis.conf
+.vim

@@ -37,5 +37,5 @@ echo "Compiling messages"
 poetry run ./manage.py compilemessages -i venv
 
 echo "Running the server on port $PORT"
-poetry run celery -A manga_reader.celery.app worker -n manga@%h --loglevel=INFO -B
-python manage.py runserver 0.0.0.0:$PORT
+poetry run celery -A manga_reader.celery.app worker -n manga@%h --loglevel=INFO -B &
+poetry run ./manage.py runserver 0.0.0.0:$PORT
