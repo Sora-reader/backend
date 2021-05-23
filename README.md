@@ -32,14 +32,16 @@ Run `make` or `make help` to see every command
 ### Start
 
 1. Create virtual environment `make venv`
-2. Generate dotenvs `make env`
-3. Run/stop docker `make run`/`make stop`
+    - To use installed dependencies prepend commands with `poetry run ...` (e.x. `poetry run ./manage.py makemigrations`). This will allow you to use your venv without actiavating it
+    - Activate poetry-created venv with `. "$(poetry env info --path)/bin/activate"`. Show poetry's venv info with `poetry env info`
+3. Generate dotenvs `make env`
 
-### Develop
+### Development
 
 1. Install githooks
-2. Activate virtual environment `. venv/bin/activate`
-3. Run dev server `make dev`
+2. Run/stop docker `make development`/`make stop`
+3. Or run django dev server `make runserver`
 
 - Run linters `make check`
 - Auto format code `make fix`
+- Clear database volume with `make clear`
