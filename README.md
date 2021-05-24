@@ -3,7 +3,7 @@
 ## Instalation requirements
 
 - PostgreSQL(and `libpq-dev`)
-- Python 3.8
+- Python 3.8+
 - `python-poetry`
 - GNU Make (for development, optional)
 - Docker
