@@ -2,12 +2,9 @@ from django.db import models
 from django.db.models.fields import TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django_extensions.db.models import TimeStampedModel
+from django.urls import reverse
 
-
-class ReprMixin:
-    def __repr__(self):
-        classname = self.__class__.__name__
-        return f"<{classname}: {self.name}, pk: {self.pk}>"
+from apps.core.models_mixins import ReprMixin
 
 
 class ScreenWriter(TimeStampedModel, ReprMixin, models.Model):
@@ -20,6 +17,10 @@ class Illustrator(TimeStampedModel, ReprMixin, models.Model):
 
 class Author(TimeStampedModel, ReprMixin, models.Model):
     name = TextField("author_name", unique=True)
+
+    def get_admin_url(self):
+        info = (self._meta.app_label, self._meta.model_name)
+        return reverse("admin:%s_%s_change" % info, args=(self.pk,))
 
 
 class Category(TimeStampedModel, ReprMixin, models.Model):
