@@ -1,8 +1,8 @@
 from django.db import models
 from django.db.models.fields import TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django_extensions.db.models import TimeStampedModel
 from django.urls import reverse
+from django_extensions.db.models import TimeStampedModel
 
 from apps.core.models_mixins import ReprMixin
 
