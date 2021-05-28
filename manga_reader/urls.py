@@ -5,7 +5,7 @@ from django.urls import path
 apipatterns = [
     path("docs/", include("apps.api_docs.urls")),
     path("readmanga/", include("apps.readmanga_parser.urls")),
-    path("", include("apps.login.urls")),
+    path("auth/", include("apps.login.urls")),
 ]
 
 urlpatterns = [

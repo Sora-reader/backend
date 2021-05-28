@@ -58,7 +58,7 @@ development: ## run dev docker
 	@# Force recreate to reload NGINX config
 	@# as it won't rebuild because the config is passed as a volume
 	@docker-compose -f ${COMPOSE} up -d --build --force-recreate
-	@echo "Backend is running on localhost:8880"
+	@echo "Backend is running on http://localhost:8880"
 
 stop: ## stop docker containers
 	@docker-compose -f ${COMPOSE} down

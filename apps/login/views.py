@@ -1,28 +1,47 @@
-from django.views.generic.base import View
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework_simplejwt.exceptions import TokenBackendError, TokenError
+from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenBackendError, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
+from drf_spectacular.utils import extend_schema
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenViewBase
 
-from apps.login.serializers.users import UserSerializer
+from apps.login.serializers import users
 
 
-class UserSignupViewset(viewsets.ViewSet):
+class SignUpView(APIView):
     permission_classes = (AllowAny,)
 
+    @extend_schema(
+        request=users.UserSerializer,
+        responses=users.UserTokenResponseSerializer,
+    )
     @action(methods=("post",), detail=False, url_path="sign-up")
-    def sign_up(self, request, *args, **kwargs):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.create(validated_data=serializer.validated_data)
-        token = serializer.get_token()
-        token["username"] = serializer.validated_data["username"]
+    def post(self, request, *args, **kwargs):
+        user_serializer = users.UserSerializer(data=request.data)
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.create(validated_data=user_serializer.validated_data)
+
+        token = user_serializer.get_token()
+        token["username"] = user_serializer.validated_data["username"]
         return Response(token, status=status.HTTP_201_CREATED)
 
 
-class SignOutView(View):
+class SignInView(TokenViewBase):
+    serializer_class = users.UserTokenRequestSerializer
+
+    @extend_schema(
+        request=users.UserTokenRequestSerializer,
+        responses=users.UserTokenResponseSerializer,
+    )
+    def post(self, *args, **kwargs):
+        return super().post(*args, **kwargs)
+
+
+class SignOutView(APIView):
+    @extend_schema(description="Sign user out and blacklist his token")
     def get(self, request):
         print("Blacklisting")
         refresh = request.COOKIES.get("sora_refresh")
