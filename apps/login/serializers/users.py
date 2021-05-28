@@ -1,10 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import (
-    PasswordField,
-    TokenObtainPairSerializer,
-    TokenObtainSerializer,
-)
+from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 

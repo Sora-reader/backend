@@ -1,12 +1,12 @@
-from rest_framework import status, viewsets
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenBackendError, TokenError
+from rest_framework_simplejwt.exceptions import TokenBackendError, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
-from drf_spectacular.utils import extend_schema
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenViewBase
+from rest_framework_simplejwt.views import TokenViewBase
 
 from apps.login.serializers import users
 
