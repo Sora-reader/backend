@@ -21,7 +21,7 @@ help:
 interpreter := $(shell [ -d "$$(poetry env info --path)" ] && echo "poetry run")
 
 check-dotenv:
-	@$(eval DOTENVS := $(shell test -f ../.envs/docker.env && test -f ../.envs/local.env && echo 'nonzero string'))
+	@$(eval DOTENVS := $(shell test -f ./.envs/docker.env && test -f ./.envs/local.env && echo 'nonzero string'))
 	$(if $(DOTENVS),,$(error No .env files found, maybe run "make env"?))
 
 check-venv:
