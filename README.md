@@ -5,6 +5,7 @@
 - PostgreSQL(and `libpq-dev`)
 - Python 3.8+
 - `python-poetry`
+- `pre-commit` for git hooks
 - GNU Make (for development, optional)
 - Docker
 
@@ -29,11 +30,14 @@ sudo snap install docker --classic
 Use `make` for project management
 Run `make` or `make help` to see every command
 
+**[Read this](https://python-poetry.org/docs/basic-usage/#activating-the-virtual-environment) to understand `poetry shell`**
+
 ### Start
 
 1. Create virtual environment `make venv`
-    - To use installed dependencies prepend commands with `poetry run ...` (e.x. `poetry run ./manage.py makemigrations`). This will allow you to use your venv without actiavating it
-    - Activate poetry-created venv with `. "$(poetry env info --path)/bin/activate"`. Show poetry's venv info with `poetry env info`
+    - To activate freshly created environment run `poetry shell`
+    - Show poetry's venv info with `poetry env info`
+2. Install githooks with `make githooks`
 3. Generate dotenvs `make env`
 
 ### Development

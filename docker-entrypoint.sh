@@ -21,16 +21,6 @@ fi
 echo
 echo "Running migrations"
 poetry run ./manage.py migrate --no-input
-migration_success=$?
-
-if [ "$migration_success" = 0 ]; then
-    echo
-    echo "Preparng DB"
-    poetry run ./manage.py prepare_db
-else
-    echo "Migrations failed"
-    echo "================="
-fi
 
 echo
 echo "Compiling messages"
