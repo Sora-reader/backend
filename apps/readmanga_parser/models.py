@@ -1,21 +1,19 @@
-from django.db import models
 from django.db.models.fields import TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.urls import reverse
-from django_extensions.db.models import TimeStampedModel
+from django.db import models
+from apps.core.models_mixins import BaseModel
 
-from apps.core.models_mixins import ReprMixin
 
-
-class ScreenWriter(TimeStampedModel, ReprMixin, models.Model):
+class ScreenWriter(BaseModel):
     name = TextField("screenwriter_name", unique=True)
 
 
-class Illustrator(TimeStampedModel, ReprMixin, models.Model):
+class Illustrator(BaseModel):
     name = TextField("illustrator_name", unique=True)
 
 
-class Author(TimeStampedModel, ReprMixin, models.Model):
+class Author(BaseModel):
     name = TextField("author_name", unique=True)
 
     def get_admin_url(self):
@@ -23,19 +21,19 @@ class Author(TimeStampedModel, ReprMixin, models.Model):
         return reverse("admin:%s_%s_change" % info, args=(self.pk,))
 
 
-class Category(TimeStampedModel, ReprMixin, models.Model):
+class Category(BaseModel):
     name = TextField("category_name", unique=True)
 
 
-class Translator(TimeStampedModel, ReprMixin, models.Model):
+class Translator(BaseModel):
     name = TextField("translator_name", unique=True)
 
 
-class Genre(TimeStampedModel, ReprMixin, models.Model):
+class Genre(BaseModel):
     name = TextField("genre_name", unique=True)
 
 
-class Manga(TimeStampedModel, ReprMixin, models.Model):
+class Manga(BaseModel):
     name = TextField("manga_name", null=True, blank=True)
     self_url = URLField("manga_url", max_length=1000, unique=True)
     description = TextField("manga_description")

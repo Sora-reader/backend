@@ -361,6 +361,17 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-admin-easy"
+version = "0.6.1"
+description = "Collection of admin fields and decorators to help to create computed or custom fields more friendly and easy way"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+django = "*"
+
+[[package]]
 name = "django-cors-headers"
 version = "3.7.0"
 description = "django-cors-headers is a Django application for handling the server headers required for Cross-Origin Resource Sharing (CORS)."
@@ -403,6 +414,17 @@ python-versions = ">=3.6"
 
 [package.dependencies]
 django = ">=2"
+
+[[package]]
+name = "django-related-admin"
+version = "1.0.1"
+description = "Allow foreign key attributes in list_display with '__'"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = "*"
 
 [[package]]
 name = "djangorestframework"
@@ -1375,7 +1397,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "74d9e3029d14f866a50d9b5d130d2dc71eba4f100b23ae783b2c52fb691db8a7"
+content-hash = "7ad195100f5aebeb7ed94ebb9b78de1981036c734f74f9937fb04fd8948a1a4b"
 
 [metadata.files]
 amqp = [
@@ -1569,6 +1591,10 @@ django = [
     {file = "Django-3.2.3-py3-none-any.whl", hash = "sha256:7e0a1393d18c16b503663752a8b6790880c5084412618990ce8a81cc908b4962"},
     {file = "Django-3.2.3.tar.gz", hash = "sha256:13ac78dbfd189532cad8f383a27e58e18b3d33f80009ceb476d7fcbfc5dcebd8"},
 ]
+django-admin-easy = [
+    {file = "django-admin-easy-0.6.1.tar.gz", hash = "sha256:5bc2ab53d4828b983f3ea840941a5341827ea0f715d77d7ef628a6adcfbfefea"},
+    {file = "django_admin_easy-0.6.1-py3-none-any.whl", hash = "sha256:b7a6bb4a2373b37bc3a1fd12f41c492bcd55d9c6612d7bcf03330aa0884050a9"},
+]
 django-cors-headers = [
     {file = "django-cors-headers-3.7.0.tar.gz", hash = "sha256:96069c4aaacace786a34ee7894ff680780ec2644e4268b31181044410fecd12e"},
     {file = "django_cors_headers-3.7.0-py3-none-any.whl", hash = "sha256:1ac2b1213de75a251e2ba04448da15f99bcfcbe164288ae6b5ff929dc49b372f"},
@@ -1584,6 +1610,9 @@ django-filter = [
 django-jazzmin = [
     {file = "django-jazzmin-2.4.7.tar.gz", hash = "sha256:585d0c998875d6ada49ffa7b1bc6c21dcb90a53ba4d0f42f6b0d8fcfc212fa4c"},
     {file = "django_jazzmin-2.4.7-py3-none-any.whl", hash = "sha256:90f3ceee87517aa4183d22eef8ec34067588a37ef02484ac47502865be211148"},
+]
+django-related-admin = [
+    {file = "django-related-admin-1.0.1.tar.gz", hash = "sha256:abfa8a3f2fdb8e00e71313aab83de9036be9c0517f297b0d8d414d81cffd1d8d"},
 ]
 djangorestframework = [
     {file = "djangorestframework-3.12.4-py3-none-any.whl", hash = "sha256:6d1d59f623a5ad0509fe0d6bfe93cbdfe17b8116ebc8eda86d45f6e16e819aaf"},
