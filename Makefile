@@ -21,14 +21,14 @@ help:
 # Project #
 ###########
 
-interpreter_found := $(shell [ -n "$$VIRTUAL_ENV" ] && echo "yes")
+interpreter := $(shell poetry env info > /dev/null 2>&1 && echo "poetry run")
 
 check-dotenv:
 	@$(eval DOTENVS := $(shell test -f ./.envs/docker.env && test -f ./.envs/local.env && echo 'nonzero string'))
 	$(if $(DOTENVS),,$(error No .env files found, maybe run "make env"?))
 
 check-venv:
-	$(if $(interpreter_found),, $(error No virtual environment found, either run "make venv" or "poetry shell"))
+	$(if $(interpreter),, $(error No virtual environment found, run "make venv"))
 
 env: ## Copy env examples and init .envs directory
 	@mkdir -p .envs
@@ -43,7 +43,7 @@ env: ## Copy env examples and init .envs directory
 	@echo "${CYAN}Done${COFF}"
 
 githooks:
-	@pre-commit install -t=pre-commit -t=pre-push
+	@$(interpreter) pre-commit install -t=pre-commit -t=pre-push
 
 venv: ## Create virtual environment and install all dependencies
 	@python3.8 -m pip install poetry==1.1.4
@@ -51,12 +51,14 @@ venv: ## Create virtual environment and install all dependencies
 	echo; echo "${CYAN}Created venv and installed all dependencies${COFF}"
 
 shell: check-dotenv check-venv ## Run django-extension's shell_plus
-	@./manage.py shell_plus --ipython
+	@$(interpreter) ./manage.py shell_plus --ipython -- -i -c """from rich import pretty, inspect
+	pretty.install()
+	"""
 
 runserver: check-dotenv check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
 	@. ../.envs/local.env && if [ "$(DEBUG)" = 0 ]; then ./manage.py collectstatic --noinput --clear; fi
-	@./manage.py migrate --noinput
-	@./manage.py runserver $(port)
+	@$(interpreter) ./manage.py migrate --noinput
+	@$(interpreter) ./manage.py runserver $(port)
 	@echo "${CYAN}Backend is running on localhost:$(port)${COFF}"
 
 development: ## run dev docker
@@ -78,27 +80,27 @@ clear: ## down containers and clear volumes
 check: check-venv ## Run linters
 	@echo "flake8"
 	@echo "======"
-	@flake8 || exit 1
+	@$(interpreter) flake8 || exit 1
 	@echo "OK"
 	@echo;
 	@echo "black"
 	@echo "======"
-	@black --check . || exit 1
+	@$(interpreter) black --check . || exit 1
 	@echo;
 	@echo "isort"
 	@echo "======"
-	@isort --check-only .
+	@$(interpreter) isort --check-only .
 
 fix: check-venv ## Run code formatters
 	@echo "autoflake"
 	@echo "========="
 	@# regex to exctrat per-file-ignores from .flake8
 	@extract_ignores=$(shell echo "$$(grep ':F401' .flake8 | sed 's/:F401//' | sed -E 's/\W+//' | sed -E 'N;s/\n/,/' | sed -r 's/\x1B\[(;?[0-9]{1,3})+[mGK]//g')")
-	@autoflake -ri --remove-all-unused-imports --exclude $$extract_ignores .
+	@$(interpreter) autoflake -ri --remove-all-unused-imports --exclude $$extract_ignores .
 	@echo "black"
 	@echo "====="
-	@black .
+	@$(interpreter) black .
 	@echo;
 	@echo "isort"
 	@echo "====="
-	@isort .
+	@$(interpreter) isort .

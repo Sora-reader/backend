@@ -1,12 +1,12 @@
 import easy
 from django.contrib import admin
 
-from apps.core.admin_mixins import AuthorLinkMixin, ImagePreviewMixin
+from apps.core.admin import AuthorLinkMixin, BaseAdmin, ImagePreviewMixin
 from apps.readmanga_parser.models import Author, Genre, Manga, Translator
 
 
 @admin.register(Manga)
-class MangaAdmin(admin.ModelAdmin, AuthorLinkMixin, ImagePreviewMixin):
+class MangaAdmin(BaseAdmin, AuthorLinkMixin, ImagePreviewMixin, admin.ModelAdmin):
     search_fields = ("name",)
     list_display = (
         "name",
@@ -35,18 +35,18 @@ class MangaAdmin(admin.ModelAdmin, AuthorLinkMixin, ImagePreviewMixin):
 
 
 @admin.register(Author)
-class AuthorAdmin(admin.ModelAdmin):
+class AuthorAdmin(BaseAdmin, admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name",)
 
 
 @admin.register(Genre)
-class GenreAdmin(admin.ModelAdmin):
+class GenreAdmin(BaseAdmin, admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name",)
 
 
 @admin.register(Translator)
-class TranslatorAdmin(admin.ModelAdmin):
+class TranslatorAdmin(BaseAdmin, admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name",)

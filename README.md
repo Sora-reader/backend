@@ -35,7 +35,8 @@ Run `make` or `make help` to see every command
 ### Start
 
 1. Create virtual environment `make venv`
-    - To activate freshly created environment run `poetry shell`
+    - To activate freshly created environment run `. "$(poetry env info -p)/bin/activate`.
+    You can also use `poetry shell`, but it's buggy
     - Show poetry's venv info with `poetry env info`
 2. Install githooks with `make githooks`
 3. Generate dotenvs `make env`

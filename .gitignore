@@ -160,4 +160,3 @@ staticfiles/
 redis-data
 redis.conf
 .vim
-poetry.lock

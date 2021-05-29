@@ -1,9 +1,8 @@
 from django.db import models
 from django.db.models.fields import TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.urls import reverse
 
-from apps.core.models_mixins import BaseModel
+from apps.core.models import BaseModel
 
 
 class ScreenWriter(BaseModel):
@@ -16,10 +15,6 @@ class Illustrator(BaseModel):
 
 class Author(BaseModel):
     name = TextField("author_name", unique=True)
-
-    def get_admin_url(self):
-        info = (self._meta.app_label, self._meta.model_name)
-        return reverse("admin:%s_%s_change" % info, args=(self.pk,))
 
 
 class Category(BaseModel):
