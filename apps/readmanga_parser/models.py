@@ -1,7 +1,8 @@
+from django.db import models
 from django.db.models.fields import TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.urls import reverse
-from django.db import models
+
 from apps.core.models_mixins import BaseModel
 
 
