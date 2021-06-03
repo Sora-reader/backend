@@ -30,9 +30,11 @@ class Genre(BaseModel):
 
 
 class Manga(BaseModel):
-    name = TextField("manga_name", null=True, blank=True)
-    self_url = URLField("manga_url", max_length=1000, unique=True)
-    description = TextField("manga_description")
+    NAME_FIELD = "title"
+
+    title = TextField(null=True, blank=True)
+    self_url = URLField(max_length=1000, unique=True)
+    description = TextField()
     status = TextField("status", null=True, blank=True)
     year = TextField("year", null=True, blank=True)
     image_url = URLField("image_url", default="")
@@ -48,7 +50,7 @@ class Manga(BaseModel):
     )
 
     illustrators = ManyToManyField("Illustrator", related_name="mangas")
-    screenwriters = ManyToManyField("Screenwriter", related_name="mangas")
+    screenwriters = ManyToManyField("ScreenWriter", related_name="mangas")
 
     translators = ManyToManyField("Translator", related_name="mangas")
 

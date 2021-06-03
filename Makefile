@@ -5,8 +5,8 @@
 CYAN ?= \033[0;36m
 RED ?= \033[0;31m
 COFF ?= \033[0m
-COMPOSE=docker-compose.yml
-port?=8000
+COMPOSE = docker-compose.yml
+port ?= 8000
 
 .PHONY: help env venv shell dev \
  		check fix
@@ -22,6 +22,7 @@ help:
 ###########
 
 interpreter := $(shell poetry env info > /dev/null 2>&1 && echo "poetry run")
+
 
 check-dotenv:
 	@$(eval DOTENVS := $(shell test -f ./.envs/docker.env && test -f ./.envs/local.env && echo 'nonzero string'))
@@ -56,7 +57,7 @@ shell: check-dotenv check-venv ## Run django-extension's shell_plus
 	"""
 
 runserver: check-dotenv check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
-	@. ../.envs/local.env && if [ "$(DEBUG)" = 0 ]; then ./manage.py collectstatic --noinput --clear; fi
+	@. ./.envs/local.env && if [ "$(DEBUG)" = 0 ]; then ./manage.py collectstatic --noinput --clear; fi
 	@$(interpreter) ./manage.py migrate --noinput
 	@$(interpreter) ./manage.py runserver $(port)
 	@echo "${CYAN}Backend is running on localhost:$(port)${COFF}"
