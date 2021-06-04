@@ -31,20 +31,29 @@ class ManyRelatedManager:
 
 class BaseAdmin(admin.ModelAdmin):
     @staticmethod
-    def related_comma_list(
-        field_name: str, order_by=None
+    def related_string(
+        field_name: str,
+        *,
+        separator=", ",
+        on_empty="-",
+        additional_filter: Optional[dict] = None,
+        order_by=None,
     ) -> Callable[[admin.ModelAdmin, Model], str]:
         """
         Factory of admin list_display callables for relations. Uses NAME_FIELD as a value name
 
-        :return: A callable which outputs relation names separated by ", "
+        :return: A callable which outputs relation names separated by provided separator (default ", ")
         """
 
         def abc_comma_list(_, obj: Model):
             relation = getattr(obj, field_name)
             value_name = relation.model.NAME_FIELD
 
-            return ", ".join(relation.values_list(value_name, flat=True).all())
+            filter_ = additional_filter or {}
+            return (
+                separator.join(relation.filter(**filter_).values_list(value_name, flat=True).all())
+                or on_empty
+            )
 
         function = abc_comma_list
         function.__name__ = f"{field_name}_list"

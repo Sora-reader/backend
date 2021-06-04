@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from apps.core.admin import AuthorLinkMixin, BaseAdmin, ImagePreviewMixin
-from apps.readmanga_parser.models import Author, Genre, Manga, Translator
+from apps.readmanga_parser.models import Author, Genre, Illustrator, Manga, ScreenWriter, Translator
 
 
 @admin.register(Manga)
@@ -19,11 +19,9 @@ class MangaAdmin(BaseAdmin, AuthorLinkMixin, ImagePreviewMixin, admin.ModelAdmin
     )
     list_filter = ("categories",)
 
-    genres_list = BaseAdmin.related_comma_list("genres", order_by="genres__name")
-    screenwriters_list = BaseAdmin.related_comma_list(
-        "screenwriters", order_by="screenwriters__name"
-    )
-    illustrators_list = BaseAdmin.related_comma_list("illustrators", order_by="illustrators__name")
+    genres_list = BaseAdmin.related_string("genres", order_by=Genre.SORT_FIELD)
+    screenwriters_list = BaseAdmin.related_string("screenwriters", order_by=ScreenWriter.SORT_FIELD)
+    illustrators_list = BaseAdmin.related_string("illustrators", order_by=Illustrator.SORT_FIELD)
 
 
 @admin.register(Author)
