@@ -19,9 +19,9 @@ class MangaAdmin(BaseAdmin, AuthorLinkMixin, ImagePreviewMixin, admin.ModelAdmin
     )
     list_filter = ("categories",)
 
-    genres_list = BaseAdmin.related_string("genres", order_by=Genre.SORT_FIELD)
-    screenwriters_list = BaseAdmin.related_string("screenwriters", order_by=ScreenWriter.SORT_FIELD)
-    illustrators_list = BaseAdmin.related_string("illustrators", order_by=Illustrator.SORT_FIELD)
+    genres_list = BaseAdmin.related_string(Genre)
+    screenwriters_list = BaseAdmin.related_string(ScreenWriter)
+    illustrators_list = BaseAdmin.related_string(Illustrator)
 
 
 @admin.register(Author)

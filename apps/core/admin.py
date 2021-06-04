@@ -1,11 +1,12 @@
-from typing import Callable, Optional
+from typing import Callable, Dict, Optional, Tuple, Type, Union
 
 import easy
 from django.contrib import admin
 from django.db.models import Model
 from django.db.models.fields import Field
-from django.db.models.fields.reverse_related import ManyToOneRel
 from django.utils.html import format_html
+
+from apps.core.models import BaseModel
 
 
 class AuthorLinkMixin:
@@ -30,35 +31,65 @@ class ManyRelatedManager:
 
 
 class BaseAdmin(admin.ModelAdmin):
-    @staticmethod
+    # Cached key for relations like {(ModelFrom, ModelTo): 'model_too'}
+    # Where ModelFrom().model_too is a relation
+    RELATED_CACHE: Dict[Tuple, str] = {}
+
+    @classmethod
     def related_string(
-        field_name: str,
+        cls,
+        field_or_model: Union[str, Type[BaseModel]],
         *,
-        separator=", ",
-        on_empty="-",
+        name_field: Optional[str] = None,
+        separator: str = ", ",
+        on_empty: str = "-",
         additional_filter: Optional[dict] = None,
-        order_by=None,
     ) -> Callable[[admin.ModelAdmin, Model], str]:
         """
-        Factory of admin list_display callables for relations. Uses NAME_FIELD as a value name
+        Factory of admin list_display callables for relations.
 
-        :return: A callable which outputs relation names separated by provided separator (default ", ")
+        :return: A callable which outputs relation names separated by provided separator
         """
 
-        def abc_comma_list(_, obj: Model):
-            relation = getattr(obj, field_name)
+        field_type = type(field_or_model)
+        if isinstance(field_type, (str, type(BaseModel))):
+            raise ValueError("One of field_name or model must be provided")
+
+        def abc_related_string(_, obj: Model):
+            relation = None
+            if field_type is str:
+                relation = getattr(obj, field_or_model)
+            else:
+                # Cache key is the tuple of relation (ModelFrom, ModelTo)
+                cache_key = (type(obj), field_or_model)
+                cached_relation = cls.RELATED_CACHE.get(cache_key, None)
+                if cached_relation:
+                    relation = getattr(obj, cached_relation)
+                else:
+                    # Search for all fields, find first relation matching model and add it to cache
+                    for field in obj._meta.get_fields():
+                        if getattr(field, "related_model", None) is field_or_model:
+                            relation = getattr(obj, field.attname)
+                            cls.RELATED_CACHE[cache_key] = field.attname
+                            break
+
+            if not relation:
+                raise ValueError(f"Can't find relation for {field_or_model} from {obj}")
             value_name = relation.model.NAME_FIELD
 
             filter_ = additional_filter or {}
             return (
+                # flat values_list returns a query with only names, not tuples of values
+                # works only for values_list with 1 argument
                 separator.join(relation.filter(**filter_).values_list(value_name, flat=True).all())
                 or on_empty
             )
 
-        function = abc_comma_list
-        function.__name__ = f"{field_name}_list"
-        function.short_description = field_name.capitalize()
-        function.admin_order_field = order_by
+        function = abc_related_string
+        if field_type is str:
+            function.short_description = field_or_model.capitalize()
+        else:
+            function.short_description = field_or_model._meta.verbose_name_plural.capitalize()
 
         return function
 
@@ -93,12 +124,11 @@ class BaseAdmin(admin.ModelAdmin):
             return self.list_display
         list_display = []
         self.model: Model
-        fields = self.fields or self.model._meta.get_fields()
+        fields = self.fields or self.model._meta.fields
         for field in fields:
             field: Field
-            if not isinstance(field, ManyToOneRel):
-                if not getattr(field, "choices", None):
-                    list_display.append(field.name)
-                else:
-                    list_display.append(f"get_{field.name}_display")
+            if not getattr(field, "choices", None):
+                list_display.append(field.name)
+            else:
+                list_display.append(f"get_{field.name}_display")
         return list_display
