@@ -75,7 +75,7 @@ class BaseAdmin(admin.ModelAdmin):
 
             if not relation:
                 raise ValueError(f"Can't find relation for {field_or_model} from {obj}")
-            value_name = relation.model.NAME_FIELD
+            value_name = name_field or relation.model.NAME_FIELD
 
             filter_ = additional_filter or {}
             return (
