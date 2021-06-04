@@ -15,14 +15,14 @@ port ?= 8000
 
 .DEFAULT: help
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-30s$(COFF) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-30s$(COFF) %s\n", $$1, $$2}'
 
 ###########
 # Project #
 ###########
 
 interpreter := $(shell poetry env info > /dev/null 2>&1 && echo "poetry run")
-
+extract_ignores = $(shell awk '/.*.py/{split($$1,a,":"); print a[1]}' .flake8 | tr '\n' ',')
 
 check-dotenv:
 	@$(eval DOTENVS := $(shell test -f ./.envs/docker.env && test -f ./.envs/local.env && echo 'nonzero string'))
@@ -92,12 +92,15 @@ check: check-venv ## Run linters
 	@echo "======"
 	@$(interpreter) isort --check-only .
 
+# Fix $(filename) with autoflake ignoring extracted files from .flake8
+# You probably shouldn't use it manually, so it's not documented in help
+autoflake_fix:
+	@$(interpreter) autoflake -i --remove-all-unused-imports --exclude $(extract_ignores) $(filename)
+
 fix: check-venv ## Run code formatters
 	@echo "autoflake"
 	@echo "========="
-	@# regex to exctrat per-file-ignores from .flake8
-	@extract_ignores=$(shell echo "$$(grep ':F401' .flake8 | sed 's/:F401//' | sed -E 's/\W+//' | sed -E 'N;s/\n/,/' | sed -r 's/\x1B\[(;?[0-9]{1,3})+[mGK]//g')")
-	@$(interpreter) autoflake -ri --remove-all-unused-imports --exclude $$extract_ignores .
+	@$(interpreter) autoflake -ri --remove-all-unused-imports --exclude $(extract_ignores) .
 	@echo "black"
 	@echo "====="
 	@$(interpreter) black .
