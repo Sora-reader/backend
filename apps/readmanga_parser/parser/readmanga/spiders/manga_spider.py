@@ -52,7 +52,11 @@ class MangaSpider(scrapy.Spider):
             desc_text = extract_description(response, DESC_TEXT_DESCRIPTOR)
             genres = response.xpath(GENRES_DESCRIPTOR).extract()
             image_url = response.xpath(IMG_URL_DESCRIPTOR).extract()[0]
-            alt_title = response.xpath(ALT_TITLE_URL).extract[0]
+            alt_title = (
+                response.xpath(ALT_TITLE_URL).extract()[0]
+                if response.xpath(ALT_TITLE_URL).extract()
+                else ""
+            )
 
             manga["genres"] = genres
             manga["description"] = desc_text
