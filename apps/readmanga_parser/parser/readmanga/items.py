@@ -7,3 +7,4 @@ class MangaItem(Item):
     title = Field()
     genres = Field()
     description = Field()
+    alt_title = Field()

@@ -33,6 +33,7 @@ class Manga(BaseModel):
     NAME_FIELD = "title"
 
     title = TextField(null=True, blank=True)
+    alt_title = TextField(null=True, blank=True)
     self_url = URLField(max_length=1000, unique=True)
     description = TextField()
     status = TextField(null=True, blank=True)

@@ -13,6 +13,7 @@ from apps.readmanga_parser.parser.readmanga.spiders.consts import (
     IMG_URL_DESCRIPTOR,
     TITLE_DESCRIPTOR,
     TITLE_URL_DESCRIPTOR,
+    ALT_TITLE_URL
 )
 from apps.readmanga_parser.parser.readmanga.spiders.utils import extract_description
 
@@ -24,7 +25,7 @@ class MangaSpider(scrapy.Spider):
     name = "manga"
 
     def start_requests(self):
-        mangas_list = requests.get(READMANGA_URL + "/list").text
+        mangas_list = requests.get(f"{READMANGA_URL}/list").text
 
         xpath_selector = '//a[@class = "step"]/text()'
         html_parser = etree.HTML(mangas_list)
@@ -32,7 +33,7 @@ class MangaSpider(scrapy.Spider):
         standart_offset = 70
         maximum_offset = (int(maximum_page) - 1) * standart_offset
 
-        base_url = READMANGA_URL + "/list?&offset="
+        base_url = f"{READMANGA_URL}/list?&offset="
         offsets = [offset for offset in range(0, maximum_offset, standart_offset)]
         urls = [base_url + str(offset) for offset in offsets]
 
@@ -51,13 +52,14 @@ class MangaSpider(scrapy.Spider):
             desc_text = extract_description(response, DESC_TEXT_DESCRIPTOR)
             genres = response.xpath(GENRES_DESCRIPTOR).extract()
             image_url = response.xpath(IMG_URL_DESCRIPTOR).extract()[0]
+            alt_title = response.xpath(ALT_TITLE_URL).extract[0]
 
             manga["genres"] = genres
             manga["description"] = desc_text
             manga["title"] = title
             manga["title_url"] = READMANGA_URL + title_url
             manga["image_url"] = image_url
-
+            manga['alt_title'] = alt_title
             mangas.append(manga)
 
         return mangas

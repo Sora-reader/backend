@@ -9,6 +9,7 @@ class MangaAdmin(BaseAdmin, AuthorLinkMixin, ImagePreviewMixin, admin.ModelAdmin
     search_fields = ("title",)
     list_display = (
         "title",
+        "alt_title",
         "get_image",
         "status",
         "year",
