@@ -7,13 +7,13 @@ from scrapy.http import HtmlResponse
 
 from apps.readmanga_parser.parser.readmanga.items import MangaItem
 from apps.readmanga_parser.parser.readmanga.spiders.consts import (
+    ALT_TITLE_URL,
     DESC_TEXT_DESCRIPTOR,
     DESCRIPTIONS_DESCRIPTOR,
     GENRES_DESCRIPTOR,
     IMG_URL_DESCRIPTOR,
     TITLE_DESCRIPTOR,
     TITLE_URL_DESCRIPTOR,
-    ALT_TITLE_URL
 )
 from apps.readmanga_parser.parser.readmanga.spiders.utils import extract_description
 
@@ -59,7 +59,7 @@ class MangaSpider(scrapy.Spider):
             manga["title"] = title
             manga["title_url"] = READMANGA_URL + title_url
             manga["image_url"] = image_url
-            manga['alt_title'] = alt_title
+            manga["alt_title"] = alt_title
             mangas.append(manga)
 
         return mangas
