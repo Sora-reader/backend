@@ -20,8 +20,8 @@ from apps.readmanga_parser.parser.readmanga.spiders.consts import (
     CATEGORY_TAG,
     CHAPTERS_TAG,
     ILLUSTRATOR_TAG,
-    NAME_TAG,
     SCREENWRITER_TAG,
+    TITLE_DESCRIPTOR,
     TRANSLATORS_TAG,
     YEAR_TAG,
 )
@@ -42,7 +42,7 @@ def get_detailed_info(url: str) -> dict:
     manga_html = requests.get(url).text
     manga_html = lh.fromstring(manga_html)
 
-    name_to_save_by = manga_html.xpath(NAME_TAG)[0]
+    name_to_save_by = manga_html.xpath(TITLE_DESCRIPTOR)[0]
 
     author = handle_xpath_response(manga_html, AUTHOR_TAG)
     year = handle_xpath_response(manga_html, YEAR_TAG)

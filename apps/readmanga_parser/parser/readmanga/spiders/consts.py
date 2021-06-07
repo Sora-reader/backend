@@ -1,4 +1,3 @@
-NAME_TAG = '//span[@class = "name"]/text()'
 AUTHOR_TAG = (
     '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementList"]'
     + '/span[@class = "elem_author "]/a[@class = "person-link"]/text()'
