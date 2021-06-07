@@ -25,6 +25,7 @@ class ReadmangaPipeline:
         title = item.get("title")
         self_url = item.get("title_url")
         image_url = item.get("image_url")
+        alt_title = item.get("alt_title")
 
         if not title:
             raise KeyError("No title name was set")
@@ -39,6 +40,7 @@ class ReadmangaPipeline:
                 title=title,
                 description=description,
                 image_url=image_url,
+                alt_title=alt_title,
             )
             manga = manga_already.first()
         else:
@@ -47,6 +49,7 @@ class ReadmangaPipeline:
                 title=title,
                 description=description,
                 image_url=image_url,
+                alt_title=alt_title,
             )
 
         manga.genres.add(*genres)

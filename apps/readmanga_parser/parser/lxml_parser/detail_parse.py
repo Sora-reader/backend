@@ -7,21 +7,14 @@ import pytz
 import requests
 from dateutil import parser
 
-from apps.readmanga_parser.models import (
-    Author,
-    Category,
-    Illustrator,
-    Manga,
-    ScreenWriter,
-    Translator,
-)
+from apps.readmanga_parser.models import Author, Category, Manga
 from apps.readmanga_parser.parser.readmanga.spiders.consts import (
     AUTHOR_TAG,
     CATEGORY_TAG,
     CHAPTERS_TAG,
     ILLUSTRATOR_TAG,
-    NAME_TAG,
     SCREENWRITER_TAG,
+    TITLE_DESCRIPTOR,
     TRANSLATORS_TAG,
     YEAR_TAG,
 )
@@ -42,7 +35,7 @@ def get_detailed_info(url: str) -> dict:
     manga_html = requests.get(url).text
     manga_html = lh.fromstring(manga_html)
 
-    name_to_save_by = manga_html.xpath(NAME_TAG)[0]
+    name_to_save_by = manga_html.xpath(TITLE_DESCRIPTOR)[0]
 
     author = handle_xpath_response(manga_html, AUTHOR_TAG)
     year = handle_xpath_response(manga_html, YEAR_TAG)
@@ -93,15 +86,15 @@ def save_detailed_manga_info(
 
     # FIXME bulk_get_or_create instead of get_or_create
     author, _ = Author.objects.get_or_create(name=author)
-    translator, _ = Translator.objects.get_or_create(name=translators[0])
-    illustrator, _ = Illustrator.objects.get_or_create(name=illustrators[0])
-    screenwriter, _ = ScreenWriter.objects.get_or_create(name=screenwriters[0])
+    # translator, _ = Translator.objects.get_or_create(name=translators[0])
+    # illustrator, _ = Illustrator.objects.get_or_create(name=illustrators[0])
+    # screenwriter, _ = ScreenWriter.objects.get_or_create(name=screenwriters[0])
     category, _ = Category.objects.get_or_create(name=categories[0])
 
     author.mangas.add(manga)
-    manga.illustrators.add(illustrator.id)
-    manga.screenwriters.add(screenwriter.id)
-    manga.translators.add(translator.id)
+    # manga.illustrators.add(illustrator.id)
+    # manga.screenwriters.add(screenwriter.id)
+    # manga.translators.add(translator.id)
     manga.categories.add(category.id)
 
     time_detailed = str(dt.datetime.now(tz=pytz.UTC))

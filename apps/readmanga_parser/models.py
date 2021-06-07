@@ -5,14 +5,6 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from apps.core.models import BaseModel
 
 
-class ScreenWriter(BaseModel):
-    name = TextField(unique=True)
-
-
-class Illustrator(BaseModel):
-    name = TextField(unique=True)
-
-
 class Author(BaseModel):
     name = TextField(unique=True)
 
@@ -21,11 +13,11 @@ class Category(BaseModel):
     name = TextField(unique=True)
 
 
-class Translator(BaseModel):
+class Genre(BaseModel):
     name = TextField(unique=True)
 
 
-class Genre(BaseModel):
+class Person(BaseModel):
     name = TextField(unique=True)
 
 
@@ -33,6 +25,7 @@ class Manga(BaseModel):
     NAME_FIELD = "title"
 
     title = TextField(null=True, blank=True)
+    alt_title = TextField(null=True, blank=True)
     self_url = URLField(max_length=1000, unique=True)
     description = TextField()
     status = TextField(null=True, blank=True)
@@ -49,9 +42,15 @@ class Manga(BaseModel):
         "Author", related_name="mangas", on_delete=models.SET_NULL, null=True, blank=True
     )
 
-    illustrators = ManyToManyField("Illustrator", related_name="mangas")
-    screenwriters = ManyToManyField("ScreenWriter", related_name="mangas")
-
-    translators = ManyToManyField("Translator", related_name="mangas")
-
     technical_params = models.JSONField(default=dict)
+
+
+class PersonRole(BaseModel):
+    class PersonRoles(models.TextChoices):
+        ILLUSTRATOR = "Illustrator"
+        SCREENWRITER = "SCREENWRITER"
+        TRANSLATOR = "TRANSLATOR"
+
+    person = models.ForeignKey(Person, models.CASCADE, related_name="persons")
+    manga = models.ForeignKey(Manga, models.CASCADE, related_name="mangas")
+    person_role = models.CharField(max_length=15, choices=PersonRoles.choices)
