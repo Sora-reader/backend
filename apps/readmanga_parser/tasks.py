@@ -7,6 +7,7 @@ from django.core.cache import cache
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+from apps.readmanga_parser.models import TaskControl
 from apps.readmanga_parser.parser.readmanga.spiders.manga_spider import MangaSpider
 
 SETTINGS_PATH = "apps.readmanga_parser.parser.readmanga.settings"
@@ -40,6 +41,7 @@ def lock_task_by_name(task_name: str):
 
 @app.task(bind=True)
 def parse_readmanga_task(self):
+    # task_status = TaskControl.objects.filter(task_name=self.name, task_status=True)
     with lock_task_by_name(self.name) as lock:
         if lock:
             os.environ.setdefault("SCRAPY_SETTINGS_MODULE", SETTINGS_PATH)
