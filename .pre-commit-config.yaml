@@ -1,19 +1,31 @@
 repos:
-  # Use pre-commit repo, v3.4.0
+  # Use pre-commit repo, v4.0.1
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v3.4.0"
+    rev: "v4.0.1"
     hooks:
       # Check for files that contain merge conflict strings.
       - id: check-merge-conflict
         stages: [ commit, push ]
-      # Simply check whether files parse as valid python.
-      - id: check-ast
+      # Trims trailing whitespace.
+      - id: trailing-whitespace
+        args: [ --markdown-linebreak-ext=md ]
         stages: [ commit ]
+      # Checks that scripts with shebangs are executable.
+      - id: check-shebang-scripts-are-executable
+        stages: [ push ]
 
     # Use locally installed hooks
   - repo: local
 
     hooks:
+      - id: autoflake
+        name: autoflake
+        # autoflake is cringe and does not respect .flake8 F401 ignores
+        entry: bash -c 'make autoflake_fix filename=$@' --
+        language: system
+        types: [ python ]
+        stages: [ commit ]
+
       - id: black
         name: black
         entry: poetry
@@ -23,7 +35,6 @@ repos:
         language: system
         types: [ python ]
         stages: [ commit ]
-        # Black should use the config from the pyproject.toml file
 
       - id: isort
         name: isort
@@ -34,7 +45,6 @@ repos:
         language: system
         types: [ python ]
         stages: [ commit ]
-        # isort's config is also stored in pyproject.toml
 
       - id: flake8
         name: flake8

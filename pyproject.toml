@@ -27,6 +27,8 @@ drf-spectacular = "^0.15.1"
 django-cors-headers = "^3.7.0"
 redis = "^3.5.3"
 autoflake = "^1.4"
+django-admin-easy = "0.6.1"
+django-related-admin = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
@@ -44,7 +46,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 line-length = 100
 target-version = ['py37', 'py38']
-exclude = '''
+force-exclude = '''
 (
     \.eggs
   | \.git

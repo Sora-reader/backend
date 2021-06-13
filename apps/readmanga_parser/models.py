@@ -1,46 +1,36 @@
 from django.db import models
 from django.db.models.fields import TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django_extensions.db.models import TimeStampedModel
+
+from apps.core.models import BaseModel
 
 
-class ReprMixin:
-    def __repr__(self):
-        classname = self.__class__.__name__
-        return f"<{classname}: {self.name}, pk: {self.pk}>"
+class Author(BaseModel):
+    name = TextField(unique=True)
 
 
-class ScreenWriter(TimeStampedModel, ReprMixin, models.Model):
-    name = TextField("screenwriter_name", unique=True)
+class Category(BaseModel):
+    name = TextField(unique=True)
 
 
-class Illustrator(TimeStampedModel, ReprMixin, models.Model):
-    name = TextField("illustrator_name", unique=True)
+class Genre(BaseModel):
+    name = TextField(unique=True)
 
 
-class Author(TimeStampedModel, ReprMixin, models.Model):
-    name = TextField("author_name", unique=True)
+class Person(BaseModel):
+    name = TextField(unique=True)
 
 
-class Category(TimeStampedModel, ReprMixin, models.Model):
-    name = TextField("category_name", unique=True)
+class Manga(BaseModel):
+    NAME_FIELD = "title"
 
-
-class Translator(TimeStampedModel, ReprMixin, models.Model):
-    name = TextField("translator_name", unique=True)
-
-
-class Genre(TimeStampedModel, ReprMixin, models.Model):
-    name = TextField("genre_name", unique=True)
-
-
-class Manga(TimeStampedModel, ReprMixin, models.Model):
-    name = TextField("manga_name", null=True, blank=True)
-    self_url = URLField("manga_url", max_length=1000, unique=True)
-    description = TextField("manga_description")
-    status = TextField("status", null=True, blank=True)
-    year = TextField("year", null=True, blank=True)
-    image_url = URLField("image_url", default="")
+    title = TextField(null=True, blank=True)
+    alt_title = TextField(null=True, blank=True)
+    self_url = URLField(max_length=1000, unique=True)
+    description = TextField()
+    status = TextField(null=True, blank=True)
+    year = TextField(null=True, blank=True)
+    image_url = URLField("thumbnail url", default="")
     # There can be manga with no chapters, i.e. future releases
     chapters = models.JSONField(default=dict)
 
@@ -52,9 +42,15 @@ class Manga(TimeStampedModel, ReprMixin, models.Model):
         "Author", related_name="mangas", on_delete=models.SET_NULL, null=True, blank=True
     )
 
-    illustrators = ManyToManyField("Illustrator", related_name="mangas")
-    screenwriters = ManyToManyField("Screenwriter", related_name="mangas")
-
-    translators = ManyToManyField("Translator", related_name="mangas")
-
     technical_params = models.JSONField(default=dict)
+
+
+class PersonRole(BaseModel):
+    class PersonRoles(models.TextChoices):
+        ILLUSTRATOR = "Illustrator"
+        SCREENWRITER = "SCREENWRITER"
+        TRANSLATOR = "TRANSLATOR"
+
+    person = models.ForeignKey(Person, models.CASCADE, related_name="persons")
+    manga = models.ForeignKey(Manga, models.CASCADE, related_name="mangas")
+    person_role = models.CharField(max_length=15, choices=PersonRoles.choices)

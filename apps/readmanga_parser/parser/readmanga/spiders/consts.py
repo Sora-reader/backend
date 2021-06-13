@@ -1,4 +1,3 @@
-NAME_TAG = '//span[@class = "name"]/text()'
 AUTHOR_TAG = (
     '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementList"]'
     + '/span[@class = "elem_author "]/a[@class = "person-link"]/text()'
@@ -22,8 +21,10 @@ ILLUSTRATOR_TAG = '//span[@class = "elem_illustrator "]//text()'
 
 DESCRIPTIONS_DESCRIPTOR = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md-6")]'
 
-DESC_TEXT_DESCRIPTOR = '//div[@class = "hidden long-description-holder"]//text()'
+DESC_TEXT_DESCRIPTOR = '//div[@class = "hidden long-description"]//text()'
 TITLE_DESCRIPTOR = "//h3/a/@title"
 TITLE_URL_DESCRIPTOR = "//h3/a/@href"
 GENRES_DESCRIPTOR = '//div[@class = "tile-info"]//a[@class = "element-link"]/text()'
 IMG_URL_DESCRIPTOR = '//img[contains(@class, "lazy")]/@data-original'
+
+ALT_TITLE_URL = "//h4[@title]//text()"
