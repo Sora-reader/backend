@@ -39,7 +39,7 @@ def lock_task_by_name(task_name: str):
             cache.delete(task_name)
 
 
-@app.task(bind=True, name=parse_readmanga)
+@app.task(bind=True, name="parse_readmanga")
 def parse_readmanga_task(self):
     task_status = TaskControl.objects.filter(task_name=self.name, task_status=True)
     with lock_task_by_name(self.name) as lock:
