@@ -39,11 +39,11 @@ def lock_task_by_name(task_name: str):
             cache.delete(task_name)
 
 
-@app.task(bind=True)
+@app.task(bind=True, name=parse_readmanga)
 def parse_readmanga_task(self):
-    # task_status = TaskControl.objects.filter(task_name=self.name, task_status=True)
+    task_status = TaskControl.objects.filter(task_name=self.name, task_status=True)
     with lock_task_by_name(self.name) as lock:
-        if lock:
+        if lock and task_status:
             os.environ.setdefault("SCRAPY_SETTINGS_MODULE", SETTINGS_PATH)
             process = CrawlerProcess(get_project_settings())
 
