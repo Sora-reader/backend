@@ -1,5 +1,7 @@
-import os
+from os import environ
 
-broker_url = os.getenv("REDIS_URL")
-result_backend = os.getenv("REDIS_URL")
+REDIS_URL = environ.get("REDIS_URL")
+
+broker_url = REDIS_URL
+result_backend = broker_url
 timezone = "UTC"

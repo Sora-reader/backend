@@ -2,7 +2,7 @@ import os
 import time
 from contextlib import contextmanager
 
-from celery import current_app
+from celery import Task, current_app
 from django.core.cache import cache
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
@@ -40,7 +40,7 @@ def lock_task_by_name(task_name: str):
 
 
 @app.task(bind=True, name="parse_readmanga")
-def parse_readmanga_task(self):
+def parse_readmanga_task(self: Task):
     task_status = TaskControl.objects.filter(task_name=self.name, task_status=True)
     with lock_task_by_name(self.name) as lock:
         if lock and task_status:

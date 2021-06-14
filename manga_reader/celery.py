@@ -2,16 +2,15 @@ import os
 
 from celery import Celery
 from celery.schedules import crontab
+from dotenv.main import load_dotenv
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "manga_reader.settings")
+load_dotenv(".envs/local.env")  # load local dotenvs manually, because we ignore manage.py
 
-app = Celery(
-    "manga",
-    broker="redis://user@redis//",
-    backend="redis://",
-)
-app.config_from_object("manga_reader.celery_config", namespace="CELERY")
+app = Celery("manga")
+app.config_from_object("manga_reader.celery_config")
+
 app.conf.update(
     result_expires=60 * 60,
 )
