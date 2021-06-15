@@ -1,10 +1,11 @@
+# Compose for development using volumes to ensure hot reload
 version: "3"
 
 services:
   web:
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     expose:
       - 8000
     environment:

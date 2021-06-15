@@ -18,8 +18,6 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false
 RUN poetry install
 
-COPY . .
-
-RUN chmod +x docker-entrypoint.sh
+EXPOSE 8000
 
 CMD ["./docker-entrypoint.sh"]
