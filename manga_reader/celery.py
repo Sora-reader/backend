@@ -19,7 +19,7 @@ app.conf.worker_max_tasks_per_child = 1
 app.conf.beat_schedule.update(
     {
         "parsing": {
-            "task": "apps.readmanga_parser.tasks.parse_readmanga_task",
+            "task": "apps.parse.tasks.parse_readmanga_task",
             # schedule parsing at 1.01AM on a daily basis
             "schedule": crontab(hour=1, minute=1),
         },
