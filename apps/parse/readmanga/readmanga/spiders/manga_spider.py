@@ -4,6 +4,7 @@ import requests
 import scrapy
 from lxml import etree
 from scrapy.http import HtmlResponse
+from twisted.python.failure import Failure
 
 from apps.parse.readmanga.readmanga.items import MangaItem
 from apps.parse.readmanga.readmanga.spiders.consts import (
@@ -24,8 +25,19 @@ READMANGA_URL = "https://readmanga.live"
 class MangaSpider(scrapy.Spider):
     name = "manga"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kwargs.get("custom_logger", None):
+            self.__dict__.update({"logger_": kwargs["custom_logger"] or self.logger})
+
     def start_requests(self):
-        mangas_list = requests.get(f"{READMANGA_URL}/list").text
+        self.logger_.info("Starting requests")
+        self.logger_.info("=================")
+        mangas_list = requests.get(f"{READMANGA_URL}/list")
+        if not mangas_list.status_code == 200:
+            self.logger_.error(f"Failed rqeuest with code {mangas_list.status_code}")
+            return
+        mangas_list = mangas_list.text
 
         xpath_selector = '//a[@class = "step"]/text()'
         html_parser = etree.HTML(mangas_list)
@@ -39,6 +51,12 @@ class MangaSpider(scrapy.Spider):
 
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
+
+    def request_fallback(self, failure: Failure):
+        self.logger_.error(
+            f'Request for url "{failure.value.response.url}" '
+            f"failed with status {failure.value.response.status}"
+        )
 
     def parse(self, response):
         mangas = []
@@ -65,5 +83,8 @@ class MangaSpider(scrapy.Spider):
             manga["image_url"] = image_url
             manga["alt_title"] = alt_title
             mangas.append(manga)
+            self.logger_.info('Parsed manga "{}"'.format(title))
 
+        self.logger_.info("Processing items...")
+        self.logger_.info("===================")
         return mangas

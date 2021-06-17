@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "apps.api_docs",
     "apps.login.apps.LoginConfig",
     "apps.parse",
+    "apps.core.apps.CoreConfig",
     "django_extensions",
     "django.contrib.postgres",
 ]
@@ -80,6 +81,7 @@ JAZZMIN_SETTINGS = {
         "parse.translator": "fas fa-language",
         "auth.user": "fas fa-user",
         "auth.group": "fas fa-users",
+        "core.taskcontrol": "fas fa-tasks",
     },
     "order_with_respect_to": [
         "parse",
@@ -241,7 +243,6 @@ USE_L10N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
 
 LOGGING = {
     "version": 1,

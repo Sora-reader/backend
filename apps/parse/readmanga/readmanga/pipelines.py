@@ -19,7 +19,6 @@ def bulk_get_or_create(cls, names: List[str]) -> Tuple:
 class ReadmangaPipeline:
     @staticmethod
     def process_item(item, spider):
-        logger.info(item)
         description = item.get("description")
         genres = item.get("genres")
         title = item.get("title")
@@ -28,7 +27,9 @@ class ReadmangaPipeline:
         alt_title = item.get("alt_title")
 
         if not title:
-            raise KeyError("No title name was set")
+            message = f"Error processing {item}: No title name was set"
+            spider._logger.error(message)
+            raise KeyError(message)
 
         genres = bulk_get_or_create(Genre, genres)
 
@@ -43,6 +44,7 @@ class ReadmangaPipeline:
                 alt_title=alt_title,
             )
             manga = manga_already.first()
+            spider.logger_.info(f'Updated item "{manga}"')
         else:
             manga = Manga.objects.create(
                 self_url=self_url,
@@ -51,6 +53,7 @@ class ReadmangaPipeline:
                 image_url=image_url,
                 alt_title=alt_title,
             )
+            spider.logger_.info(f'Created item "{manga}"')
 
         manga.genres.add(*genres)
 
