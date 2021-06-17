@@ -54,8 +54,3 @@ class PersonRole(BaseModel):
     person = models.ForeignKey(Person, models.CASCADE, related_name="persons")
     manga = models.ForeignKey(Manga, models.CASCADE, related_name="mangas")
     person_role = models.CharField(max_length=15, choices=PersonRoles.choices)
-
-
-class TaskControl(models.Model):
-    task_status = models.BooleanField(default=False)
-    task_name = models.CharField(max_length=255, null=False, blank=False)

@@ -4,6 +4,7 @@ import django.db.models.deletion
 import django_extensions.db.fields
 from django.db import migrations, models
 
+import apps.core.models
 import apps.readmanga_parser.models
 
 
@@ -35,7 +36,7 @@ class Migration(migrations.Migration):
                 "get_latest_by": "modified",
                 "abstract": False,
             },
-            bases=(apps.core.BaseModel, models.Model),
+            bases=(apps.core.models.BaseModel, models.Model),
         ),
         migrations.CreateModel(
             name="Category",
@@ -58,7 +59,7 @@ class Migration(migrations.Migration):
                 "get_latest_by": "modified",
                 "abstract": False,
             },
-            bases=(apps.core.BaseModel, models.Model),
+            bases=(apps.core.models.BaseModel, models.Model),
         ),
         migrations.CreateModel(
             name="Genre",
@@ -81,7 +82,7 @@ class Migration(migrations.Migration):
                 "get_latest_by": "modified",
                 "abstract": False,
             },
-            bases=(apps.core.BaseModel, models.Model),
+            bases=(apps.core.models.BaseModel, models.Model),
         ),
         migrations.CreateModel(
             name="Illustrator",
@@ -104,7 +105,7 @@ class Migration(migrations.Migration):
                 "get_latest_by": "modified",
                 "abstract": False,
             },
-            bases=(apps.core.BaseModel, models.Model),
+            bases=(apps.core.models.BaseModel, models.Model),
         ),
         migrations.CreateModel(
             name="ScreenWriter",
@@ -127,7 +128,7 @@ class Migration(migrations.Migration):
                 "get_latest_by": "modified",
                 "abstract": False,
             },
-            bases=(apps.core.BaseModel, models.Model),
+            bases=(apps.core.models.BaseModel, models.Model),
         ),
         migrations.CreateModel(
             name="Translator",
@@ -150,7 +151,7 @@ class Migration(migrations.Migration):
                 "get_latest_by": "modified",
                 "abstract": False,
             },
-            bases=(apps.core.BaseModel, models.Model),
+            bases=(apps.core.models.BaseModel, models.Model),
         ),
         migrations.CreateModel(
             name="Manga",
@@ -220,6 +221,6 @@ class Migration(migrations.Migration):
                 "get_latest_by": "modified",
                 "abstract": False,
             },
-            bases=(apps.core.BaseModel, models.Model),
+            bases=(apps.core.models.BaseModel, models.Model),
         ),
     ]
