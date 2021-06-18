@@ -45,7 +45,7 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         methods=("get",),
         url_path="search/?title=(?P<title>[^/.]+)",
     )
-    def chapters_list(self, request, title):
+    def search(self, request, title):
         if not title:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         mangas = Manga.objects.filter(title__contains=title)
