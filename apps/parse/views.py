@@ -1,10 +1,11 @@
-from apps.readmanga_parser.models import Manga
-from apps.readmanga_parser.serializers import MangaChaptersSerializer, MangaSerializer
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from apps.parse.models import Manga
+from apps.parse.serializers import MangaChaptersSerializer, MangaSerializer
 
 
 class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
