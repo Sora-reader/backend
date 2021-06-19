@@ -31,6 +31,7 @@ class Manga(BaseModel):
     status = TextField(null=True, blank=True)
     year = TextField(null=True, blank=True)
     image_url = URLField("thumbnail url", default="")
+    source = TextField(null=True, blank=True)
     # There can be manga with no chapters, i.e. future releases
     chapters = models.JSONField(default=dict)
 

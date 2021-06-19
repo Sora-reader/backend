@@ -1,7 +1,10 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework import routers
 
-from apps.parse.views import SearchAPIView
+from apps.parse.views import MangaViewSet
 
-urlpatterns = [
-    path("search/<str:title>", SearchAPIView.as_view()),
-]
+router = routers.DefaultRouter()
+
+router.register(r"manga", MangaViewSet, basename="manga")
+
+urlpatterns = [path(r"", include(router.urls))]
