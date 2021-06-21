@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
@@ -54,3 +55,4 @@ class SignOutView(APIView):
                 print("Token already expired")
         else:
             print("No token, nothing to blacklist")
+        return HttpResponse(status=200)
