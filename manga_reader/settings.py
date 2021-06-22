@@ -78,7 +78,7 @@ JAZZMIN_SETTINGS = {
         "parse.manga": "fas fa-book-open",
         "parse.author": "fas fa-user-edit",
         "parse.genre": "fas fa-theater-masks",
-        "parse.translator": "fas fa-language",
+        "parse.person": "fas fa-user-edit",
         "auth.user": "fas fa-user",
         "auth.group": "fas fa-users",
         "core.taskcontrol": "fas fa-tasks",

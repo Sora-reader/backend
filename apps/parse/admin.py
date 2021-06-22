@@ -1,12 +1,12 @@
 from django.contrib import admin
 
-from apps.core.admin import AuthorLinkMixin, BaseAdmin, ImagePreviewMixin
-from apps.parse.models import Author, Genre, Manga
+from apps.core.admin import BaseAdmin, ImagePreviewMixin
+from apps.parse.models import Genre, Manga, Person
 
 
 @admin.register(Manga)
-class MangaAdmin(BaseAdmin, AuthorLinkMixin, ImagePreviewMixin, admin.ModelAdmin):
-    search_fields = ("title",)
+class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
+    search_fields = ("title", "alt_title")
     list_display = (
         "title",
         "alt_title",
@@ -14,15 +14,15 @@ class MangaAdmin(BaseAdmin, AuthorLinkMixin, ImagePreviewMixin, admin.ModelAdmin
         "status",
         "year",
         "genres_list",
-        "author_link",
+        "authors",
     )
-    list_filter = ("categories",)
 
+    authors = BaseAdmin.related_string(Manga.authors, short_description="Authors", html=True)
     genres_list = BaseAdmin.related_string(Genre)
 
 
-@admin.register(Author)
-class AuthorAdmin(BaseAdmin, admin.ModelAdmin):
+@admin.register(Person)
+class PersonAdmin(BaseAdmin, admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name",)
 

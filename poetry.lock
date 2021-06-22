@@ -437,6 +437,18 @@ python-versions = "*"
 six = "*"
 
 [[package]]
+name = "django-typomatic"
+version = "1.5.0"
+description = "A simple solution for generating Typescript interfaces from your Django Rest Framework Serializers."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+django = "*"
+djangorestframework = "*"
+
+[[package]]
 name = "djangorestframework"
 version = "3.12.4"
 description = "Web APIs for Django, made easy."
@@ -1408,7 +1420,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b67c569f6c1bc438519e2211ee138f29528571716490fdaf0e2890c4202d3010"
+content-hash = "d5de7be2d696f50514ce2074715dff3899706b64ca248cfb9d6f3852a17aa4e5"
 
 [metadata.files]
 amqp = [
@@ -1627,6 +1639,10 @@ django-jazzmin = [
 ]
 django-related-admin = [
     {file = "django-related-admin-1.0.1.tar.gz", hash = "sha256:abfa8a3f2fdb8e00e71313aab83de9036be9c0517f297b0d8d414d81cffd1d8d"},
+]
+django-typomatic = [
+    {file = "django-typomatic-1.5.0.tar.gz", hash = "sha256:5df2a05d2cd7c76033db709b8e3be938178afc163adb99f868b704321f145d82"},
+    {file = "django_typomatic-1.5.0-py3-none-any.whl", hash = "sha256:80bbfc087b269c51297c47539d8e7245872e49cdf2a91ecc0d187f2554e1e746"},
 ]
 djangorestframework = [
     {file = "djangorestframework-3.12.4-py3-none-any.whl", hash = "sha256:6d1d59f623a5ad0509fe0d6bfe93cbdfe17b8116ebc8eda86d45f6e16e819aaf"},
