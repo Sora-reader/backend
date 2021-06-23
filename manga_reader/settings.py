@@ -141,7 +141,7 @@ SIMPLE_JWT = {
 }
 
 ##############
-# Middleware #
+# Middleware
 ##############
 
 MIDDLEWARE = [

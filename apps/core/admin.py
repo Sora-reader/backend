@@ -15,7 +15,7 @@ class ImagePreviewMixin:
     @easy.smart(__name__="Image")
     def get_image(self, obj: Manga):
         style = "max-height: 100px; border-radius: 3px;"
-        return format_html(f"<img src='{obj.image_url}' style='{str(style)}' />")
+        return format_html(f"<img src='{obj.thumbnail}' style='{str(style)}' />")
 
 
 class RelatedField:

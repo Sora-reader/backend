@@ -4,8 +4,8 @@ from django.urls import path
 
 apipatterns = [
     path("docs/", include("apps.api_docs.urls")),
+    path("manga/", include("apps.parse.urls")),
     path("auth/", include("apps.login.urls")),
-    path("", include("apps.parse.urls")),
 ]
 
 urlpatterns = [

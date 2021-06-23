@@ -29,6 +29,7 @@ class Command(BaseCommand):
 
             self.stdout.write("Parser found\n", self.style.SUCCESS)
 
+            # TODO: prettify and redirect loggers
             class Logger:
                 def __init__(self_) -> None:
                     self_.info = partial(

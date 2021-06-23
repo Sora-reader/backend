@@ -8,16 +8,22 @@ from apps.parse.models import Author, Genre, Manga, Person
 class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
     search_fields = ("title", "alt_title")
     list_display = (
-        "title",
-        "alt_title",
+        "custom_title",
         "get_image",
-        "status",
-        "year",
         "authors",
+        "status",
         "genre_list",
     )
 
-    authors = RelatedField(Manga.authors, html=True)
+    def custom_title(self, obj: Manga):
+        concat = f"{obj.title}{', ' + obj.year if obj.year else ''}"
+        if len(concat) < 30:
+            concat += f" ({obj.alt_title})"
+        return concat
+
+    custom_title.short_description = "Title"
+
+    authors = RelatedField(Manga.authors, description="Authors", html=True)
     genre_list = RelatedField(Genre)
 
 
