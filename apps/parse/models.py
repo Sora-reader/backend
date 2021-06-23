@@ -1,9 +1,11 @@
 import re
-from typing import List
+from functools import reduce
 
 from django.db import models
 from django.db.models.fields import TextField, URLField
 from django.db.models.fields.related import ManyToManyField
+from django.db.models.query import QuerySet
+from django.db.models.query_utils import Q
 
 from apps.core.models import BaseModel
 
@@ -18,6 +20,17 @@ class Genre(BaseModel):
 
 class Person(BaseModel):
     name = TextField(unique=True)
+
+
+class Author(Person):
+    class AuthorManager(models.Manager):
+        def get_queryset(self):
+            return super().get_queryset().filter(manga_relations__role="author")
+
+    objects = AuthorManager()
+
+    class Meta:
+        proxy = True
 
 
 class PersonRelatedToManga(models.Model):
@@ -65,9 +78,17 @@ class Manga(BaseModel):
         domain = re.match(r"^http[s]?://(.*)/.*$", self.source_url).group(0)
         return self.__class__.SOURCE_MAP[domain]
 
-    def related_people_filter(self, role: PersonRelatedToManga.Roles) -> List["Person"]:
-        relations = self.person_relations.filter(role=role).all()
-        return list(set(r.person for r in relations))
+    def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
+        role_relations = self.person_relations.filter(role=role).all()
+        if not role_relations:
+            return Person.objects.none()
+        relations = Person.objects.filter(
+            reduce(
+                lambda x, y: x | y,
+                [Q(manga_relations__manga=relation.manga) for relation in role_relations],
+            )
+        )
+        return relations
 
     @property
     def authors(self):

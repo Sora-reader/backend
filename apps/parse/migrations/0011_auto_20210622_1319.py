@@ -3,7 +3,6 @@
 import django.db.models.deletion
 import django_extensions.db.fields
 from django.db import migrations, models
-from django.db.migrations.operations.fields import AlterField
 
 
 class Migration(migrations.Migration):
