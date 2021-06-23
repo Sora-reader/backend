@@ -1,7 +1,8 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.parse.models import Manga
@@ -10,15 +11,18 @@ from apps.parse.serializers import MangaChaptersSerializer, MangaSerializer
 
 class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = MangaSerializer
-    permission_classes = (IsAuthenticated,)
     queryset = Manga.objects.all()
 
     def get_object(self):
         return get_object_or_404(Manga, id=self.kwargs.get("pk"))
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("manga_id", OpenApiTypes.NUMBER, OpenApiParameter.PATH),
+        ]
+    )
     @action(
         detail=False,
-        permission_classes=(IsAuthenticated,),
         methods=("get",),
         url_path="(?P<manga_id>[^/.]+)/chapters",
     )
@@ -27,9 +31,14 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         serializer = MangaChaptersSerializer(mangas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("manga_id", OpenApiTypes.NUMBER, OpenApiParameter.PATH),
+            OpenApiParameter("chapter_id", OpenApiTypes.NUMBER, OpenApiParameter.PATH),
+        ]
+    )
     @action(
         detail=False,
-        permission_classes=(IsAuthenticated,),
         methods=("get",),
         url_path="(?P<manga_id>[^/.]+)/chapter/(?P<chapter_id>[^/.]+)/images",
     )
@@ -39,15 +48,20 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         serializer = MangaChaptersSerializer(mangas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("title", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        ]
+    )
     @action(
         detail=False,
-        permission_classes=(IsAuthenticated,),
         methods=("get",),
-        url_path="search/?title=(?P<title>[^/.]+)",
+        url_path="search",
     )
-    def search(self, request, title):
+    def search(self, request):
+        title = request.GET.get("title", None)
         if not title:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        mangas = Manga.objects.filter(title__contains=title)
+        mangas = Manga.objects.filter(title__icontains=title, alt_title__icontains=title)
         serializer = MangaSerializer(mangas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

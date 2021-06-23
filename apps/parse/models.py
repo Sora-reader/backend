@@ -52,20 +52,17 @@ class Manga(BaseModel):
         "readmanga.live": "ReadManga",
     }
 
-    title = TextField(null=True, blank=True)
+    title = TextField()
     alt_title = TextField(null=True, blank=True)
-
-    # https://stackoverflow.com/questions/417142
-    source_url = URLField(max_length=2000, unique=True)
-
+    thumbnail = URLField(max_length=2000, default="")
+    image = URLField(max_length=2000, default="")
     description = TextField()
     status = TextField(null=True, blank=True)
     year = TextField(null=True, blank=True)
-    image_url = URLField("thumbnail url", default="")
-
+    # https://stackoverflow.com/questions/417142
+    source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
-    chapters = models.JSONField(default=dict)
-
+    volumes = models.JSONField(default=dict)
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
 
