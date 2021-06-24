@@ -1,6 +1,6 @@
 import re
 
-from apps.parse.readmanga.readmanga.descr_utils import clear_list_description
+from apps.parse.readmanga.readmanga.utils import clear_list_description
 
 
 def extract_description(response, descriptor) -> str:

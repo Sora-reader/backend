@@ -42,6 +42,7 @@ repos:
         args:
           - run
           - isort
+          - --filter-files
         language: system
         types: [ python ]
         stages: [ commit ]

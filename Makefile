@@ -56,6 +56,11 @@ shell: check-dotenv check-venv ## Run django-extension's shell_plus
 	pretty.install()
 	"""
 
+shell-sql: check-dotenv check-venv ## Run django-extension's shell_plus
+	@$(interpreter) ./manage.py shell_plus --ipython --print-sql -- -i -c """from rich import pretty, inspect
+	pretty.install()
+	"""
+
 runserver: check-dotenv check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
 	@. ./.envs/local.env && if [ "$(DEBUG)" = 0 ]; then ./manage.py collectstatic --noinput --clear; fi
 	@$(interpreter) ./manage.py migrate --noinput

@@ -1,30 +1,41 @@
 from django.contrib import admin
 
-from apps.core.admin import AuthorLinkMixin, BaseAdmin, ImagePreviewMixin
-from apps.parse.models import Author, Genre, Manga
+from apps.core.admin import BaseAdmin, ImagePreviewMixin, RelatedField
+from apps.parse.models import Author, Genre, Manga, Person
 
 
 @admin.register(Manga)
-class MangaAdmin(BaseAdmin, AuthorLinkMixin, ImagePreviewMixin, admin.ModelAdmin):
-    search_fields = ("title",)
+class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
+    search_fields = ("title", "alt_title")
     list_display = (
-        "title",
-        "alt_title",
+        "custom_title",
         "get_image",
+        "authors",
         "status",
-        "year",
-        "genres_list",
-        "author_link",
+        "genre_list",
     )
-    list_filter = ("categories",)
 
-    genres_list = BaseAdmin.related_string(Genre)
+    def custom_title(self, obj: Manga):
+        concat = f"{obj.title}{', ' + obj.year if obj.year else ''}"
+        if len(concat) < 30:
+            concat += f" ({obj.alt_title})"
+        return concat
+
+    custom_title.short_description = "Title"
+
+    authors = RelatedField(Manga.authors, description="Authors", html=True)
+    genre_list = RelatedField(Genre)
+
+
+@admin.register(Person)
+class PersonAdmin(BaseAdmin, admin.ModelAdmin):
+    search_fields = ("name",)
+    list_display = ("name",)
 
 
 @admin.register(Author)
-class AuthorAdmin(BaseAdmin, admin.ModelAdmin):
-    search_fields = ("name",)
-    list_display = ("name",)
+class AuthorAdmin(PersonAdmin):
+    pass
 
 
 @admin.register(Genre)

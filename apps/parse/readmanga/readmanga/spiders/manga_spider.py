@@ -6,16 +6,15 @@ from lxml import etree
 from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
 
-from apps.parse.consts import READMANGA_SOURCE
-from apps.parse.readmanga.readmanga.items import MangaItem
+# from apps.parse.consts import READMANGA_SOURCE
 from apps.parse.readmanga.readmanga.spiders.consts import (
     ALT_TITLE_URL,
     DESC_TEXT_DESCRIPTOR,
     DESCRIPTIONS_DESCRIPTOR,
     GENRES_DESCRIPTOR,
     IMG_URL_DESCRIPTOR,
+    SOURCE_URL_DESCRIPTOR,
     TITLE_DESCRIPTOR,
-    TITLE_URL_DESCRIPTOR,
 )
 from apps.parse.readmanga.readmanga.spiders.utils import extract_description
 
@@ -63,28 +62,30 @@ class MangaSpider(scrapy.Spider):
         mangas = []
         descriptions = response.xpath(DESCRIPTIONS_DESCRIPTOR).extract()
         for description in descriptions:
-            manga = MangaItem()
             response = HtmlResponse(url="", body=description, encoding="utf-8")
+
             title = response.xpath(TITLE_DESCRIPTOR).extract()[0]
-            title_url = response.xpath(TITLE_URL_DESCRIPTOR).extract()[0]
+            source_url = response.xpath(SOURCE_URL_DESCRIPTOR).extract()[0]
             # this is neccesary due to cleanse description from garbage
             desc_text = extract_description(response, DESC_TEXT_DESCRIPTOR)
             genres = response.xpath(GENRES_DESCRIPTOR).extract()
-            image_url = response.xpath(IMG_URL_DESCRIPTOR).extract()[0]
+            thumbnail = response.xpath(IMG_URL_DESCRIPTOR).extract()[0]
             alt_title = (
                 response.xpath(ALT_TITLE_URL).extract()[0]
                 if response.xpath(ALT_TITLE_URL).extract()
                 else ""
             )
 
-            manga["genres"] = genres
-            manga["description"] = desc_text
-            manga["title"] = title
-            manga["title_url"] = READMANGA_URL + title_url
-            manga["image_url"] = image_url
-            manga["alt_title"] = alt_title
-            manga["source"] = READMANGA_SOURCE
-            mangas.append(manga)
+            mangas.append(
+                {
+                    "title": title,
+                    "alt_title": alt_title,
+                    "thumbnail": thumbnail,
+                    "description": desc_text,
+                    "genres": genres,
+                    "source_url": READMANGA_URL + source_url,
+                }
+            )
             self.logger_.info('Parsed manga "{}"'.format(title))
 
         self.logger_.info("Processing items...")
