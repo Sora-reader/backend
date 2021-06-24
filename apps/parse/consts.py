@@ -1,0 +1,1 @@
+READMANGA_SOURCE = "readmanga"

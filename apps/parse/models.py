@@ -1,8 +1,9 @@
 from django.db import models
-from django.db.models.fields import TextField, URLField
+from django.db.models.fields import DateTimeField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 
 from apps.core.models import BaseModel
+from apps.parse.consts import READMANGA_SOURCE
 
 
 class Author(BaseModel):
@@ -32,8 +33,9 @@ class Manga(BaseModel):
     year = TextField(null=True, blank=True)
     image_url = URLField("thumbnail url", default="")
     # There can be manga with no chapters, i.e. future releases
+    updated_chapters = DateTimeField(null=True, blank=True)
     chapters = models.JSONField(default=dict)
-
+    rss_url = TextField(null=True, blank=True)
     genres = ManyToManyField("Genre", related_name="mangas")
 
     categories = ManyToManyField("Category", related_name="mangas")
@@ -41,8 +43,8 @@ class Manga(BaseModel):
     author = ForeignKey(
         "Author", related_name="mangas", on_delete=models.SET_NULL, null=True, blank=True
     )
-
-    technical_params = models.JSONField(default=dict)
+    source = TextField(default=READMANGA_SOURCE)
+    updated_detail = models.DateTimeField(null=True, blank=True)
 
 
 class PersonRole(BaseModel):
