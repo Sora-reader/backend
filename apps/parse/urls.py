@@ -5,6 +5,6 @@ from apps.parse.views import MangaViewSet
 
 router = routers.DefaultRouter()
 
-router.register(r"manga", MangaViewSet, basename="manga")
+router.register(r"", MangaViewSet, basename="manga")
 
 urlpatterns = [path(r"", include(router.urls))]

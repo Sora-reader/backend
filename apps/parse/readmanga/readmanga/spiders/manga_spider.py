@@ -13,6 +13,7 @@ from apps.parse.readmanga.readmanga.spiders.consts import (
     GENRES_DESCRIPTOR,
     IMG_URL_DESCRIPTOR,
     SOURCE_URL_DESCRIPTOR,
+    STAR_RATE_DESCRIPTOR,
     TITLE_DESCRIPTOR,
 )
 from apps.parse.readmanga.readmanga.spiders.utils import extract_description
@@ -64,6 +65,12 @@ class MangaSpider(scrapy.Spider):
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
             title = response.xpath(TITLE_DESCRIPTOR).extract()[0]
+            try:
+                rating = round(
+                    float(response.xpath(STAR_RATE_DESCRIPTOR).extract()[0].split(" из ")[0]), 2
+                )
+            except Exception:
+                rating = 0
             source_url = response.xpath(SOURCE_URL_DESCRIPTOR).extract()[0]
             # this is neccesary due to cleanse description from garbage
             desc_text = extract_description(response, DESC_TEXT_DESCRIPTOR)
@@ -79,6 +86,7 @@ class MangaSpider(scrapy.Spider):
                 {
                     "title": title,
                     "alt_title": alt_title,
+                    "rating": rating,
                     "thumbnail": thumbnail,
                     "description": desc_text,
                     "genres": genres,

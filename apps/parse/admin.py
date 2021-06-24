@@ -11,6 +11,7 @@ class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
         "custom_title",
         "get_image",
         "authors",
+        "rating",
         "status",
         "genre_list",
     )

@@ -1,3 +1,4 @@
+from django.db.models.query_utils import Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, status, viewsets
@@ -62,6 +63,6 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         title = request.GET.get("title", None)
         if not title:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        mangas = Manga.objects.filter(title__icontains=title, alt_title__icontains=title)
+        mangas = Manga.objects.filter(Q(title__icontains=title) | Q(alt_title__icontains=title))
         serializer = MangaSerializer(mangas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

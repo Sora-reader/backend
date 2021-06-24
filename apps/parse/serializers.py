@@ -19,6 +19,7 @@ class MangaSerializer(serializers.ModelSerializer):
             "source",
             "title",
             "alt_title",
+            "rating",
             "thumbnail",
             "image",
             "description",

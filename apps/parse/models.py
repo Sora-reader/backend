@@ -2,7 +2,7 @@ import re
 from functools import reduce
 
 from django.db import models
-from django.db.models.fields import TextField, URLField
+from django.db.models.fields import FloatField, TextField, URLField
 from django.db.models.fields.related import ManyToManyField
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
@@ -54,6 +54,7 @@ class Manga(BaseModel):
 
     title = TextField()
     alt_title = TextField(null=True, blank=True)
+    rating = FloatField(default=0)
     thumbnail = URLField(max_length=2000, default="")
     image = URLField(max_length=2000, default="")
     description = TextField()
@@ -102,3 +103,8 @@ class Manga(BaseModel):
     @property
     def translators(self):
         return self.related_people_filter(role=PersonRelatedToManga.Roles.translator)
+
+    def save(self, **kwargs):
+        if not self.image:
+            self.image = self.thumbnail
+        return super().save(**kwargs)
