@@ -5,20 +5,18 @@ from typing import Optional
 import lxml.html as lh
 import pytz
 import requests
-from dateutil import parser
 
-from apps.parse.models import Author, Category, Manga
-from apps.parse.readmanga.readmanga.spiders.consts import (
+from apps.parse.models import Author, Category, Manga, Person, PersonRole
+from apps.parse.readmanga.readmanga.spiders.consts import (  # CHAPTERS_TAG,
     AUTHOR_TAG,
     CATEGORY_TAG,
-    CHAPTERS_TAG,
     ILLUSTRATOR_TAG,
+    RSS_TAG,
     SCREENWRITER_TAG,
-    TITLE_DESCRIPTOR,
     TRANSLATORS_TAG,
     YEAR_TAG,
 )
-from apps.parse.readmanga.readmanga.spiders.utils import chapters_into_dict, handle_xpath_response
+from apps.parse.readmanga.readmanga.spiders.utils import handle_xpath_response
 
 logger = logging.getLogger("Detailed manga parser")
 
@@ -32,15 +30,14 @@ def get_detailed_info(url: str) -> dict:
     manga_html = requests.get(url).text
     manga_html = lh.fromstring(manga_html)
 
-    name_to_save_by = manga_html.xpath(TITLE_DESCRIPTOR)[0]
-
     author = handle_xpath_response(manga_html, AUTHOR_TAG)
+
     year = handle_xpath_response(manga_html, YEAR_TAG)
+
+    rss_url = handle_xpath_response(manga_html, RSS_TAG)
+
     translators = manga_html.xpath(TRANSLATORS_TAG)
     translators = clean_list_from_garbage_strings(translators)
-
-    chapters = manga_html.xpath(CHAPTERS_TAG)
-    chapters = chapters_into_dict(chapters)
 
     categories = manga_html.xpath(CATEGORY_TAG)
     categories = clean_list_from_garbage_strings(categories)
@@ -52,77 +49,101 @@ def get_detailed_info(url: str) -> dict:
     screenwriters = clean_list_from_garbage_strings(screenwriters)
 
     detailed_info = {
-        "name": name_to_save_by,
         "author": author,
         "year": year,
         "translators": translators,
-        "chapters": chapters,
         "illustrators": illustrators,
         "screenwriters": screenwriters,
         "categories": categories,
+        "rss_url": rss_url,
     }
     return detailed_info
 
 
 def save_detailed_manga_info(
-    name,
+    manga,
     author=None,
     year=None,
     translators=None,
-    chapters=None,
     illustrators=None,
     screenwriters=None,
     categories=None,
+    rss_url=None,
 ) -> None:
-    manga = Manga.objects.filter(name__icontains=name).first()
     if manga is None:
         return
 
+    INSTANCE = 0
+
     manga.year = year
-    manga.chapters = chapters
+    manga.author = Author.objects.get_or_create(name=author)[INSTANCE]
 
-    # FIXME bulk_get_or_create instead of get_or_create
-    author, _ = Author.objects.get_or_create(name=author)
-    # translator, _ = Translator.objects.get_or_create(name=translators[0])
-    # illustrator, _ = Illustrator.objects.get_or_create(name=illustrators[0])
-    # screenwriter, _ = ScreenWriter.objects.get_or_create(name=screenwriters[0])
-    category, _ = Category.objects.get_or_create(name=categories[0])
+    translators = PersonRole.objects.bulk_create(
+        [
+            PersonRole(
+                person_role=PersonRole.PersonRoles.TRANSLATOR,
+                person=Person.objects.get_or_create(name=translator)[INSTANCE],
+                manga=manga,
+            )
+            for translator in translators
+        ],
+        ignore_conflicts=True,
+    )
+    illustrators = PersonRole.objects.bulk_create(
+        [
+            PersonRole(
+                person_role=PersonRole.PersonRoles.ILLUSTRATOR,
+                person=Person.objects.get_or_create(name=illustrator)[INSTANCE],
+                manga=manga,
+            )
+            for illustrator in illustrators
+        ],
+        ignore_conflicts=True,
+    )
+    screenwriters = PersonRole.objects.bulk_create(
+        [
+            PersonRole(
+                person_role=PersonRole.PersonRoles.SCREENWRITER,
+                person=Person.objects.get_or_create(name=screenwriter)[INSTANCE],
+                manga=manga,
+            )
+            for screenwriter in screenwriters
+        ],
+        ignore_conflicts=True,
+    )
+    categories = Category.objects.bulk_create(
+        [Category(name=category) for category in categories], ignore_conflicts=True
+    )
 
-    author.mangas.add(manga)
-    # manga.illustrators.add(illustrator.id)
-    # manga.screenwriters.add(screenwriter.id)
-    # manga.translators.add(translator.id)
-    manga.categories.add(category.id)
-
-    time_detailed = str(dt.datetime.now(tz=pytz.UTC))
-    manga.technical_params.update({"time_detailed": time_detailed})
-
+    manga.categories.set(categories)
+    manga.rss_url = rss_url
+    manga.updated_detail = dt.datetime.now(pytz.UTC)
     manga.save()
 
 
-def was_manga_updated(manga):
-    if detailed := manga.technical_params.get("time_detailed"):
-        detailed = parser.parse(detailed, tzinfos=[pytz.UTC])
-        update_deadline = detailed - dt.timedelta(minutes=30)
-        if dt.datetime.now(pytz.UTC) > update_deadline:
-            msg = f"Manga {manga.name} has been already updated 30 mins ago"
-            logger.error(msg)
+def is_need_update(manga: Manga):
+    if manga.updated_detail:
+        update_deadline = manga.updated_detail - dt.timedelta(minutes=30)
+        if dt.datetime.now(pytz.UTC) >= update_deadline:
             return True
-    return False
+        else:
+            logger.info(f"Manga {manga.alt_title} is already up to date")
+            return False
+    else:
+        return True
 
 
-def deepen_manga_info(name: str) -> Optional[dict]:
-    manga = Manga.objects.filter(name__icontains=name).first()
+def deepen_manga_info(id: int) -> Optional[dict]:
+    manga = Manga.objects.filter(pk=id).first()
     if manga is None:
         logger.error("Manga not found")
         return
 
-    # check if it wasnt updated for a while
-    url = manga.self_url
-    if was_manga_updated(manga):
+    if not is_need_update(manga):
         return
 
+    url = manga.self_url
     info: dict = get_detailed_info(url)
-    save_detailed_manga_info(**info)
-    logger.info(f"Successful detailing of manga {manga.name}")
+    save_detailed_manga_info(manga=manga, **info)
+    logger.info(f"Successful detailing of manga {manga.alt_title}")
     return info

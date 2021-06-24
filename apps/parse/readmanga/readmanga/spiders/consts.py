@@ -1,21 +1,16 @@
-AUTHOR_TAG = (
-    '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementList"]'
-    + '/span[@class = "elem_author "]/a[@class = "person-link"]/text()'
-)
-YEAR_TAG = (
-    '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementList"]'
-    + '/span[@class = "elem_year "]/a[@class = "element-link"]/text()'
-)
-TRANSLATORS_TAG = (
-    '//div[@class = "subject-meta col-sm-7"]/p[@class = "elementList"]'
-    + '/span[@class = "elem_translator "]/a[@class = "person-link"]/text()'
-)
-CATEGORY_TAG = '//span[@class = "elem_category "]//text()'
+# descriptors for detail manga parser
+
+RSS_TAG = "//head/link[@type='application/rss+xml']/@href"
+AUTHOR_TAG = "//span[@class='elem_author ']/a[@class='person-link']/text()"
+YEAR_TAG = "//span[@class='elem_year ']/a[@class='element-link']/text()"
+TRANSLATORS_TAG = "//span[@class='elem_translator ']/a[@class='person-link']/text()"
+ILLUSTRATOR_TAG = '//span[@class = "elem_illustrator "]/a[@class="person-link"]/text()'
+SCREENWRITER_TAG = '//span[@class="elem_screenwriter "]/a[@class="person-link"]/text()'
+CATEGORY_TAG = '//span[@class = "elem_category "]/a[@class="element-link"]/text()'
+
 CHAPTERS_TAG = (
     '//table[@class = "table table-hover"]//a/@href|//table[@class = "table table-hover"]//a/text()'
 )
-SCREENWRITER_TAG = '//span[@class = "elem_screenwriter "]//text()'
-ILLUSTRATOR_TAG = '//span[@class = "elem_illustrator "]//text()'
 
 # descriptors for main manga catalogue
 

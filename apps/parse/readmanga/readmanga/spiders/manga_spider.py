@@ -6,6 +6,7 @@ from lxml import etree
 from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
 
+from apps.parse.consts import READMANGA_SOURCE
 from apps.parse.readmanga.readmanga.items import MangaItem
 from apps.parse.readmanga.readmanga.spiders.consts import (
     ALT_TITLE_URL,
@@ -82,6 +83,7 @@ class MangaSpider(scrapy.Spider):
             manga["title_url"] = READMANGA_URL + title_url
             manga["image_url"] = image_url
             manga["alt_title"] = alt_title
+            manga["source"] = READMANGA_SOURCE
             mangas.append(manga)
             self.logger_.info('Parsed manga "{}"'.format(title))
 

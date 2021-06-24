@@ -25,6 +25,7 @@ class ReadmangaPipeline:
         self_url = item.get("title_url")
         image_url = item.get("image_url")
         alt_title = item.get("alt_title")
+        source = item.get("source")
 
         if not title:
             message = f"Error processing {item}: No title name was set"
@@ -42,6 +43,7 @@ class ReadmangaPipeline:
                 description=description,
                 image_url=image_url,
                 alt_title=alt_title,
+                source=source,
             )
             manga = manga_already.first()
             spider.logger_.info(f'Updated item "{manga}"')
@@ -52,6 +54,7 @@ class ReadmangaPipeline:
                 description=description,
                 image_url=image_url,
                 alt_title=alt_title,
+                source=source,
             )
             spider.logger_.info(f'Created item "{manga}"')
 
