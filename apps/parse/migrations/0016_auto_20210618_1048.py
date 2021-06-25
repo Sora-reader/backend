@@ -6,15 +6,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('parse', '0010_delete_taskcontrol'),
+        ('parse', '0015_auto_20210623_1321'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='manga',
-            name='source',
-            field=models.TextField(default='readmanga'),
-        ),
         migrations.AddField(
             model_name='manga',
             name='updated_chapters',
@@ -24,6 +19,11 @@ class Migration(migrations.Migration):
             model_name='manga',
             name='updated_detail',
             field=models.DateTimeField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='manga',
+            name='rss_url',
+            field=models.TextField(blank=True, null=True),
         ),
 
     ]

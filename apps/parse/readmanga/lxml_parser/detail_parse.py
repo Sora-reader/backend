@@ -6,10 +6,11 @@ import lxml.html as lh
 import pytz
 import requests
 
-from apps.parse.models import Author, Category, Manga, Person, PersonRole
-from apps.parse.readmanga.readmanga.spiders.consts import (  # CHAPTERS_TAG,
+from apps.parse.models import Category, Manga, Person, PersonRelatedToManga
+from apps.parse.readmanga.readmanga.spiders.consts import (
     AUTHOR_TAG,
     CATEGORY_TAG,
+    DESCRIPTION_TAG,
     ILLUSTRATOR_TAG,
     RSS_TAG,
     SCREENWRITER_TAG,
@@ -30,11 +31,12 @@ def get_detailed_info(url: str) -> dict:
     manga_html = requests.get(url).text
     manga_html = lh.fromstring(manga_html)
 
-    author = handle_xpath_response(manga_html, AUTHOR_TAG)
-
     year = handle_xpath_response(manga_html, YEAR_TAG)
-
+    description = handle_xpath_response(manga_html, DESCRIPTION_TAG)
     rss_url = handle_xpath_response(manga_html, RSS_TAG)
+
+    authors = manga_html.xpath(AUTHOR_TAG)
+    authors = clean_list_from_garbage_strings(authors)
 
     translators = manga_html.xpath(TRANSLATORS_TAG)
     translators = clean_list_from_garbage_strings(translators)
@@ -49,8 +51,9 @@ def get_detailed_info(url: str) -> dict:
     screenwriters = clean_list_from_garbage_strings(screenwriters)
 
     detailed_info = {
-        "author": author,
+        "authors": authors,
         "year": year,
+        "description": description,
         "translators": translators,
         "illustrators": illustrators,
         "screenwriters": screenwriters,
@@ -60,10 +63,28 @@ def get_detailed_info(url: str) -> dict:
     return detailed_info
 
 
+def save_persons(manga, role, persons):
+    INSTANCE = 0
+    PeopleRelated: PersonRelatedToManga = manga.people_related.through
+    PeopleRelated.objects.filter(role=role).delete()
+    PeopleRelated.objects.bulk_create(
+        [
+            PeopleRelated(
+                person=Person.objects.get_or_create(name=person)[INSTANCE],
+                manga=manga,
+                role=role,
+            )
+            for person in persons
+        ],
+        ignore_conflicts=True,
+    )
+
+
 def save_detailed_manga_info(
-    manga,
-    author=None,
+    manga: Manga,
+    authors=None,
     year=None,
+    description=None,
     translators=None,
     illustrators=None,
     screenwriters=None,
@@ -73,57 +94,25 @@ def save_detailed_manga_info(
     if manga is None:
         return
 
-    INSTANCE = 0
-
     manga.year = year
-    manga.author = Author.objects.get_or_create(name=author)[INSTANCE]
-
-    translators = PersonRole.objects.bulk_create(
-        [
-            PersonRole(
-                person_role=PersonRole.PersonRoles.TRANSLATOR,
-                person=Person.objects.get_or_create(name=translator)[INSTANCE],
-                manga=manga,
-            )
-            for translator in translators
-        ],
-        ignore_conflicts=True,
-    )
-    illustrators = PersonRole.objects.bulk_create(
-        [
-            PersonRole(
-                person_role=PersonRole.PersonRoles.ILLUSTRATOR,
-                person=Person.objects.get_or_create(name=illustrator)[INSTANCE],
-                manga=manga,
-            )
-            for illustrator in illustrators
-        ],
-        ignore_conflicts=True,
-    )
-    screenwriters = PersonRole.objects.bulk_create(
-        [
-            PersonRole(
-                person_role=PersonRole.PersonRoles.SCREENWRITER,
-                person=Person.objects.get_or_create(name=screenwriter)[INSTANCE],
-                manga=manga,
-            )
-            for screenwriter in screenwriters
-        ],
-        ignore_conflicts=True,
-    )
-    categories = Category.objects.bulk_create(
-        [Category(name=category) for category in categories], ignore_conflicts=True
-    )
-
-    manga.categories.set(categories)
     manga.rss_url = rss_url
+    manga.description = description
+
+    save_persons(manga, PersonRelatedToManga.Roles.author, authors)
+    save_persons(manga, PersonRelatedToManga.Roles.illustrator, illustrators)
+    save_persons(manga, PersonRelatedToManga.Roles.screenwriter, screenwriters)
+    save_persons(manga, PersonRelatedToManga.Roles.translator, translators)
+
+    categories = [Category.objects.get_or_create(name=category)[0] for category in categories]
+    manga.categories.clear()
+    manga.categories.set(categories)
     manga.updated_detail = dt.datetime.now(pytz.UTC)
     manga.save()
 
 
 def is_need_update(manga: Manga):
     if manga.updated_detail:
-        update_deadline = manga.updated_detail - dt.timedelta(minutes=30)
+        update_deadline = manga.updated_detail + dt.timedelta(minutes=30)
         if dt.datetime.now(pytz.UTC) >= update_deadline:
             return True
         else:
@@ -142,7 +131,7 @@ def deepen_manga_info(id: int) -> Optional[dict]:
     if not is_need_update(manga):
         return
 
-    url = manga.self_url
+    url = manga.source_url
     info: dict = get_detailed_info(url)
     save_detailed_manga_info(manga=manga, **info)
     logger.info(f"Successful detailing of manga {manga.alt_title}")

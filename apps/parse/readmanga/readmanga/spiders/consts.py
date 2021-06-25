@@ -11,6 +11,7 @@ CATEGORY_TAG = '//span[@class = "elem_category "]/a[@class="element-link"]/text(
 CHAPTERS_TAG = (
     '//table[@class = "table table-hover"]//a/@href|//table[@class = "table table-hover"]//a/text()'
 )
+DESCRIPTION_TAG = "//div[@itemprop='description']/div/span/text()"
 
 # descriptors for main manga catalogue
 
