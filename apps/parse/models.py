@@ -62,7 +62,7 @@ class Manga(BaseModel):
     # https://stackoverflow.com/questions/417142
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
-    rss_url = URLField(max_length=2000, unique=True)
+    rss_url = URLField(max_length=2000, null=True, blank=True)
     volumes = models.JSONField(default=dict)
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
@@ -76,6 +76,11 @@ class Manga(BaseModel):
     def source(self) -> str:
         domain = re.match(r"^http[s]?://(.*)/.*$", self.source_url).group(1)
         return self.__class__.SOURCE_MAP[domain]
+
+    @property
+    def domain(self) -> str:
+        domain = re.match(r"(^http[s]?://(.*))/.*$", self.source_url).group(1)
+        return domain
 
     def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
         role_relations = self.person_relations.filter(role=role).all()

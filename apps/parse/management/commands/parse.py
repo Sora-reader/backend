@@ -6,7 +6,7 @@ from django.utils import termcolors
 
 from apps.parse import parsers
 
-SETTINGS_PATH = "apps.parse.readmanga.readmanga.settings"
+SETTINGS_PATH = "apps.parse.readmanga.list_parser.settings"
 
 
 class Command(BaseCommand):

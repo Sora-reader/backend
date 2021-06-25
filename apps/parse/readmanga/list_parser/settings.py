@@ -1,9 +1,9 @@
-from apps.parse.readmanga.readmanga.pipelines import ReadmangaPipeline
+from apps.parse.readmanga.list_parser.pipelines import ReadmangaPipeline
 
 BOT_NAME = "readmanga"
 
-SPIDER_MODULES = ["apps.parse.readmanga.readmanga.spiders"]
-NEWSPIDER_MODULE = "apps.parse.readmanga.readmanga.spiders"
+SPIDER_MODULES = ["apps.parse.readmanga.list_parser"]
+NEWSPIDER_MODULE = "apps.parse.readmanga.list_parser"
 
 ROBOTSTXT_OBEY = True
 

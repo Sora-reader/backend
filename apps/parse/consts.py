@@ -1,1 +1,0 @@
-READMANGA_SOURCE = "readmanga"

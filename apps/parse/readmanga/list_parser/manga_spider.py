@@ -6,17 +6,14 @@ from lxml import etree
 from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
 
-# from apps.parse.consts import READMANGA_SOURCE
-from apps.parse.readmanga.readmanga.spiders.consts import (
+from .consts import (
     ALT_TITLE_URL,
-    DESC_TEXT_DESCRIPTOR,
-    DESCRIPTIONS_DESCRIPTOR,
-    GENRES_DESCRIPTOR,
-    IMG_URL_DESCRIPTOR,
-    SOURCE_URL_DESCRIPTOR,
-    TITLE_DESCRIPTOR,
+    GENRES_TAG,
+    MANGA_TILE_TAG,
+    SOURCE_URL_TAG,
+    THUMBNAIL_IMG_URL_TAG,
+    TITLE_TAG,
 )
-from apps.parse.readmanga.readmanga.spiders.utils import extract_description
 
 logging.getLogger(__name__)
 READMANGA_URL = "https://readmanga.live"
@@ -60,28 +57,23 @@ class MangaSpider(scrapy.Spider):
 
     def parse(self, response):
         mangas = []
-        descriptions = response.xpath(DESCRIPTIONS_DESCRIPTOR).extract()
+        descriptions = response.xpath(MANGA_TILE_TAG).extract()
         for description in descriptions:
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
-            title = response.xpath(TITLE_DESCRIPTOR).extract()[0]
-            source_url = response.xpath(SOURCE_URL_DESCRIPTOR).extract()[0]
-            # this is neccesary due to cleanse description from garbage
-            desc_text = extract_description(response, DESC_TEXT_DESCRIPTOR)
-            genres = response.xpath(GENRES_DESCRIPTOR).extract()
-            thumbnail = response.xpath(IMG_URL_DESCRIPTOR).extract()[0]
-            alt_title = (
-                response.xpath(ALT_TITLE_URL).extract()[0]
-                if response.xpath(ALT_TITLE_URL).extract()
-                else ""
-            )
+            title = response.xpath(TITLE_TAG).extract_first("")
+            source_url = response.xpath(SOURCE_URL_TAG).extract_first("")
+            genres = response.xpath(GENRES_TAG).extract()
+            thumbnail = response.xpath(THUMBNAIL_IMG_URL_TAG).extract_first("")
+            image = thumbnail.replace("_p", "")
+            alt_title = response.xpath(ALT_TITLE_URL).extract_first("")
 
             mangas.append(
                 {
                     "title": title,
                     "alt_title": alt_title,
                     "thumbnail": thumbnail,
-                    "description": desc_text,
+                    "image": image,
                     "genres": genres,
                     "source_url": READMANGA_URL + source_url,
                 }

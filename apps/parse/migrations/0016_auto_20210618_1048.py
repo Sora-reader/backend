@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='manga',
             name='rss_url',
-            field=models.TextField(blank=True, null=True),
+            field=models.URLField(blank=True, null=True, max_length=2000),
         ),
 
     ]

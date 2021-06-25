@@ -1,21 +1,5 @@
 import re
 
-from apps.parse.readmanga.readmanga.utils import clear_list_description
-
-
-def extract_description(response, descriptor) -> str:
-    desc = response.xpath(descriptor).extract()
-    desc = clear_list_description(desc)
-    desc = " ".join(desc)
-    return desc
-
-
-def handle_xpath_response(html_lxml, tag: str) -> str:
-    try:
-        return html_lxml.xpath(tag)[0]
-    except IndexError:
-        return ""
-
 
 def chapters_into_dict(chapters: list) -> dict:
     regex = "[\n]+|[ ]{2,}"

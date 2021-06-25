@@ -2,13 +2,14 @@ import datetime as dt
 import logging
 from typing import Optional
 
-import lxml.html as lh
 import pytz
 import requests
+from scrapy.http.response.html import HtmlResponse
 
 from apps.parse.models import Category, Manga, Person, PersonRelatedToManga
-from apps.parse.readmanga.readmanga.spiders.consts import (
-    AUTHOR_TAG,
+
+from .consts import (
+    AUTHORS_TAG,
     CATEGORY_TAG,
     DESCRIPTION_TAG,
     ILLUSTRATOR_TAG,
@@ -17,38 +18,24 @@ from apps.parse.readmanga.readmanga.spiders.consts import (
     TRANSLATORS_TAG,
     YEAR_TAG,
 )
-from apps.parse.readmanga.readmanga.spiders.utils import handle_xpath_response
+
+INSTANCE = 0
 
 logger = logging.getLogger("Detailed manga parser")
 
 
-def clean_list_from_garbage_strings(strings: list) -> list:
-    li = list(filter(lambda x: not x.startswith((",", " ")), strings))
-    return li
-
-
 def get_detailed_info(url: str) -> dict:
-    manga_html = requests.get(url).text
-    manga_html = lh.fromstring(manga_html)
+    response = requests.get(url)
+    manga_html = HtmlResponse(url="", body=response.text, encoding="utf-8")
 
-    year = handle_xpath_response(manga_html, YEAR_TAG)
-    description = handle_xpath_response(manga_html, DESCRIPTION_TAG)
-    rss_url = handle_xpath_response(manga_html, RSS_TAG)
-
-    authors = manga_html.xpath(AUTHOR_TAG)
-    authors = clean_list_from_garbage_strings(authors)
-
-    translators = manga_html.xpath(TRANSLATORS_TAG)
-    translators = clean_list_from_garbage_strings(translators)
-
-    categories = manga_html.xpath(CATEGORY_TAG)
-    categories = clean_list_from_garbage_strings(categories)
-
-    illustrators = manga_html.xpath(ILLUSTRATOR_TAG)
-    illustrators = clean_list_from_garbage_strings(illustrators)
-
-    screenwriters = manga_html.xpath(SCREENWRITER_TAG)
-    screenwriters = clean_list_from_garbage_strings(screenwriters)
+    year = manga_html.xpath(YEAR_TAG).extract_first("")
+    description = manga_html.xpath(DESCRIPTION_TAG).extract_first("")
+    rss_url = manga_html.xpath(RSS_TAG).extract_first("")
+    authors = manga_html.xpath(AUTHORS_TAG).extract("")
+    screenwriters = manga_html.xpath(SCREENWRITER_TAG).extract("")
+    translators = manga_html.xpath(TRANSLATORS_TAG).extract("")
+    categories = manga_html.xpath(CATEGORY_TAG).extract("")
+    illustrators = manga_html.xpath(ILLUSTRATOR_TAG).extract("")
 
     detailed_info = {
         "authors": authors,
@@ -64,7 +51,6 @@ def get_detailed_info(url: str) -> dict:
 
 
 def save_persons(manga, role, persons):
-    INSTANCE = 0
     PeopleRelated: PersonRelatedToManga = manga.people_related.through
     PeopleRelated.objects.filter(role=role).delete()
     PeopleRelated.objects.bulk_create(
@@ -95,7 +81,7 @@ def save_detailed_manga_info(
         return
 
     manga.year = year
-    manga.rss_url = rss_url
+    manga.rss_url = manga.domain + rss_url
     manga.description = description
 
     save_persons(manga, PersonRelatedToManga.Roles.author, authors)
@@ -103,7 +89,9 @@ def save_detailed_manga_info(
     save_persons(manga, PersonRelatedToManga.Roles.screenwriter, screenwriters)
     save_persons(manga, PersonRelatedToManga.Roles.translator, translators)
 
-    categories = [Category.objects.get_or_create(name=category)[0] for category in categories]
+    categories = [
+        Category.objects.get_or_create(name=category)[INSTANCE] for category in categories
+    ]
     manga.categories.clear()
     manga.categories.set(categories)
     manga.updated_detail = dt.datetime.now(pytz.UTC)
