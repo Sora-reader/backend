@@ -31,11 +31,11 @@ def get_detailed_info(url: str) -> dict:
     year = manga_html.xpath(YEAR_TAG).extract_first("")
     description = manga_html.xpath(DESCRIPTION_TAG).extract_first("")
     rss_url = manga_html.xpath(RSS_TAG).extract_first("")
-    authors = manga_html.xpath(AUTHORS_TAG).extract("")
-    screenwriters = manga_html.xpath(SCREENWRITER_TAG).extract("")
-    translators = manga_html.xpath(TRANSLATORS_TAG).extract("")
-    categories = manga_html.xpath(CATEGORY_TAG).extract("")
-    illustrators = manga_html.xpath(ILLUSTRATOR_TAG).extract("")
+    authors = manga_html.xpath(AUTHORS_TAG).extract()
+    screenwriters = manga_html.xpath(SCREENWRITER_TAG).extract()
+    translators = manga_html.xpath(TRANSLATORS_TAG).extract()
+    categories = manga_html.xpath(CATEGORY_TAG).extract()
+    illustrators = manga_html.xpath(ILLUSTRATOR_TAG).extract()
 
     detailed_info = {
         "authors": authors,
