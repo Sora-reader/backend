@@ -25,7 +25,7 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     @action(
         detail=False,
         methods=("get",),
-        url_path="(?P<manga_id>[^/.]+)/chapters",
+        url_path="(?P<manga_id>[^/.]+)/volumes",
     )
     def chapters_list(self, request, manga_id):
         mangas = Manga.objects.filter(id=manga_id)
@@ -35,19 +35,17 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     @extend_schema(
         parameters=[
             OpenApiParameter("manga_id", OpenApiTypes.NUMBER, OpenApiParameter.PATH),
+            OpenApiParameter("volume_id", OpenApiTypes.NUMBER, OpenApiParameter.PATH),
             OpenApiParameter("chapter_id", OpenApiTypes.NUMBER, OpenApiParameter.PATH),
         ]
     )
     @action(
         detail=False,
         methods=("get",),
-        url_path="(?P<manga_id>[^/.]+)/chapter/(?P<chapter_id>[^/.]+)/images",
+        url_path="(?P<manga_id>[^/.]+)/(?P<volume_id>[^/.]+)/(?P<chapter_id>[^/.]+)",
     )
-    def images_list(self, request, manga_id, chapter_id):
-        # logic is not working need to update then
-        mangas = Manga.objects.filter(id=manga_id, chapters__id=chapter_id)
-        serializer = MangaChaptersSerializer(mangas, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def images_list(self, request, manga_id, volume_id, chapter_id):
+        return Response(status=status.HTTP_200_OK)
 
     @extend_schema(
         parameters=[

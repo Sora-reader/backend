@@ -7,7 +7,7 @@ from django.core.cache import cache
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
-from apps.parse.models import TaskControl
+from apps.core.models import TaskControl
 from apps.parse.readmanga.readmanga.spiders.manga_spider import MangaSpider
 
 SETTINGS_PATH = "apps.parse.readmanga.readmanga.settings"
