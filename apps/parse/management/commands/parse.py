@@ -18,7 +18,6 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "parser",
-            nargs="?",
             type=str,
         )
 

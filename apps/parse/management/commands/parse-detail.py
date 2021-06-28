@@ -8,7 +8,7 @@ class Command(BaseCommand):
     help = "Detailed parsing"
 
     def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument("id", nargs="?", type=int, help="Id of the manga from the database")
+        parser.add_argument("id", type=int, help="Id of the manga from the database")
 
     def handle(self, *args, **options):
         manga_id = options.get("id")

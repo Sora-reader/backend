@@ -1,4 +1,5 @@
 import re
+from datetime import timedelta
 from functools import reduce
 
 from django.db import models
@@ -48,6 +49,8 @@ class PersonRelatedToManga(models.Model):
 class Manga(BaseModel):
     NAME_FIELD = "title"
 
+    UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
+
     SOURCE_MAP = {
         "readmanga.live": "ReadManga",
     }
@@ -72,14 +75,16 @@ class Manga(BaseModel):
         "Person", through="PersonRelatedToManga", related_name="mangas"
     )
 
+    url_pattern = re.compile(r"(^http[s]?://(.*))/.*$")
+
     @property
     def source(self) -> str:
-        domain = re.match(r"^http[s]?://(.*)/.*$", self.source_url).group(1)
+        domain = self.url_pattern.match(self.source_url).group(2)
         return self.__class__.SOURCE_MAP[domain]
 
     @property
     def domain(self) -> str:
-        domain = re.match(r"(^http[s]?://(.*))/.*$", self.source_url).group(1)
+        domain = self.url_pattern.match(self.source_url).group(1)
         return domain
 
     def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
