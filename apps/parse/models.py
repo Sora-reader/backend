@@ -1,11 +1,9 @@
 import re
-from functools import reduce
 
 from django.db import models
 from django.db.models.fields import FloatField, TextField, URLField
 from django.db.models.fields.related import ManyToManyField
 from django.db.models.query import QuerySet
-from django.db.models.query_utils import Q
 
 from apps.core.models import BaseModel
 
@@ -77,16 +75,7 @@ class Manga(BaseModel):
         return self.__class__.SOURCE_MAP[domain]
 
     def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
-        role_relations = self.person_relations.filter(role=role).all()
-        if not role_relations:
-            return Person.objects.none()
-        relations = Person.objects.filter(
-            reduce(
-                lambda x, y: x | y,
-                [Q(manga_relations__manga=relation.manga) for relation in role_relations],
-            )
-        )
-        return relations
+        return Person.objects.filter(manga_relations__manga=self, manga_relations__role=role)
 
     @property
     def authors(self):
