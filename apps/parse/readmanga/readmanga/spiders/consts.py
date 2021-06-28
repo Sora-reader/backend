@@ -21,7 +21,7 @@ ILLUSTRATOR_TAG = '//span[@class = "elem_illustrator "]//text()'
 
 DESCRIPTIONS_DESCRIPTOR = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md-6")]'
 
-DESC_TEXT_DESCRIPTOR = '//div[@class = "hidden long-description"]//text()'
+DESC_TEXT_DESCRIPTOR = "//i/noindex//p//text()"
 TITLE_DESCRIPTOR = "//h3/a/@title"
 STAR_RATE_DESCRIPTOR = '//div[@class = "rating"]/@title'
 SOURCE_URL_DESCRIPTOR = "//h3/a/@href"

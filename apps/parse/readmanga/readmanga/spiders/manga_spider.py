@@ -1,4 +1,5 @@
 import logging
+import re
 
 import requests
 import scrapy
@@ -16,7 +17,6 @@ from apps.parse.readmanga.readmanga.spiders.consts import (
     STAR_RATE_DESCRIPTOR,
     TITLE_DESCRIPTOR,
 )
-from apps.parse.readmanga.readmanga.spiders.utils import extract_description
 
 logging.getLogger(__name__)
 READMANGA_URL = "https://readmanga.live"
@@ -72,8 +72,9 @@ class MangaSpider(scrapy.Spider):
             except Exception:
                 rating = 0
             source_url = response.xpath(SOURCE_URL_DESCRIPTOR).extract()[0]
-            # this is neccesary due to cleanse description from garbage
-            desc_text = extract_description(response, DESC_TEXT_DESCRIPTOR)
+            desc_text = re.sub(
+                " +", " ", response.xpath(DESC_TEXT_DESCRIPTOR).extract_first("").strip("")
+            )
             genres = response.xpath(GENRES_DESCRIPTOR).extract()
             thumbnail = response.xpath(IMG_URL_DESCRIPTOR).extract()[0]
             alt_title = (

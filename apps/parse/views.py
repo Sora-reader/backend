@@ -60,7 +60,7 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     def search(self, request):
         title = request.GET.get("title", None)
         if not title:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_404_NOT_FOUND)
         mangas = Manga.objects.filter(Q(title__icontains=title) | Q(alt_title__icontains=title))
         serializer = MangaSerializer(mangas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

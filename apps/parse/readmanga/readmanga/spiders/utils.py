@@ -1,14 +1,5 @@
 import re
 
-from apps.parse.readmanga.readmanga.utils import clear_list_description
-
-
-def extract_description(response, descriptor) -> str:
-    desc = response.xpath(descriptor).extract()
-    desc = clear_list_description(desc)
-    desc = " ".join(desc)
-    return desc
-
 
 def handle_xpath_response(html_lxml, tag: str) -> str:
     try:

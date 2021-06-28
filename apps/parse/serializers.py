@@ -17,6 +17,7 @@ class MangaSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "source",
+            "source_url",
             "title",
             "alt_title",
             "rating",

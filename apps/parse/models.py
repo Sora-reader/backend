@@ -71,7 +71,7 @@ class Manga(BaseModel):
 
     @property
     def source(self) -> str:
-        domain = re.match(r"^http[s]?://(.*)/.*$", self.source_url).group(0)
+        domain = re.match(r"^http[s]?://(.*)/.*$", self.source_url).group(1)
         return self.__class__.SOURCE_MAP[domain]
 
     def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
