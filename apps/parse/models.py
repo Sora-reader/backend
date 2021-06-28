@@ -2,7 +2,7 @@ import re
 from functools import reduce
 
 from django.db import models
-from django.db.models.fields import TextField, URLField
+from django.db.models.fields import IntegerField, TextField, URLField
 from django.db.models.fields.related import ManyToManyField
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
@@ -45,6 +45,21 @@ class PersonRelatedToManga(models.Model):
     role = models.TextField(choices=Roles.choices)
 
 
+class Chapter(models.Model):
+    title = TextField()
+    link = URLField(max_length=2000)
+    number = IntegerField()
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class VolumesRelatedToManga(models.Model):
+    manga = models.ForeignKey("Manga", models.CASCADE)
+    chapter = models.ForeignKey("Chapter", models.CASCADE)
+    volume = models.IntegerField()
+
+
 class Manga(BaseModel):
     NAME_FIELD = "title"
 
@@ -63,7 +78,7 @@ class Manga(BaseModel):
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
     rss_url = URLField(max_length=2000, null=True, blank=True)
-    volumes = models.JSONField(default=dict)
+    volumes = ManyToManyField("Chapter", through="VolumesRelatedToManga")
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
     updated_detail = models.DateTimeField(blank=True, null=True)
