@@ -77,7 +77,7 @@ def needs_update(manga: Manga):
 def chapters_manga_info(id: int, logger) -> Optional[dict]:
     manga: Manga = Manga.objects.get(pk=id)
 
-    if not needs_update(manga):
+    if needs_update(manga):
         rss_url = manga.rss_url
         info: dict = get_chapters_info(rss_url)
         save_chapters_manga_info(manga=manga, volumes=info)
