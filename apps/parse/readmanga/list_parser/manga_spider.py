@@ -6,6 +6,8 @@ from lxml import etree
 from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
 
+from apps.core.commands import ParseCommandLogger
+
 from .consts import (
     ALT_TITLE_URL,
     GENRES_TAG,
@@ -20,19 +22,23 @@ READMANGA_URL = "https://readmanga.live"
 
 
 class MangaSpider(scrapy.Spider):
+    management_logger: "ParseCommandLogger"
     name = "manga"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, logger, **kwargs):
         super().__init__(*args, **kwargs)
-        if kwargs.get("custom_logger", None):
-            self.__dict__.update({"logger_": kwargs["custom_logger"] or self.logger})
+        self.__dict__.update({"management_logger": logger})
+
+    @property
+    def logger(self):
+        return self.management_logger
 
     def start_requests(self):
-        self.logger_.info("Starting requests")
-        self.logger_.info("=================")
+        self.logger.info("Starting requests")
+        self.logger.info("=================")
         mangas_list = requests.get(f"{READMANGA_URL}/list")
         if not mangas_list.status_code == 200:
-            self.logger_.error(f"Failed request with code {mangas_list.status_code}")
+            self.logger.error(f"Failed request with code {mangas_list.status_code}")
             return
         mangas_list = mangas_list.text
 
@@ -50,7 +56,7 @@ class MangaSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def request_fallback(self, failure: Failure):
-        self.logger_.error(
+        self.logger.error(
             f'Request for url "{failure.value.response.url}" '
             f"failed with status {failure.value.response.status}"
         )
@@ -78,8 +84,8 @@ class MangaSpider(scrapy.Spider):
                     "source_url": READMANGA_URL + source_url,
                 }
             )
-            self.logger_.info('Parsed manga "{}"'.format(title))
+            self.logger.info('Parsed manga "{}"'.format(title))
 
-        self.logger_.info("Processing items...")
-        self.logger_.info("===================")
+        self.logger.info("Processing items...")
+        self.logger.info("===================")
         return mangas

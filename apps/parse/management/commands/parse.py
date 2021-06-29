@@ -25,7 +25,7 @@ class Command(BaseParseCommand):
         try:
             parser = getattr(parsers, f"{parser_name}_parser")
 
-            self.logger_.info("Parser found\n")
+            self.logger.success("Parser found\n")
 
             # Mute all output
             logging.getLogger("urllib3").setLevel(logging.CRITICAL)
@@ -42,15 +42,15 @@ class Command(BaseParseCommand):
                 pass
 
             parser(
-                logger=self.logger_,
+                logger=self.logger,
                 settings={
                     # Log stdout and errors to file
                     "LOG_FILE": "parse-readmanga.log",
                     "LOG_STDOUT": True,
                 },
             )
-            self.logger_.info("\nFinished parsing")
+            self.logger.success("\nFinished parsing")
         except AttributeError:
-            self.logger_.error(f"Can't find parser [{parser_name}]")
+            self.logger.error(f"Can't find parser [{parser_name}]")
         except Exception:
-            self.logger_.error(f"Some errors occured in the parser {parser_name}")
+            self.logger.error(f"Some errors occured in the parser {parser_name}")

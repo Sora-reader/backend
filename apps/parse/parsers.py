@@ -18,7 +18,7 @@ def readmanga_parser(settings=None, logger=None):
         }
     )
 
-    process.crawl(MangaSpider, custom_logger=logger)
+    process.crawl(MangaSpider, logger=logger)
     process.start()
 
 

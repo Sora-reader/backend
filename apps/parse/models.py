@@ -52,7 +52,7 @@ class Manga(BaseModel):
     UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
 
     SOURCE_MAP = {
-        "readmanga.live": "ReadManga",
+        "https://readmanga.live": "Readmanga",
     }
 
     title = TextField()
@@ -75,17 +75,13 @@ class Manga(BaseModel):
         "Person", through="PersonRelatedToManga", related_name="mangas"
     )
 
-    url_pattern = re.compile(r"(^http[s]?://(.*))/.*$")
+    @property
+    def url_prefix(self) -> str:
+        return re.match(r"(^http[s]?://(.*))/.*$", self.source_url).group(1)
 
     @property
     def source(self) -> str:
-        domain = self.url_pattern.match(self.source_url).group(2)
-        return self.__class__.SOURCE_MAP[domain]
-
-    @property
-    def domain(self) -> str:
-        domain = self.url_pattern.match(self.source_url).group(1)
-        return domain
+        return self.__class__.SOURCE_MAP[self.url_prefix]
 
     def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
         role_relations = self.person_relations.filter(role=role).all()

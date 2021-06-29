@@ -15,17 +15,17 @@ class Command(BaseParseCommand):
         manga_id = options.get("id")
 
         try:
-            manga = Manga.objects.get(pk=manga_id)
-            self.logger_.info("Manga found\n")
+            manga: Manga = Manga.objects.get(pk=manga_id)
+            self.logger.success("Manga found\n")
 
-            if manga.source == Manga.SOURCE_MAP["readmanga.live"]:
-                self.logger_.info("Parser found\n")
+            if manga.source == "Readmanga":
+                self.logger.success("Parser found\n")
                 parsers.readmanga_detail_parse(manga.id)
-                self.logger_.info(f"Manga `{manga.title}` parsed succesfully\n")
+                self.logger.info(f"Manga `{manga.title}` parsed succesfully\n")
             else:
-                self.logger_.error("Parser not found\n")
+                self.logger.error("Parser not found\n")
         except Manga.DoesNotExist:
-            self.logger_.error(f"Can't find manga with id {manga_id}\n")
+            self.logger.error(f"Can't find manga with id {manga_id}\n")
         except Exception as exc:
             print(exc)
-            self.logger_.error("Some errors occured in the parser")
+            self.logger.error("Some errors occured in the parser")
