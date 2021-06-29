@@ -101,7 +101,6 @@ def needs_update(manga: Manga):
     if manga.updated_detail:
         update_deadline = manga.updated_detail + Manga.UPDATED_DETAIL_FREQUENCY
         if not timezone.now() >= update_deadline:
-            logger.info(f"Manga {manga.alt_title} is already up to date")
             return False
     return True
 
@@ -113,5 +112,4 @@ def deepen_manga_info(id: int) -> Optional[dict]:
         url = manga.source_url
         info: dict = get_detailed_info(url)
         save_detailed_manga_info(manga=manga, **info)
-        logger.info(f"Successful detailing of manga {manga.alt_title}")
         return info

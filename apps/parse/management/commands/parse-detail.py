@@ -1,10 +1,11 @@
-from django.core.management.base import BaseCommand, CommandParser
+from django.core.management.base import CommandParser
 
+from apps.core.commands import BaseParseCommand
 from apps.parse import parsers
 from apps.parse.models import Manga
 
 
-class Command(BaseCommand):
+class Command(BaseParseCommand):
     help = "Detailed parsing"
 
     def add_arguments(self, parser: CommandParser) -> None:
@@ -12,19 +13,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         manga_id = options.get("id")
+
         try:
             manga = Manga.objects.get(pk=manga_id)
-
-            self.stdout.write("Manga found\n", self.style.SUCCESS)
+            self.logger_.info("Manga found\n")
 
             if manga.source == Manga.SOURCE_MAP["readmanga.live"]:
-                self.stdout.write("Parser found\n", self.style.SUCCESS)
+                self.logger_.info("Parser found\n")
                 parsers.readmanga_detail_parse(manga.id)
-                self.stdout.write(f"Manga `{manga.title}` parsed succesfully\n", self.style.SUCCESS)
+                self.logger_.info(f"Manga `{manga.title}` parsed succesfully\n")
             else:
-                self.stdout.write("Parser not found\n", self.style.ERROR)
+                self.logger_.error("Parser not found\n")
         except Manga.DoesNotExist:
-            self.stdout.write(f"Can't find manga with id {manga_id}\n", self.style.ERROR)
+            self.logger_.error(f"Can't find manga with id {manga_id}\n")
         except Exception as exc:
             print(exc)
-            self.stdout.write("Some errors occured in the parser", self.style.ERROR)
+            self.logger_.error("Some errors occured in the parser")
