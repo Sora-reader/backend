@@ -2,6 +2,7 @@
 
 MANGA_TILE_TAG = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md-6")]'
 TITLE_TAG = "//h3/a[1]/@title"
+STAR_RATE_TAG = '//div[@class = "rating"]/@title'
 SOURCE_URL_TAG = "//h3/a[1]/@href"
 GENRES_TAG = '//div[@class = "tile-info"]//a[@class = "element-link"]/text()'
 THUMBNAIL_IMG_URL_TAG = '//img[contains(@class, "lazy")][1]/@data-original'

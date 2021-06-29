@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('parse', '0015_auto_20210623_1321'),
+        ('parse', '0016_manga_rating'),
     ]
 
     operations = [

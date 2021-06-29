@@ -1,7 +1,7 @@
 # Create your tests here.
 from django.test import TestCase
 
-from apps.parse.management.commands.parse_readmanga import Command
+from apps.parse.management.commands.parse import Command
 from apps.parse.models import Manga
 
 

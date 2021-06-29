@@ -1,12 +1,10 @@
 import re
 from datetime import timedelta
-from functools import reduce
 
 from django.db import models
-from django.db.models.fields import IntegerField, TextField, URLField
+from django.db.models.fields import FloatField, IntegerField, TextField, URLField
 from django.db.models.fields.related import ManyToManyField
 from django.db.models.query import QuerySet
-from django.db.models.query_utils import Q
 
 from apps.core.models import BaseModel
 
@@ -67,11 +65,12 @@ class Manga(BaseModel):
     UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
 
     SOURCE_MAP = {
-        "readmanga.live": "ReadManga",
+        "https://readmanga.live": "Readmanga",
     }
 
     title = TextField()
     alt_title = TextField(null=True, blank=True)
+    rating = FloatField(default=0)
     thumbnail = URLField(max_length=2000, default="")
     image = URLField(max_length=2000, default="")
     description = TextField()
@@ -90,29 +89,16 @@ class Manga(BaseModel):
         "Person", through="PersonRelatedToManga", related_name="mangas"
     )
 
-    url_pattern = re.compile(r"(^http[s]?://(.*))/.*$")
+    @property
+    def url_prefix(self) -> str:
+        return re.match(r"(^http[s]?://(.*))/.*$", self.source_url).group(1)
 
     @property
     def source(self) -> str:
-        domain = self.url_pattern.match(self.source_url).group(2)
-        return self.__class__.SOURCE_MAP[domain]
-
-    @property
-    def domain(self) -> str:
-        domain = self.url_pattern.match(self.source_url).group(1)
-        return domain
+        return self.__class__.SOURCE_MAP[self.url_prefix]
 
     def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
-        role_relations = self.person_relations.filter(role=role).all()
-        if not role_relations:
-            return Person.objects.none()
-        relations = Person.objects.filter(
-            reduce(
-                lambda x, y: x | y,
-                [Q(manga_relations__manga=relation.manga) for relation in role_relations],
-            )
-        )
-        return relations
+        return Person.objects.filter(manga_relations__manga=self, manga_relations__role=role)
 
     @property
     def authors(self):
@@ -129,3 +115,8 @@ class Manga(BaseModel):
     @property
     def translators(self):
         return self.related_people_filter(role=PersonRelatedToManga.Roles.translator)
+
+    def save(self, **kwargs):
+        if not self.image:
+            self.image = self.thumbnail
+        return super().save(**kwargs)

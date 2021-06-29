@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.core.serializers import NameRelatedField
-from apps.parse.models import Manga, Person
+from apps.parse.models import Manga
 
 
 class MangaSerializer(serializers.ModelSerializer):
@@ -9,16 +9,15 @@ class MangaSerializer(serializers.ModelSerializer):
     genres = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
     categories = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
 
-    def get_authors(self, obj: Manga):
-        return obj.authors.values_list(Person.NAME_FIELD).all()
-
     class Meta:
         model = Manga
         fields = (
             "id",
             "source",
+            "source_url",
             "title",
             "alt_title",
+            "rating",
             "thumbnail",
             "image",
             "description",

@@ -79,7 +79,6 @@ def save_detailed_manga_info(
     illustrators = data.pop("illustrators", [])
     screenwriters = data.pop("screenwriters", [])
     translators = data.pop("translators", [])
-
     categories = data.pop("categories", [])
 
     save_persons(manga, PersonRelatedToManga.Roles.author, authors)
@@ -94,6 +93,7 @@ def save_detailed_manga_info(
     manga.categories.clear()
     manga.categories.set(categories)
     data["updated_detail"] = timezone.now()
+    data["rss_url"] = manga.url_prefix + data.pop("rss_url", "")
     Manga.objects.filter(pk=manga.pk).update(**data)
 
 
