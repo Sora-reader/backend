@@ -1,18 +1,19 @@
-from django.core.management.base import BaseCommand, CommandParser
+from django.core.management.base import CommandParser
 
+from apps.core.commands import BaseParseCommand
 from apps.parse import parsers
 from apps.parse.models import Manga
 
 
-class Command(BaseCommand):
+class Command(BaseParseCommand):
     help = "Chapters parsing"
 
     def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument("id", nargs="?", type=int, help="Id of the manga from the database")
+        parser.add_argument("id", type=int, help="Id of the manga from the database")
 
     def check_rss_url(self, manga: Manga):
         if not manga.rss_url:
-            self.stdout.write("Manga doesn't consists rss url. Parse the details", self.style.ERROR)
+            self.logger.error("Manga doesn't consists rss url. Parse the details")
             exit(0)
 
     def handle(self, *args, **options):
@@ -20,17 +21,17 @@ class Command(BaseCommand):
         try:
             manga = Manga.objects.get(pk=manga_id)
 
-            self.stdout.write("Manga found\n", self.style.SUCCESS)
+            self.logger.info("Manga found\n")
 
             self.check_rss_url(manga)
-            if manga.source == Manga.SOURCE_MAP["readmanga.live"]:
-                self.stdout.write("Parser found\n", self.style.SUCCESS)
-                parsers.readmanga_chapter_parse(manga.id)
-                self.stdout.write(f"Manga `{manga.title}` parsed succesfully\n", self.style.SUCCESS)
+            if manga.source == "Readmanga":
+                self.logger.info("Parser found\n")
+                parsers.readmanga_chapter_parse(manga.id, self.logger)
+                self.logger.info(f"Manga `{manga.title}` parsed succesfully\n")
             else:
-                self.stdout.write("Parser not found\n", self.style.ERROR)
+                self.logger.error("Parser not found\n")
         except Manga.DoesNotExist:
-            self.stdout.write(f"Can't find manga with id {manga_id}\n", self.style.ERROR)
+            self.logger.error(f"Can't find manga with id {manga_id}\n")
         except Exception as exc:
-            print(exc)
-            self.stdout.write("Some errors occured in the parser", self.style.ERROR)
+            self.logger.error(exc)
+            self.logger.error("Some errors occured in the parser")

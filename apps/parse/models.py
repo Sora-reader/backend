@@ -48,21 +48,17 @@ class Chapter(models.Model):
     title = TextField()
     link = URLField(max_length=2000)
     number = IntegerField()
+    volume = models.IntegerField()
 
     def __str__(self) -> str:
         return self.title
-
-
-class VolumesRelatedToManga(models.Model):
-    manga = models.ForeignKey("Manga", models.CASCADE)
-    chapter = models.ForeignKey("Chapter", models.CASCADE)
-    volume = models.IntegerField()
 
 
 class Manga(BaseModel):
     NAME_FIELD = "title"
 
     UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
+    UPDATED_CHAPTER_FREQUENCY = timedelta(hours=1)
 
     SOURCE_MAP = {
         "https://readmanga.live": "Readmanga",
@@ -80,7 +76,7 @@ class Manga(BaseModel):
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
     rss_url = URLField(max_length=2000, null=True, blank=True)
-    volumes = ManyToManyField("Chapter", through="VolumesRelatedToManga")
+    volumes = ManyToManyField("Chapter")
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
     updated_detail = models.DateTimeField(blank=True, null=True)

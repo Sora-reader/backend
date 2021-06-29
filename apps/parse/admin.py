@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from apps.core.admin import BaseAdmin, ImagePreviewMixin, RelatedField
-from apps.parse.models import Author, Chapter, Genre, Manga, Person, VolumesRelatedToManga
+from apps.parse.models import Author, Chapter, Genre, Manga, Person
 
 
 @admin.register(Manga)
@@ -45,5 +45,4 @@ class GenreAdmin(BaseAdmin, admin.ModelAdmin):
     list_display = ("name",)
 
 
-admin.site.register(VolumesRelatedToManga)
 admin.site.register(Chapter)

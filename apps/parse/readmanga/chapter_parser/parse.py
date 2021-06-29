@@ -1,18 +1,15 @@
-import datetime as dt
-import logging
 import xml.etree.ElementTree as ET
+from copy import deepcopy
 from typing import Optional
 
-import pytz
 import requests
+from django.utils import timezone
 
-from apps.parse.models import Manga
+from apps.parse.models import Chapter, Manga
 
-from .consts import LINK_TAG
+from .consts import ITEM_TAG, LINK_TAG, TITLE_TAG
 
 INSTANCE = 0
-
-logger = logging.getLogger("Chapters manga parser")
 
 
 def get_chapters_info(url: str) -> dict:
@@ -20,52 +17,68 @@ def get_chapters_info(url: str) -> dict:
     response = requests.get(url)
 
     chapters_rss = ET.fromstring(response.text)
-    links: list[str] = [elem.text for elem in chapters_rss.findall(LINK_TAG)]
-    for link in links:
+    items = chapters_rss.findall(ITEM_TAG)
+    for item in items:
+        link = item.find(LINK_TAG).text
+
+        title = item.find(TITLE_TAG).text
+
         vol, chapter = link.split("/")[-2:]
         vol = int(vol.replace("vol", ""))
+
         if not chapters_info.get(vol):
             chapters_info[vol] = list()
-        chapters_info[vol].append(chapter)
-
+        chapters_info[vol].append(
+            {
+                "title": title,
+                "chapter": chapter,
+                "link": link,
+            }
+        )
     return chapters_info
 
 
 def save_chapters_manga_info(
     manga: Manga,
-    volumes: dict,
+    **kwargs,
 ) -> None:
     if manga is None:
         return
 
-    manga.volumes = volumes
-    manga.updated_chapters = dt.datetime.now(pytz.UTC)
+    data = deepcopy(kwargs)
+    volumes = data.pop("volumes")
+
+    manga.volumes.clear()
+
+    chapters = []
+    for volume_number, chapters_info in volumes.items():
+        for chapter in chapters_info:
+            chapter, _ = Chapter.objects.get_or_create(
+                title=chapter.get("title"),
+                number=chapter.get("chapter"),
+                link=chapter.get("link"),
+                volume=volume_number,
+            )
+            chapters.append(chapter)
+
+    manga.volumes.set(chapters)
+    manga.updated_chapters = timezone.now()
     manga.save()
 
 
-def is_need_update(manga: Manga):
+def needs_update(manga: Manga):
     if manga.updated_chapters:
-        update_deadline = manga.updated_chapters + dt.timedelta(minutes=30)
-        if dt.datetime.now(pytz.UTC) >= update_deadline:
-            return True
-        else:
-            logger.info(f"Manga {manga.alt_title} is already up to date")
+        update_deadline = manga.updated_chapters + Manga.UPDATED_CHAPTER_FREQUENCY
+        if not timezone.now() >= update_deadline:
             return False
-    else:
-        return True
+    return True
 
 
-def chapters_manga_info(id: int) -> Optional[dict]:
-    manga: Manga = Manga.objects.filter(pk=id).first()
-    if manga is None:
-        logger.error("Manga not found")
-        return
+def chapters_manga_info(id: int, logger) -> Optional[dict]:
+    manga: Manga = Manga.objects.get(pk=id)
 
-    if not is_need_update(manga):
-        return
-
-    rss_url = manga.rss_url
-    info: dict = get_chapters_info(rss_url)
-    save_chapters_manga_info(manga=manga, volumes=info)
-    logger.info(f"Successful parsing chapters of manga {manga.alt_title}")
-    return info
+    if not needs_update(manga):
+        rss_url = manga.rss_url
+        info: dict = get_chapters_info(rss_url)
+        save_chapters_manga_info(manga=manga, volumes=info)
+        return info
