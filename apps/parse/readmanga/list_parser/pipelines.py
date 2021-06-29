@@ -35,6 +35,7 @@ class ReadmangaPipeline:
         genres = bulk_get_or_create(Genre, genres)
 
         manga, _ = Manga.objects.get_or_create(source_url=source_url)
+        manga: Manga
 
         manga_already = Manga.objects.filter(source_url=source_url)
         if manga_already.exists():
