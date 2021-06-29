@@ -1,0 +1,115 @@
+import logging
+from copy import deepcopy
+from typing import Optional
+
+import requests
+from django.utils import timezone
+from scrapy.http.response.html import HtmlResponse
+
+from apps.parse.models import Category, Manga, Person, PersonRelatedToManga
+
+from .consts import (
+    AUTHORS_TAG,
+    CATEGORY_TAG,
+    DESCRIPTION_TAG,
+    ILLUSTRATOR_TAG,
+    RSS_TAG,
+    SCREENWRITER_TAG,
+    TRANSLATORS_TAG,
+    YEAR_TAG,
+)
+
+INSTANCE = 0
+
+logger = logging.getLogger("Detailed manga parser")
+
+
+def get_detailed_info(url: str) -> dict:
+    response = requests.get(url)
+    manga_html = HtmlResponse(url="", body=response.text, encoding="utf-8")
+
+    year = manga_html.xpath(YEAR_TAG).extract_first("")
+    description = manga_html.xpath(DESCRIPTION_TAG).extract_first("")
+    rss_url = manga_html.xpath(RSS_TAG).extract_first("")
+    authors = manga_html.xpath(AUTHORS_TAG).extract()
+    screenwriters = manga_html.xpath(SCREENWRITER_TAG).extract()
+    translators = manga_html.xpath(TRANSLATORS_TAG).extract()
+    categories = manga_html.xpath(CATEGORY_TAG).extract()
+    illustrators = manga_html.xpath(ILLUSTRATOR_TAG).extract()
+
+    detailed_info = {
+        "authors": authors,
+        "year": year,
+        "description": description,
+        "translators": translators,
+        "illustrators": illustrators,
+        "screenwriters": screenwriters,
+        "categories": categories,
+        "rss_url": rss_url,
+    }
+    return detailed_info
+
+
+def save_persons(manga, role, persons):
+    PeopleRelated: PersonRelatedToManga = manga.people_related.through
+    PeopleRelated.objects.filter(role=role).delete()
+    PeopleRelated.objects.bulk_create(
+        [
+            PeopleRelated(
+                person=Person.objects.get_or_create(name=person)[INSTANCE],
+                manga=manga,
+                role=role,
+            )
+            for person in persons
+        ],
+        ignore_conflicts=True,
+    )
+
+
+def save_detailed_manga_info(
+    manga: Manga,
+    **kwargs,
+) -> None:
+    if manga is None:
+        return
+
+    data = deepcopy(kwargs)
+
+    authors = data.pop("authors", [])
+    illustrators = data.pop("illustrators", [])
+    screenwriters = data.pop("screenwriters", [])
+    translators = data.pop("translators", [])
+    categories = data.pop("categories", [])
+
+    save_persons(manga, PersonRelatedToManga.Roles.author, authors)
+    save_persons(manga, PersonRelatedToManga.Roles.illustrator, illustrators)
+    save_persons(manga, PersonRelatedToManga.Roles.screenwriter, screenwriters)
+    save_persons(manga, PersonRelatedToManga.Roles.translator, translators)
+
+    categories = [
+        Category.objects.get_or_create(name=category)[INSTANCE] for category in categories
+    ]
+
+    manga.categories.clear()
+    manga.categories.set(categories)
+    data["updated_detail"] = timezone.now()
+    data["rss_url"] = manga.url_prefix + data.pop("rss_url", "")
+    Manga.objects.filter(pk=manga.pk).update(**data)
+
+
+def needs_update(manga: Manga):
+    if manga.updated_detail:
+        update_deadline = manga.updated_detail + Manga.UPDATED_DETAIL_FREQUENCY
+        if not timezone.now() >= update_deadline:
+            return False
+    return True
+
+
+def deepen_manga_info(id: int) -> Optional[dict]:
+    manga = Manga.objects.get(pk=id)
+
+    if needs_update(manga):
+        url = manga.source_url
+        info: dict = get_detailed_info(url)
+        save_detailed_manga_info(manga=manga, **info)
+        return info

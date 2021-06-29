@@ -1,4 +1,5 @@
 import re
+from datetime import timedelta
 
 from django.db import models
 from django.db.models.fields import FloatField, TextField, URLField
@@ -46,8 +47,10 @@ class PersonRelatedToManga(models.Model):
 class Manga(BaseModel):
     NAME_FIELD = "title"
 
+    UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
+
     SOURCE_MAP = {
-        "readmanga.live": "ReadManga",
+        "https://readmanga.live": "Readmanga",
     }
 
     title = TextField()
@@ -61,18 +64,23 @@ class Manga(BaseModel):
     # https://stackoverflow.com/questions/417142
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
+    rss_url = URLField(max_length=2000, null=True, blank=True)
     volumes = models.JSONField(default=dict)
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
-
+    updated_detail = models.DateTimeField(blank=True, null=True)
+    updated_chapters = models.DateTimeField(blank=True, null=True)
     people_related = ManyToManyField(
         "Person", through="PersonRelatedToManga", related_name="mangas"
     )
 
     @property
+    def url_prefix(self) -> str:
+        return re.match(r"(^http[s]?://(.*))/.*$", self.source_url).group(1)
+
+    @property
     def source(self) -> str:
-        domain = re.match(r"^http[s]?://(.*)/.*$", self.source_url).group(1)
-        return self.__class__.SOURCE_MAP[domain]
+        return self.__class__.SOURCE_MAP[self.url_prefix]
 
     def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
         return Person.objects.filter(manga_relations__manga=self, manga_relations__role=role)

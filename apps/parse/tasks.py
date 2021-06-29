@@ -8,7 +8,7 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
 from apps.core.models import TaskControl
-from apps.parse.readmanga.readmanga.spiders.manga_spider import MangaSpider
+from apps.parse.readmanga.list_parser.manga_spider import MangaSpider
 
 SETTINGS_PATH = "apps.parse.readmanga.readmanga.settings"
 

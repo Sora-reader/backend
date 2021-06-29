@@ -1,5 +1,4 @@
 import logging
-import re
 
 import requests
 import scrapy
@@ -7,15 +6,16 @@ from lxml import etree
 from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
 
-from apps.parse.readmanga.readmanga.spiders.consts import (
+from apps.core.commands import ParseCommandLogger
+
+from .consts import (
     ALT_TITLE_URL,
-    DESC_TEXT_DESCRIPTOR,
-    DESCRIPTIONS_DESCRIPTOR,
-    GENRES_DESCRIPTOR,
-    IMG_URL_DESCRIPTOR,
-    SOURCE_URL_DESCRIPTOR,
-    STAR_RATE_DESCRIPTOR,
-    TITLE_DESCRIPTOR,
+    GENRES_TAG,
+    MANGA_TILE_TAG,
+    SOURCE_URL_TAG,
+    STAR_RATE_TAG,
+    THUMBNAIL_IMG_URL_TAG,
+    TITLE_TAG,
 )
 
 logging.getLogger(__name__)
@@ -23,19 +23,23 @@ READMANGA_URL = "https://readmanga.live"
 
 
 class MangaSpider(scrapy.Spider):
+    management_logger: "ParseCommandLogger"
     name = "manga"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, logger, **kwargs):
         super().__init__(*args, **kwargs)
-        if kwargs.get("custom_logger", None):
-            self.__dict__.update({"logger_": kwargs["custom_logger"] or self.logger})
+        self.__dict__.update({"management_logger": logger})
+
+    @property
+    def logger(self):
+        return self.management_logger
 
     def start_requests(self):
-        self.logger_.info("Starting requests")
-        self.logger_.info("=================")
+        self.logger.info("Starting requests")
+        self.logger.info("=================")
         mangas_list = requests.get(f"{READMANGA_URL}/list")
         if not mangas_list.status_code == 200:
-            self.logger_.error(f"Failed rqeuest with code {mangas_list.status_code}")
+            self.logger.error(f"Failed request with code {mangas_list.status_code}")
             return
         mangas_list = mangas_list.text
 
@@ -53,35 +57,29 @@ class MangaSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def request_fallback(self, failure: Failure):
-        self.logger_.error(
+        self.logger.error(
             f'Request for url "{failure.value.response.url}" '
             f"failed with status {failure.value.response.status}"
         )
 
     def parse(self, response):
         mangas = []
-        descriptions = response.xpath(DESCRIPTIONS_DESCRIPTOR).extract()
+        descriptions = response.xpath(MANGA_TILE_TAG).extract()
         for description in descriptions:
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
-            title = response.xpath(TITLE_DESCRIPTOR).extract()[0]
+            title = response.xpath(TITLE_TAG).extract_first("")
             try:
                 rating = round(
-                    float(response.xpath(STAR_RATE_DESCRIPTOR).extract()[0].split(" из ")[0]), 2
+                    float(response.xpath(STAR_RATE_TAG).extract()[0].split(" из ")[0]), 2
                 )
             except Exception:
                 rating = 0
-            source_url = response.xpath(SOURCE_URL_DESCRIPTOR).extract()[0]
-            desc_text = re.sub(
-                " +", " ", response.xpath(DESC_TEXT_DESCRIPTOR).extract_first("").strip("")
-            )
-            genres = response.xpath(GENRES_DESCRIPTOR).extract()
-            thumbnail = response.xpath(IMG_URL_DESCRIPTOR).extract()[0]
-            alt_title = (
-                response.xpath(ALT_TITLE_URL).extract()[0]
-                if response.xpath(ALT_TITLE_URL).extract()
-                else ""
-            )
+            source_url = response.xpath(SOURCE_URL_TAG).extract_first("")
+            genres = response.xpath(GENRES_TAG).extract()
+            thumbnail = response.xpath(THUMBNAIL_IMG_URL_TAG).extract_first("")
+            image = thumbnail.replace("_p", "")
+            alt_title = response.xpath(ALT_TITLE_URL).extract_first("")
 
             mangas.append(
                 {
@@ -89,13 +87,13 @@ class MangaSpider(scrapy.Spider):
                     "alt_title": alt_title,
                     "rating": rating,
                     "thumbnail": thumbnail,
-                    "description": desc_text,
+                    "image": image,
                     "genres": genres,
                     "source_url": READMANGA_URL + source_url,
                 }
             )
-            self.logger_.info('Parsed manga "{}"'.format(title))
+            self.logger.info('Parsed manga "{}"'.format(title))
 
-        self.logger_.info("Processing items...")
-        self.logger_.info("===================")
+        self.logger.info("Processing items...")
+        self.logger.info("===================")
         return mangas

@@ -5,6 +5,7 @@ from typing import List, Tuple
 from django.db import transaction
 
 from apps.parse.models import Genre, Manga
+from apps.parse.readmanga.list_parser.manga_spider import MangaSpider
 
 logger = logging.getLogger()
 
@@ -19,7 +20,7 @@ def bulk_get_or_create(cls, names: List[str]) -> Tuple:
 
 class ReadmangaPipeline:
     @staticmethod
-    def process_item(item, spider):
+    def process_item(item, spider: "MangaSpider"):
         data = deepcopy(item)
 
         title = data.pop("title")
@@ -28,7 +29,7 @@ class ReadmangaPipeline:
 
         if not title:
             message = f"Error processing {data}: No title name was set"
-            spider._logger.error(message)
+            spider.logger.error(message)
             raise KeyError(message)
 
         genres = bulk_get_or_create(Genre, genres)
@@ -39,14 +40,14 @@ class ReadmangaPipeline:
         if manga_already.exists():
             manga_already.update(title=title, **data)
             manga = manga_already.first()
-            spider.logger_.info(f'Updated item "{manga}"')
+            spider.logger.info(f'Updated item "{manga}"')
         else:
             manga = Manga.objects.create(
                 title=title,
                 source_url=source_url,
                 **data,
             )
-            spider.logger_.info(f'Created item "{manga}"')
+            spider.logger.info(f'Created item "{manga}"')
 
         manga.genres.add(*genres)
 

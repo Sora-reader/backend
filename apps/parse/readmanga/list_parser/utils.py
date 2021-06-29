@@ -1,13 +1,6 @@
 import re
 
 
-def handle_xpath_response(html_lxml, tag: str) -> str:
-    try:
-        return html_lxml.xpath(tag)[0]
-    except IndexError:
-        return ""
-
-
 def chapters_into_dict(chapters: list) -> dict:
     regex = "[\n]+|[ ]{2,}"
     chapters = [re.sub(regex, "", chapter) for chapter in chapters]
