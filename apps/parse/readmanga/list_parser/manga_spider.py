@@ -32,7 +32,7 @@ class MangaSpider(scrapy.Spider):
         self.logger_.info("=================")
         mangas_list = requests.get(f"{READMANGA_URL}/list")
         if not mangas_list.status_code == 200:
-            self.logger_.error(f"Failed rqeuest with code {mangas_list.status_code}")
+            self.logger_.error(f"Failed request with code {mangas_list.status_code}")
             return
         mangas_list = mangas_list.text
 

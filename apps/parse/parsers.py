@@ -23,11 +23,5 @@ def readmanga_parser(settings=None, logger=None):
     process.start()
 
 
-def readmanga_detail_parse(id):
-    # TODO - add logging
-    deepen_manga_info(id)
-
-
-def readmanga_chapter_parse(id):
-    # TODO - add logging
-    chapters_manga_info(id)
+readmanga_detail_parse = deepen_manga_info
+readmanga_chapter_parse = chapters_manga_info

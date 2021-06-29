@@ -262,3 +262,5 @@ LOGGING = {
         },
     },
 }
+
+DJANGO_COLORS = os.getenv("DJANGO_COLORS", "cyan")

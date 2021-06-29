@@ -1,9 +1,9 @@
-import datetime as dt
 import logging
+from copy import deepcopy
 from typing import Optional
 
-import pytz
 import requests
+from django.utils import timezone
 from scrapy.http.response.html import HtmlResponse
 
 from apps.parse.models import Category, Manga, Person, PersonRelatedToManga
@@ -68,21 +68,19 @@ def save_persons(manga, role, persons):
 
 def save_detailed_manga_info(
     manga: Manga,
-    authors=None,
-    year=None,
-    description=None,
-    translators=None,
-    illustrators=None,
-    screenwriters=None,
-    categories=None,
-    rss_url=None,
+    **kwargs,
 ) -> None:
     if manga is None:
         return
 
-    manga.year = year
-    manga.rss_url = manga.domain + rss_url
-    manga.description = description
+    data = deepcopy(kwargs)
+
+    authors = data.pop("authors", [])
+    illustrators = data.pop("illustrators", [])
+    screenwriters = data.pop("screenwriters", [])
+    translators = data.pop("translators", [])
+
+    categories = data.pop("categories", [])
 
     save_persons(manga, PersonRelatedToManga.Roles.author, authors)
     save_persons(manga, PersonRelatedToManga.Roles.illustrator, illustrators)
@@ -92,35 +90,26 @@ def save_detailed_manga_info(
     categories = [
         Category.objects.get_or_create(name=category)[INSTANCE] for category in categories
     ]
+
     manga.categories.clear()
     manga.categories.set(categories)
-    manga.updated_detail = dt.datetime.now(pytz.UTC)
-    manga.save()
+    data["updated_detail"] = timezone.now()
+    Manga.objects.filter(pk=manga.pk).update(**data)
 
 
-def is_need_update(manga: Manga):
+def needs_update(manga: Manga):
     if manga.updated_detail:
-        update_deadline = manga.updated_detail + dt.timedelta(minutes=30)
-        if dt.datetime.now(pytz.UTC) >= update_deadline:
-            return True
-        else:
-            logger.info(f"Manga {manga.alt_title} is already up to date")
+        update_deadline = manga.updated_detail + Manga.UPDATED_DETAIL_FREQUENCY
+        if not timezone.now() >= update_deadline:
             return False
-    else:
-        return True
+    return True
 
 
 def deepen_manga_info(id: int) -> Optional[dict]:
-    manga = Manga.objects.filter(pk=id).first()
-    if manga is None:
-        logger.error("Manga not found")
-        return
+    manga = Manga.objects.get(pk=id)
 
-    if not is_need_update(manga):
-        return
-
-    url = manga.source_url
-    info: dict = get_detailed_info(url)
-    save_detailed_manga_info(manga=manga, **info)
-    logger.info(f"Successful detailing of manga {manga.alt_title}")
-    return info
+    if needs_update(manga):
+        url = manga.source_url
+        info: dict = get_detailed_info(url)
+        save_detailed_manga_info(manga=manga, **info)
+        return info
