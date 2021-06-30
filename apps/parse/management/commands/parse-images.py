@@ -12,7 +12,10 @@ class Command(BaseParseCommand):
         parser.add_argument("id", type=int, help="Id of the manga from the database")
         parser.add_argument("vol", type=int, help="Volume of the manga from the database")
         parser.add_argument(
-            "chapter", type=int, nargs="?", help="Chapter of the manga's volume from the database"
+            "chapter", type=int, help="Chapter of the manga's volume from the database"
+        )
+        parser.add_argument(
+            "--force", "-f", action="store_true", help="Update images if key exists in the Redis"
         )
 
     def handle(self, *args, **options):
@@ -24,10 +27,7 @@ class Command(BaseParseCommand):
 
             if manga.source == "Readmanga":
                 self.logger.success("Parser found\n")
-                chapter: Chapter = manga.volumes.get(
-                    volume=options.get("vol"), number=options.get("chapter")
-                )
-                print(parsers.readmanga_image_parse(chapter.link))
+                parsers.readmanga_image_parse(manga, **options)
                 self.logger.success(f"Manga `{manga.title}` parsed succesfully\n")
             else:
                 self.logger.error("Parser not found\n")
