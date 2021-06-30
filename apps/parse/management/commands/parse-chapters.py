@@ -6,14 +6,14 @@ from apps.parse.models import Manga
 
 
 class Command(BaseParseCommand):
-    help = "Chapters parsing"
+    help = "Parse chapters for manga"
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("id", type=int, help="Id of the manga from the database")
 
     def check_rss_url(self, manga: Manga):
         if not manga.rss_url:
-            self.logger.error("Manga doesn't consists rss url. Parse the details")
+            self.logger.error("Manga rss_url is not set. Parse the details first")
             exit(0)
 
     def handle(self, *args, **options):
@@ -21,13 +21,13 @@ class Command(BaseParseCommand):
         try:
             manga = Manga.objects.get(pk=manga_id)
 
-            self.logger.info("Manga found\n")
+            self.logger.success("Manga found\n")
 
             self.check_rss_url(manga)
             if manga.source == "Readmanga":
-                self.logger.info("Parser found\n")
+                self.logger.success("Parser found\n")
                 parsers.readmanga_chapter_parse(manga.id, self.logger)
-                self.logger.info(f"Manga `{manga.title}` parsed succesfully\n")
+                self.logger.info(f"Chapters for `{manga.title}` were parsed succesfully\n")
             else:
                 self.logger.error("Parser not found\n")
         except Manga.DoesNotExist:

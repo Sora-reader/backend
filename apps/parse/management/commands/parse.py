@@ -9,15 +9,15 @@ SETTINGS_PATH = "apps.parse.readmanga.list_parser.settings"
 
 
 class Command(BaseParseCommand):
-    help = """Execute different parser of mangas
-
-    `python3 manage.py parse [readmanga | otherparser]`
-    """
+    help = "Parse manga list"
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "parser",
             type=str,
+            default="readmanga",
+            choices=["readmanga"],
+            help="parser to use which respresents a website source",
         )
 
     def handle(self, *args, **options):
