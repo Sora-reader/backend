@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from apps.core.admin import BaseAdmin, ImagePreviewMixin, RelatedField
-from apps.parse.models import Author, Genre, Manga, Person
+from apps.parse.models import Author, Chapter, Genre, Manga, Person
 
 
 @admin.register(Manga)
@@ -43,3 +43,10 @@ class AuthorAdmin(PersonAdmin):
 class GenreAdmin(BaseAdmin, admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name",)
+
+
+@admin.register(Chapter)
+class ChapterAdmin(BaseAdmin, admin.ModelAdmin):
+    search_fields = ("title",)
+    list_display = ("title",)
+    list_filter = ("manga",)

@@ -3,6 +3,7 @@ import os
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+from apps.parse.readmanga.chapter_parser.parse import chapters_manga_info
 from apps.parse.readmanga.detail_parser.parse import deepen_manga_info
 from apps.parse.readmanga.list_parser.manga_spider import MangaSpider
 
@@ -23,3 +24,4 @@ def readmanga_parser(settings=None, logger=None):
 
 
 readmanga_detail_parse = deepen_manga_info
+readmanga_chapter_parse = chapters_manga_info

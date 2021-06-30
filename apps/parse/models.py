@@ -2,7 +2,7 @@ import re
 from datetime import timedelta
 
 from django.db import models
-from django.db.models.fields import FloatField, TextField, URLField
+from django.db.models.fields import FloatField, IntegerField, TextField, URLField
 from django.db.models.fields.related import ManyToManyField
 from django.db.models.query import QuerySet
 
@@ -44,10 +44,21 @@ class PersonRelatedToManga(models.Model):
     role = models.TextField(choices=Roles.choices)
 
 
+class Chapter(models.Model):
+    title = TextField()
+    link = URLField(max_length=2000)
+    number = IntegerField()
+    volume = models.IntegerField()
+
+    def __str__(self) -> str:
+        return self.title
+
+
 class Manga(BaseModel):
     NAME_FIELD = "title"
 
     UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
+    UPDATED_CHAPTER_FREQUENCY = timedelta(hours=1)
 
     SOURCE_MAP = {
         "https://readmanga.live": "Readmanga",
@@ -65,7 +76,7 @@ class Manga(BaseModel):
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
     rss_url = URLField(max_length=2000, null=True, blank=True)
-    volumes = models.JSONField(default=dict)
+    volumes = ManyToManyField("Chapter")
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
     updated_detail = models.DateTimeField(blank=True, null=True)
