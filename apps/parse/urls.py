@@ -7,4 +7,6 @@ router = routers.DefaultRouter()
 
 router.register(r"", MangaViewSet, basename="manga")
 
-urlpatterns = [path(r"", include(router.urls))]
+urlpatterns = [
+    path(r"", include(router.urls)),
+]

@@ -1,6 +1,6 @@
 from django.conf.urls import include
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 
 apipatterns = [
     path("docs/", include("apps.api_docs.urls")),
@@ -10,5 +10,5 @@ apipatterns = [
 
 urlpatterns = [
     path("api/", include(apipatterns)),
-    path(r"", admin.site.urls),
+    re_path(r"^(?!api)\w*?", admin.site.urls),
 ]
