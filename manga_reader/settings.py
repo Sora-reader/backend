@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "apps.api_docs",
     "apps.login.apps.LoginConfig",
-    "apps.readmanga_parser.apps.ReadmangaParserConfig",
+    "apps.parse",
+    "apps.core.apps.CoreConfig",
     "django_extensions",
     "django.contrib.postgres",
 ]
@@ -52,7 +53,7 @@ JAZZMIN_SETTINGS = {
     "site_logo": "favicon.ico",
     "welcome_sign": "Admin panel",
     "copyright": '<a target="_blank" href="https://github.com/sora-reader">Sora</a>',
-    "search_model": "readmanga_parser.manga",
+    "search_model": "parse.manga",
     "user_avatar": None,
     ############
     # Top Menu #
@@ -74,18 +75,20 @@ JAZZMIN_SETTINGS = {
     "hide_apps": ["token_blacklist"],
     "hide_models": ["auth.group"],
     "icons": {
-        "readmanga_parser.manga": "fas fa-book-open",
-        "readmanga_parser.author": "fas fa-user-edit",
-        "readmanga_parser.genre": "fas fa-theater-masks",
-        "readmanga_parser.translator": "fas fa-language",
+        "parse.manga": "fas fa-book-open",
+        "parse.author": "fas fa-user-edit",
+        "parse.genre": "fas fa-theater-masks",
+        "parse.person": "fas fa-user-edit",
+        "parse.chapter": "fas fa-file-alt",
         "auth.user": "fas fa-user",
         "auth.group": "fas fa-users",
+        "core.taskcontrol": "fas fa-tasks",
     },
     "order_with_respect_to": [
-        "readmanga_parser",
-        "readmanga_parser.manga",
-        "readmanga_parser.author",
-        "readmanga_parser.genre",
+        "parse",
+        "parse.manga",
+        "parse.author",
+        "parse.genre",
         "auth",
         "login",
         "authtoken",
@@ -108,10 +111,8 @@ JAZZMIN_UI_TWEAKS = {
 #######
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": (),
+    "DEFAULT_AUTHENTICATION_CLASSES": (),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
@@ -141,7 +142,7 @@ SIMPLE_JWT = {
 }
 
 ##############
-# Middleware #
+# Middleware
 ##############
 
 MIDDLEWARE = [
@@ -241,7 +242,6 @@ USE_L10N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
 
 LOGGING = {
     "version": 1,

@@ -21,3 +21,10 @@ class BaseModel(TimeStampedModel, models.Model):
     def __repr__(self):
         classname = self.__class__.__name__
         return f"<{classname}: {getattr(self, self.__class__.NAME_FIELD, '')}, pk: {self.pk}>"
+
+
+class TaskControl(BaseModel):
+    NAME_FIELD = "task_name"
+
+    task_status = models.BooleanField(default=False)
+    task_name = models.CharField(max_length=255, null=False, blank=False, unique=True)
