@@ -129,17 +129,17 @@ paths:
                 $ref: '#/components/schemas/Manga'
         '404':
           description: Manga not found
-  '/api/manga/{mangaId}/volumes':
+  '/api/manga/{mangaId}/chapters':
     get:
       tags:
         - manga
-      summary: Get manga volumes by ID
-      description: Returns volumes for manga
+      summary: Get manga chapters by ID
+      description: Returns chapters for manga
       operationId: mangaChapters
       parameters:
         - name: mangaId
           in: path
-          description: ID of manga to get volumes for
+          description: ID of manga to get chapters for
           required: true
           schema:
             type: integer
@@ -150,10 +150,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MangaVolumes'
+                $ref: '#/components/schemas/MangaChapters'
         '404':
           description: Manga not found
-  '/api/manga/{mangaId}/{volumeId}/{chapterId}':
+  '/api/manga/{chapterId}/images':
     get:
       tags:
         - manga
@@ -161,24 +161,18 @@ paths:
       description: Returns images for chapter
       operationId: mangaChapterImages
       parameters:
-        - name: mangaId
-          in: path
-          description: ID of manga to get volumes for
-          required: true
-          schema:
-            type: number
-        - name: volumeId
-          in: path
-          description: ID of volume to get images for
-          required: true
-          schema:
-            type: number
         - name: chapterId
           in: path
           description: ID of chapter to get images for
           required: true
           schema:
             type: number
+        - name: parse
+          in: query
+          description: Whether to run parsing of images again (if links are broken)
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: successful operation
@@ -404,8 +398,8 @@ components:
         title: some_manga
         alt_title: some_manga_in_japanese
         rating: 9.32
-        thumbnail: "htttps://cdn.com/some_image_compressed/"
-        image: "htttps://cdn.com/some_image_full/"
+        thumbnail: "https://cdn.com/some_image_compressed/"
+        image: "https://cdn.com/some_image_full/"
         description: another isekai
         source: MangaSite
         author:
@@ -414,27 +408,34 @@ components:
       items:
         $ref: "#/components/schemas/Manga"
     MangaChapter:
-      type: string
-      example: "htttps://domain.com/vol1/0"
+      type: object
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+          format: uri
+        number:
+          type: number
+        volume:
+          type: number
+      example:
+        title:  some_manga
+        link:  https://mangasite.com/some_manga
+        number:  0
+        volume:  1
     MangaChapterImage:
       type: string
-      example: "htttps://cdn.com/vol1/0?token=some_token"
+      example: "https://cdn.com/vol1/0?token=some_token"
     MangaChapterImages:
       type: array
       items:
         $ref: '#/components/schemas/MangaChapterImage'
-      example: ["htttps://cdn.com/vol1/0?token=some_token", "htttps://cdn.com/vol1/1?token=some_token"]
-    MangaVolume:
+      example: ["https://cdn.com/vol1/0?token=some_token", "https://cdn.com/vol1/1?token=some_token"]
+    MangaChapters:
       type: array
       items:
         $ref: '#/components/schemas/MangaChapter'
-      example: ["htttps://domain.com/vol1/0", "htttps://domain.com/vol1/1"]
-    MangaVolumes:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/MangaVolume'
-      example:
-        1: ["htttps://domain.com/vol1/0", "htttps://domain.com/vol1/1"]
     VerifyToken:
       type: object
       properties:
