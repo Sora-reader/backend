@@ -6,13 +6,16 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from apps.parse.models import Manga
+from apps.core.utils import init_redis_client
+from apps.parse.models import Chapter, Manga
+from apps.parse.readmanga.images_parser.parse import parse_new_images
 from apps.parse.serializers import MangaChaptersSerializer, MangaSerializer
 
 
 class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = MangaSerializer
     queryset = Manga.objects.all()
+    redis_client = init_redis_client()
 
     def get_object(self):
         return get_object_or_404(Manga, id=self.kwargs.get("pk"))
@@ -42,10 +45,16 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     @action(
         detail=False,
         methods=("get",),
-        url_path="(?P<manga_id>[^/.]+)/(?P<volume_id>[^/.]+)/(?P<chapter_id>[^/.]+)",
+        url_path="(?P<chapter_id>[^/.]+)/images",
     )
-    def images_list(self, request, manga_id, volume_id, chapter_id):
-        return Response(status=status.HTTP_200_OK)
+    def images_list(self, request, chapter_id):
+        chapter: Chapter = get_object_or_404(Chapter, id=chapter_id)
+        parse = request.GET.get("parse", None)
+        if parse is not None:
+            return Response(
+                parse_new_images(chapter.link, self.redis_client), status=status.HTTP_200_OK
+            )
+        return Response(self.redis_client.lrange(chapter.link, 0, -1), status=status.HTTP_200_OK)
 
     @extend_schema(
         parameters=[
