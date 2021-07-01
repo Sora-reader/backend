@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from django.db import models
 from django.db.models.fields import FloatField, IntegerField, TextField, URLField
-from django.db.models.fields.related import ManyToManyField
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
 from apps.core.models import BaseModel
@@ -39,16 +39,16 @@ class PersonRelatedToManga(models.Model):
         screenwriter = "screenwriter"
         translator = "translator"
 
-    person = models.ForeignKey("Person", models.CASCADE, related_name="manga_relations")
-    manga = models.ForeignKey("Manga", models.CASCADE, related_name="person_relations")
-    role = models.TextField(choices=Roles.choices)
+    person = ForeignKey("Person", models.CASCADE, related_name="manga_relations")
+    manga = ForeignKey("Manga", models.CASCADE, related_name="person_relations")
+    role = TextField(choices=Roles.choices)
 
 
 class Chapter(models.Model):
     title = TextField()
     link = URLField(max_length=2000)
     number = IntegerField()
-    volume = models.IntegerField()
+    volume = IntegerField()
 
     def __str__(self) -> str:
         return self.title
