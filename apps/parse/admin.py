@@ -45,4 +45,8 @@ class GenreAdmin(BaseAdmin, admin.ModelAdmin):
     list_display = ("name",)
 
 
-admin.site.register(Chapter)
+@admin.register(Chapter)
+class ChapterAdmin(BaseAdmin, admin.ModelAdmin):
+    search_fields = ("title",)
+    list_display = ("title",)
+    list_filter = ("manga",)

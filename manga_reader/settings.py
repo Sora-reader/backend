@@ -79,6 +79,7 @@ JAZZMIN_SETTINGS = {
         "parse.author": "fas fa-user-edit",
         "parse.genre": "fas fa-theater-masks",
         "parse.person": "fas fa-user-edit",
+        "parse.chapter": "fas fa-file-alt",
         "auth.user": "fas fa-user",
         "auth.group": "fas fa-users",
         "core.taskcontrol": "fas fa-tasks",

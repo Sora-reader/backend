@@ -17,8 +17,8 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Manga.objects.all()
     redis_client = init_redis_client()
 
-    def get_object(self):
-        return get_object_or_404(Manga, id=self.kwargs.get("pk"))
+    def get_object(self, manga_id):
+        return get_object_or_404(Manga, id=manga_id)
 
     @extend_schema(
         parameters=[
@@ -28,7 +28,7 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     @action(
         detail=False,
         methods=("get",),
-        url_path="(?P<manga_id>[^/.]+)/volumes",
+        url_path="(?P<manga_id>[^/.]+)/chapters",
     )
     def chapters_list(self, request, manga_id):
         mangas = Manga.objects.filter(id=manga_id)
