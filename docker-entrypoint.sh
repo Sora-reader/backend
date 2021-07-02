@@ -27,5 +27,11 @@ echo "Compiling messages"
 ./manage.py compilemessages -i venv
 
 echo "Running the server on port $PORT"
-celery -A manga_reader.celery.app worker -n manga@%h --loglevel=INFO -B &
+
+if [ "$RUN_CELERY" = 1 ]; then
+    echo "Running celery worker"
+    echo "====================="
+    celery -A manga_reader.celery.app worker -n manga@%h --loglevel=INFO -B &
+fi
+
 ./manage.py runserver 0.0.0.0:$PORT

@@ -59,6 +59,7 @@ class Manga(BaseModel):
 
     UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
     UPDATED_CHAPTER_FREQUENCY = timedelta(hours=1)
+    UPDATED_IMAGE_FREQUENCY = timedelta(hours=8)
 
     SOURCE_MAP = {
         "https://readmanga.live": "Readmanga",

@@ -19,7 +19,7 @@ paths:
   /api/auth/sign-in/:
     post:
       description: Sign in with user credentials
-      operationId: SignIn
+      operationId: signIn
       tags:
       - auth
       requestBody:
@@ -38,7 +38,7 @@ paths:
   /api/auth/sign-out/:
     get:
       description: Sign user out and blacklist his token
-      operationId: SignOut
+      operationId: signOut
       tags:
       - auth
       responses:
@@ -47,7 +47,7 @@ paths:
   /api/auth/sign-up/:
     post:
       description: Sign up and receive JWT token pair and a username
-      operationId: SignUp
+      operationId: signUp
       tags:
       - auth
       requestBody:
@@ -65,7 +65,7 @@ paths:
           description: 'successful operation'
   /api/auth/token-refresh/:
     post:
-      operationId: RefreshToken
+      operationId: refreshToken
       description: |-
         Takes a refresh type JSON web token and returns an access type JSON web
         token if the refresh token is valid.
@@ -86,7 +86,7 @@ paths:
           description: 'successful operation'
   /api/auth/token-verify/:
     post:
-      operationId: VerifyToken
+      operationId: verifyToken
       description: |-
         Takes a token and indicates if it is valid.  This view provides no
         information about a token's fitness for a particular use.
@@ -150,7 +150,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MangaChapters'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MangaChapter'
         '404':
           description: Manga not found
   '/api/manga/{chapterId}/images':
@@ -179,7 +181,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MangaChapterImages'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MangaChapterImage'
+              example: ["https://cdn.com/vol1/0?token=some_token", "https://cdn.com/vol1/1?token=some_token"]
         '404':
           description: Manga or volume not found
   /api/manga/search:
@@ -204,11 +209,11 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
+                  $ref: '#/components/schemas/Manga'
   /api/docs/schema/:
     get:
       summary: Get OpenApi 3.0 schema
-      operationId: GetSchema
+      operationId: getSchema
       description: |-
         OpenApi3 schema for this API. Format can be selected via content negotiation.
 
@@ -377,6 +382,18 @@ components:
           type: array
           items:
             type: string
+        screenwriters:
+          type: array
+          items:
+            type: string
+        illustrators:
+          type: array
+          items:
+            type: string
+        translators:
+          type: array
+          items:
+            type: string
         genres:
           type: array
           items:
@@ -389,6 +406,12 @@ components:
           type: string
         year:
           type: string
+        updated_detail:
+          type: string
+          format: date-time
+        updated_chapters:
+          type: string
+          format: date-time
       required:
       - id
       - title
@@ -402,14 +425,17 @@ components:
         image: "https://cdn.com/some_image_full/"
         description: another isekai
         source: MangaSite
-        author:
-    MangaList:
-      type: array
-      items:
-        $ref: "#/components/schemas/Manga"
+        authors: ["SomeGuy", "MayBeOtherGuy"]
+        screenwriters: []
+        illustrators: []
+        translators: []
+        updated_chapters: "2021-07-01T18:07:19.600463Z"
+        updated_detail: "2021-07-01T18:07:16.272237Z"
     MangaChapter:
       type: object
       properties:
+        id:
+          type: number
         title:
           type: string
         link:
@@ -420,6 +446,7 @@ components:
         volume:
           type: number
       example:
+        id: 0
         title:  some_manga
         link:  https://mangasite.com/some_manga
         number:  0
@@ -427,15 +454,6 @@ components:
     MangaChapterImage:
       type: string
       example: "https://cdn.com/vol1/0?token=some_token"
-    MangaChapterImages:
-      type: array
-      items:
-        $ref: '#/components/schemas/MangaChapterImage'
-      example: ["https://cdn.com/vol1/0?token=some_token", "https://cdn.com/vol1/1?token=some_token"]
-    MangaChapters:
-      type: array
-      items:
-        $ref: '#/components/schemas/MangaChapter'
     VerifyToken:
       type: object
       properties:
