@@ -74,7 +74,7 @@ def needs_update(manga: Manga):
     return True
 
 
-def chapters_manga_info(id: int, logger) -> Optional[dict]:
+def chapters_manga_info(id: int) -> Optional[dict]:
     manga: Manga = Manga.objects.get(pk=id)
 
     if needs_update(manga):
