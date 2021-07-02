@@ -21,8 +21,8 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     redis_client = init_redis_client()
 
     def retrieve(self, request, pk, *args, **kwargs):
-        parse = request.GET.get("parse", None)
-        if parse is not None:
+        manga = Manga.objects.filter(pk=pk).first()
+        if manga:
             deepen_manga_info(pk)
         return super().retrieve(request, *args, **kwargs)
 
@@ -38,12 +38,10 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     )
     def chapters_list(self, request, manga_id):
         manga: Manga = get_object_or_404(Manga, id=manga_id)
-        parse = request.GET.get("parse", None)
-        if parse is not None:
-            try:
-                chapters_manga_info(manga.pk)
-            except MissingSchema:
-                return Response("Parse the manga details", status=status.HTTP_400_BAD_REQUEST)
+        try:
+            chapters_manga_info(manga.pk)
+        except MissingSchema:
+            return Response("Parse the manga details", status=status.HTTP_400_BAD_REQUEST)
         serializer = MangaChaptersSerializer(manga.volumes.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
