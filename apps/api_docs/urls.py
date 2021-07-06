@@ -1,10 +1,20 @@
 from django.urls import path
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    # Schemas
-    path("schema/", SpectacularAPIView.as_view(), name="schema"),
     # UI
-    path("", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-    path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path(
+        "",
+        TemplateView.as_view(
+            template_name="swagger-ui.html", extra_context={"schema_url": "openapi-schema"}
+        ),
+        name="swagger-ui",
+    ),
+    path(
+        "redoc/",
+        TemplateView.as_view(
+            template_name="redoc-ui.html", extra_context={"schema_url": "openapi-schema"}
+        ),
+        name="redoc-ui",
+    ),
 ]
