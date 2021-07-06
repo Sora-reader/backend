@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -12,10 +11,6 @@ from apps.login.serializers import users
 
 
 class SignUpView(APIView):
-    @extend_schema(
-        request=users.UserSerializer,
-        responses=users.UserTokenResponseSerializer,
-    )
     @action(methods=("post",), detail=False, url_path="sign-up")
     def post(self, request, *args, **kwargs):
         user_serializer = users.UserSerializer(data=request.data)
@@ -30,16 +25,11 @@ class SignUpView(APIView):
 class SignInView(TokenViewBase):
     serializer_class = users.UserTokenRequestSerializer
 
-    @extend_schema(
-        request=users.UserTokenRequestSerializer,
-        responses=users.UserTokenResponseSerializer,
-    )
     def post(self, *args, **kwargs):
         return super().post(*args, **kwargs)
 
 
 class SignOutView(APIView):
-    @extend_schema(description="Sign user out and blacklist his token")
     def get(self, request):
         print("Blacklisting")
         refresh = request.COOKIES.get("sora_refresh")

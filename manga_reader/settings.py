@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
-    "drf_spectacular",
     "corsheaders",
     "apps.api_docs",
     "apps.login.apps.LoginConfig",
@@ -113,7 +112,6 @@ JAZZMIN_UI_TWEAKS = {
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (),
     "DEFAULT_AUTHENTICATION_CLASSES": (),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
