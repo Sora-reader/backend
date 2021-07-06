@@ -1,6 +1,6 @@
-# Backend for manga reader
+# Sora reader backend
 
-## Instalation requirements
+## Installation requirements
 
 - PostgreSQL(and `libpq-dev`)
 - Python 3.8+
