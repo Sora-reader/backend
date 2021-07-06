@@ -46,7 +46,8 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     def images_list(self, request, chapter_id):
         chapter: Chapter = get_object_or_404(Chapter, id=chapter_id)
         parse = request.GET.get("parse", None)
-        if parse is not None:
+        images_cached = self.redis_client.exists(chapter.link)
+        if not images_cached or parse is not None:
             return Response(
                 parse_new_images(chapter.link, self.redis_client), status=status.HTTP_200_OK
             )
