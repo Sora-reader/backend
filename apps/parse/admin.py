@@ -4,6 +4,11 @@ from apps.core.admin import BaseAdmin, ImagePreviewMixin, RelatedField
 from apps.parse.models import Author, Chapter, Genre, Manga, Person
 
 
+@admin.display(description="Manga")
+def manga_name(obj):
+    return obj.manga_set.first().title
+
+
 @admin.register(Manga)
 class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
     search_fields = ("title", "alt_title")
@@ -48,5 +53,5 @@ class GenreAdmin(BaseAdmin, admin.ModelAdmin):
 @admin.register(Chapter)
 class ChapterAdmin(BaseAdmin, admin.ModelAdmin):
     search_fields = ("title",)
-    list_display = ("title",)
+    list_display = ("title", manga_name)
     list_filter = ("manga",)
