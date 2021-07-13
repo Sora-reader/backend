@@ -1,3 +1,4 @@
+import re
 import xml.etree.ElementTree as ET
 from copy import deepcopy
 from typing import Optional
@@ -22,6 +23,10 @@ def get_chapters_info(url: str) -> dict:
         link = item.find(LINK_TAG).text
 
         title = item.find(TITLE_TAG).text
+
+        res_reg = re.search(r":\s*(\d+.*\d+)$", title)
+        if res_reg:
+            title = res_reg.group(1)
 
         vol, chapter = link.split("/")[-2:]
         vol = int(vol.replace("vol", ""))

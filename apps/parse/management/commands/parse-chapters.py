@@ -26,7 +26,7 @@ class Command(BaseParseCommand):
             self.check_rss_url(manga)
             if manga.source == "Readmanga":
                 self.logger.success("Parser found\n")
-                parsers.readmanga_chapter_parse(manga.id, self.logger)
+                parsers.readmanga_chapter_parse(manga.id)
                 self.logger.info(f"Chapters for `{manga.title}` were parsed succesfully\n")
             else:
                 self.logger.error("Parser not found\n")
