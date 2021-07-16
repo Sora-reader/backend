@@ -112,6 +112,8 @@ JAZZMIN_UI_TWEAKS = {
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (),
     "DEFAULT_AUTHENTICATION_CLASSES": (),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": os.getenv("PAGE_SIZE", 20),
 }
 
 SIMPLE_JWT = {

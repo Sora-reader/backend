@@ -198,6 +198,18 @@ paths:
           required: true
           schema:
             type: string
+        - name: limit
+          in: query
+          description: Query limit
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: Query offset
+          required: false
+          schema:
+            type: number
       summary: Search manga by title
       description: Returns a list of manga items
       operationId: search
@@ -209,7 +221,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Manga'
+                  $ref: '#/components/schemas/MangaSearchResult'
   /api/docs/schema/:
     get:
       summary: Get OpenApi 3.0 schema
@@ -431,6 +443,23 @@ components:
         translators: []
         updated_chapters: "2021-07-01T18:07:19.600463Z"
         updated_detail: "2021-07-01T18:07:16.272237Z"
+    MangaSearchResult:
+      type: object
+      properties:
+        count:
+          type: number
+        next:
+          type: string
+          format: uri
+          nullable: true
+        previous:
+          type: string
+          format: uri
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Manga'
     MangaChapter:
       type: object
       properties:

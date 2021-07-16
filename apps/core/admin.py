@@ -7,7 +7,7 @@ from django.db.models import Model
 from django.db.models.fields import Field
 from django.utils.html import format_html
 
-from apps.core.models import BaseModel, TaskControl
+from apps.core.models import BaseModel
 from apps.parse.models import Manga
 
 
@@ -165,9 +165,3 @@ class BaseAdmin(admin.ModelAdmin):
             else:
                 list_display.append(f"get_{field.name}_display")
         return list_display
-
-
-@admin.register(TaskControl)
-class TaskControlAdmin(BaseAdmin, admin.ModelAdmin):
-    list_display = ("task_name", "task_status")
-    list_editable = ("task_status",)

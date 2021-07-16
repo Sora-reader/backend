@@ -63,5 +63,11 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         if not title:
             return Response(status=status.HTTP_404_NOT_FOUND)
         mangas = Manga.objects.filter(Q(title__icontains=title) | Q(alt_title__icontains=title))
+
+        page = self.paginate_queryset(mangas)
+        if page is not None:
+            serializer = MangaSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = MangaSerializer(mangas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
