@@ -2,9 +2,6 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-
 ###########
 # Project #
 ###########
@@ -115,7 +112,8 @@ JAZZMIN_UI_TWEAKS = {
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (),
     "DEFAULT_AUTHENTICATION_CLASSES": (),
-    "PAGE_SIZE": os.getenv("PAGE_SIZE", 10),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": os.getenv("PAGE_SIZE", 20),
 }
 
 SIMPLE_JWT = {
@@ -267,15 +265,3 @@ LOGGING = {
         },
     },
 }
-
-
-#############
-# GlitchTip #
-#############
-SENTRY_DSN = os.getenv("SENTRY_DSN", "")
-sentry_sdk.init(
-    dsn=SENTRY_DSN,
-    integrations=[DjangoIntegration()],
-    traces_sample_rate=1.0,
-    send_default_pii=True,
-)

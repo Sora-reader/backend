@@ -2,14 +2,12 @@ from functools import cached_property
 from typing import Dict, Optional, Tuple, Type, Union
 
 import easy
-from celery import current_app
-from django import forms
 from django.contrib import admin
 from django.db.models import Model
 from django.db.models.fields import Field
 from django.utils.html import format_html
 
-from apps.core.models import BaseModel, TaskControl
+from apps.core.models import BaseModel
 from apps.parse.models import Manga
 
 
@@ -167,52 +165,3 @@ class BaseAdmin(admin.ModelAdmin):
             else:
                 list_display.append(f"get_{field.name}_display")
         return list_display
-
-
-class TaskSelectWidget(forms.widgets.Select):
-    celery_app = current_app
-    _choices = None
-
-    def tasks_as_choices(self):
-        self.celery_app.loader.import_default_modules()
-        tasks = list(
-            sorted(name for name in self.celery_app.tasks if not name.startswith("celery."))
-        )
-        return (("", ""),) + tuple(zip(tasks, tasks))
-
-    @property
-    def choices(self):
-        if self._choices is None:
-            self._choices = self.tasks_as_choices()
-        return self._choices
-
-    @choices.setter
-    def choices(self, _):
-        pass
-
-
-class TaskChoiceField(forms.ChoiceField):
-    widget = TaskSelectWidget
-
-    def valid_value(self, value: str) -> bool:
-        return True
-
-
-class TaskControlForm(forms.ModelForm):
-    task_name = TaskChoiceField(
-        label="Task (registered)",
-        required=True,
-    )
-
-    class Meta:
-        """Form metadata."""
-
-        model = TaskControl
-        exclude = ()
-
-
-@admin.register(TaskControl)
-class TaskControlAdmin(BaseAdmin, admin.ModelAdmin):
-    form = TaskControlForm
-    list_display = ("task_name", "task_status")
-    list_editable = ("task_status",)

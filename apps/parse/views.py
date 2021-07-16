@@ -3,7 +3,6 @@ from requests.exceptions import MissingSchema
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from apps.core.utils import init_redis_client
@@ -18,7 +17,6 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = MangaSerializer
     queryset = Manga.objects.all()
     redis_client = init_redis_client()
-    pagination_class = LimitOffsetPagination
 
     def retrieve(self, request, pk, *args, **kwargs):
         manga = Manga.objects.filter(pk=pk).first()
