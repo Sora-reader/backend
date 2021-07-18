@@ -24,7 +24,7 @@ def get_chapters_info(url: str) -> dict:
 
         title = item.find(TITLE_TAG).text
 
-        res_reg = re.search(r":\s*(\d+.*\d+)$", title)
+        res_reg = re.search(r":\s*(.*)$", title)
         if res_reg:
             title = res_reg.group(1)
 
@@ -53,7 +53,7 @@ def save_chapters_manga_info(
     data = deepcopy(kwargs)
     volumes = data.pop("volumes")
 
-    manga.volumes.clear()
+    manga.chapters.clear()
 
     chapters = []
     for volume_number, chapters_info in volumes.items():
@@ -66,7 +66,7 @@ def save_chapters_manga_info(
             )
             chapters.append(chapter)
 
-    manga.volumes.set(chapters)
+    manga.chapters.set(chapters)
     manga.updated_chapters = timezone.now()
     manga.save()
 

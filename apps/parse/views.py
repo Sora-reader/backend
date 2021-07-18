@@ -35,7 +35,9 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             chapters_manga_info(manga.pk)
         except MissingSchema:
             return Response("Parse the manga details", status=status.HTTP_400_BAD_REQUEST)
-        serializer = MangaChaptersSerializer(manga.volumes.all(), many=True)
+        serializer = MangaChaptersSerializer(
+            manga.chapters.order_by("-volume", "-number").all(), many=True
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(

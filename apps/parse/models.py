@@ -77,7 +77,7 @@ class Manga(BaseModel):
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
     rss_url = URLField(max_length=2000, null=True, blank=True)
-    volumes = ManyToManyField("Chapter")
+    chapters = ManyToManyField("Chapter")
     genres = ManyToManyField("Genre", related_name="mangas")
     categories = ManyToManyField("Category", related_name="mangas")
     updated_detail = models.DateTimeField(blank=True, null=True)
