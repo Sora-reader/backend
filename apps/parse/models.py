@@ -63,6 +63,7 @@ class Manga(BaseModel):
 
     SOURCE_MAP = {
         "https://readmanga.live": "Readmanga",
+        "https://mangalib.me": "Mangalib",
     }
 
     title = TextField()
