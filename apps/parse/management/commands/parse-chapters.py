@@ -20,13 +20,17 @@ class Command(BaseParseCommand):
         manga_id = options.get("id")
         try:
             manga = Manga.objects.get(pk=manga_id)
-
+            print(manga.title, manga.source)
             self.logger.success("Manga found\n")
 
-            self.check_rss_url(manga)
             if manga.source == "Readmanga":
+                self.check_rss_url(manga)
                 self.logger.success("Parser found\n")
                 parsers.readmanga_chapter_parse(manga.id)
+                self.logger.info(f"Chapters for `{manga.title}` were parsed succesfully\n")
+            elif manga.source == "Mangalib":
+                self.logger.success("Parser found\n")
+                parsers.mangalib_chapter_parse(manga.id)
                 self.logger.info(f"Chapters for `{manga.title}` were parsed succesfully\n")
             else:
                 self.logger.error("Parser not found\n")
