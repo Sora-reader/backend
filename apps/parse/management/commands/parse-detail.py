@@ -22,6 +22,10 @@ class Command(BaseParseCommand):
                 self.logger.success("Parser found\n")
                 parsers.readmanga_detail_parse(manga.id)
                 self.logger.info(f"Details for `{manga.title}` were parsed succesfully\n")
+            elif manga.source == "Mangalib":
+                self.logger.success("Parser found\n")
+                parsers.mangalib_detail_parse(manga.id)
+                self.logger.info(f"Details for `{manga.title}` were parsed succesfully\n")
             else:
                 self.logger.error("Parser not found\n")
         except Manga.DoesNotExist:

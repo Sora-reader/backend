@@ -14,7 +14,7 @@ def needs_update(manga: Manga):
 def save_persons(manga, role, persons):
     INSTANCE = 0
     PeopleRelated: PersonRelatedToManga = manga.people_related.through
-    PeopleRelated.objects.filter(role=role).delete()
+    PeopleRelated.objects.filter(role=role, manga=manga).delete()
     PeopleRelated.objects.bulk_create(
         [
             PeopleRelated(

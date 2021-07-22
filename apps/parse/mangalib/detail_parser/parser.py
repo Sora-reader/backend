@@ -23,9 +23,7 @@ from .consts import (
 
 
 async def get_detailed_info(url: str) -> dict:
-    browser = await launch(
-        {"headless": False, "args": ["--no-sandbox", "--disable-setuid-sandbox"]}
-    )
+    browser = await launch({"headless": True, "args": ["--no-sandbox", "--disable-setuid-sandbox"]})
     page = await browser.newPage()
     await page.setJavaScriptEnabled(False)
     await page.goto(url, {"timeout": 0})
