@@ -26,6 +26,12 @@ class Command(BaseParseCommand):
                 self.logger.info(
                     f"Chapter `{vol}/{number}` images for `{manga.title}` were parsed succesfully\n"
                 )
+            elif manga.source == "Mangalib":
+                self.logger.success("Parser found\n")
+                parsers.mangalib_image_parse(chapter)
+                self.logger.info(
+                    f"Chapter `{vol}/{number}` images for `{manga.title}` were parsed succesfully\n"
+                )
             else:
                 self.logger.error("Parser not found\n")
         except Manga.DoesNotExist:

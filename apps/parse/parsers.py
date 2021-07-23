@@ -6,6 +6,7 @@ from scrapy.utils.project import get_project_settings
 
 from apps.parse.mangalib.chapter_parser.parse import chapters_manga_info as mangalib_chapters_info
 from apps.parse.mangalib.detail_parser.parser import detail_manga_parser
+from apps.parse.mangalib.image_parser.parse import images_manga_info as mangalib_images_info
 from apps.parse.mangalib.list_parser.parser import Crawler
 from apps.parse.readmanga.chapter_parser.parse import chapters_manga_info
 from apps.parse.readmanga.detail_parser.parse import deepen_manga_info
@@ -39,3 +40,4 @@ readmanga_image_parse = images_manga_info
 
 mangalib_detail_parse = detail_manga_parser
 mangalib_chapter_parse = mangalib_chapters_info
+mangalib_image_parse = mangalib_images_info
