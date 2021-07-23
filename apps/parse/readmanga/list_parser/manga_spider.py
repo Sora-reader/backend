@@ -13,7 +13,6 @@ from .consts import (
     GENRES_TAG,
     MANGA_TILE_TAG,
     SOURCE_URL_TAG,
-    STAR_RATE_TAG,
     THUMBNAIL_IMG_URL_TAG,
     TITLE_TAG,
 )
@@ -69,12 +68,6 @@ class MangaSpider(scrapy.Spider):
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
             title = response.xpath(TITLE_TAG).extract_first("")
-            try:
-                rating = round(
-                    float(response.xpath(STAR_RATE_TAG).extract()[0].split(" из ")[0]), 2
-                )
-            except Exception:
-                rating = 0
             source_url = response.xpath(SOURCE_URL_TAG).extract_first("")
             genres = response.xpath(GENRES_TAG).extract()
             thumbnail = response.xpath(THUMBNAIL_IMG_URL_TAG).extract_first("")
@@ -85,7 +78,6 @@ class MangaSpider(scrapy.Spider):
                 {
                     "title": title,
                     "alt_title": alt_title,
-                    "rating": rating,
                     "thumbnail": thumbnail,
                     "image": image,
                     "genres": genres,

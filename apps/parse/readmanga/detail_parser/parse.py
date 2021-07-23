@@ -15,6 +15,7 @@ from .consts import (
     ILLUSTRATOR_TAG,
     RSS_TAG,
     SCREENWRITER_TAG,
+    STAR_RATING_TAG,
     TRANSLATORS_TAG,
     YEAR_TAG,
 )
@@ -27,19 +28,19 @@ logger = logging.getLogger("Detailed manga parser")
 def get_detailed_info(url: str) -> dict:
     response = requests.get(url)
     manga_html = HtmlResponse(url="", body=response.text, encoding="utf-8")
-
     year = manga_html.xpath(YEAR_TAG).extract_first("")
     description = manga_html.xpath(DESCRIPTION_TAG).extract_first("")
+    rating = manga_html.xpath(STAR_RATING_TAG).extract_first(0.0)
     rss_url = manga_html.xpath(RSS_TAG).extract_first("")
     authors = manga_html.xpath(AUTHORS_TAG).extract()
     screenwriters = manga_html.xpath(SCREENWRITER_TAG).extract()
     translators = manga_html.xpath(TRANSLATORS_TAG).extract()
     categories = manga_html.xpath(CATEGORY_TAG).extract()
     illustrators = manga_html.xpath(ILLUSTRATOR_TAG).extract()
-
     detailed_info = {
         "authors": authors,
         "year": year,
+        "rating": rating,
         "description": description,
         "translators": translators,
         "illustrators": illustrators,

@@ -8,3 +8,4 @@ ILLUSTRATOR_TAG = '//span[@class = "elem_illustrator "]/a[@class="person-link"]/
 SCREENWRITER_TAG = '//span[@class="elem_screenwriter "]/a[@class="person-link"]/text()'
 CATEGORY_TAG = '//span[@class = "elem_category "]/a[@class="element-link"]/text()'
 DESCRIPTION_TAG = "//meta[@itemprop='description'][1]/@content"
+STAR_RATING_TAG = "//span[@class='rating-block']/@data-score"
