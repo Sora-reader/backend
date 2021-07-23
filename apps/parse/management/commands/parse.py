@@ -16,7 +16,7 @@ class Command(BaseParseCommand):
             "parser",
             type=str,
             default="readmanga",
-            choices=["readmanga"],
+            choices=["readmanga", "mangalib"],
             help="parser to use which respresents a website source",
         )
 
