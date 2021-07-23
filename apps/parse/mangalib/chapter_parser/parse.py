@@ -14,9 +14,7 @@ INSTANCE = 0
 
 async def get_chapters_info(url: str) -> dict:
     data = dict()
-    browser = await launch(
-        {"headless": False, "args": ["--no-sandbox", "--disable-setuid-sandbox"]}
-    )
+    browser = await launch({"headless": True, "args": ["--no-sandbox", "--disable-setuid-sandbox"]})
     page = await browser.newPage()
     await page.setJavaScriptEnabled(False)
     await page.goto(url, {"timeout": 0})
@@ -47,16 +45,20 @@ def save_chapters_manga_info(manga: Manga, volumes: List[dict]) -> None:
         chapter_number = chapter_info.get("chapter_number")
         volume = chapter_info.get("chapter_volume")
         link = f"{manga.source_url}/v{volume}/c{chapter_number}"
-        chapter, _ = Chapter.objects.get_or_create(
+        title = chapter_info.get("chapter_name", "")
+        chapter, created = Chapter.objects.get_or_create(
             number=chapter_number,
             volume=volume,
             link=link,
         )
-        # Добавляю отдельно название, потому что volumes
-        chapter.title = chapter_info.get("chapter_name", "")
-        chapter.save()
-        chapters.append(chapter)
-
+        # функцией get_or_create мы проверяем есть ли у нас уже такая глава
+        # независимо от перевода и названия. Добавляем название отдельно, потому что
+        # не во всех переводах есть название
+        if created and not chapter.title and title:
+            chapter.title = title
+            chapter.save()
+        if chapter not in chapters:
+            chapters.append(chapter)
     manga.chapters.set(chapters)
     manga.updated_chapters = timezone.now()
     manga.save()
