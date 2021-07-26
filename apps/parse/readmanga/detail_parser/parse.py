@@ -6,7 +6,8 @@ import requests
 from django.utils import timezone
 from scrapy.http.response.html import HtmlResponse
 
-from apps.parse.models import Category, Manga, Person, PersonRelatedToManga
+from apps.parse.models import Category, Manga, PersonRelatedToManga
+from apps.parse.utils import needs_update, save_persons
 
 from .consts import (
     AUTHORS_TAG,
@@ -50,22 +51,6 @@ def get_detailed_info(url: str) -> dict:
     return detailed_info
 
 
-def save_persons(manga, role, persons):
-    PeopleRelated: PersonRelatedToManga = manga.people_related.through
-    PeopleRelated.objects.filter(role=role).delete()
-    PeopleRelated.objects.bulk_create(
-        [
-            PeopleRelated(
-                person=Person.objects.get_or_create(name=person)[INSTANCE],
-                manga=manga,
-                role=role,
-            )
-            for person in persons
-        ],
-        ignore_conflicts=True,
-    )
-
-
 def save_detailed_manga_info(
     manga: Manga,
     **kwargs,
@@ -95,14 +80,6 @@ def save_detailed_manga_info(
     data["updated_detail"] = timezone.now()
     data["rss_url"] = manga.url_prefix + data.pop("rss_url", "")
     Manga.objects.filter(pk=manga.pk).update(**data)
-
-
-def needs_update(manga: Manga):
-    if manga.updated_detail:
-        update_deadline = manga.updated_detail + Manga.UPDATED_DETAIL_FREQUENCY
-        if not timezone.now() >= update_deadline:
-            return False
-    return True
 
 
 def deepen_manga_info(id: int) -> Optional[dict]:
