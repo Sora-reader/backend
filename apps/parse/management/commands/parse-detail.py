@@ -1,8 +1,8 @@
 from django.core.management.base import CommandParser
 
 from apps.core.commands import BaseParseCommand
-from apps.parse import parsers
 from apps.parse.models import Manga
+from apps.parse.parsers import DETAIL_PARSER, PARSERS
 
 
 class Command(BaseParseCommand):
@@ -17,19 +17,14 @@ class Command(BaseParseCommand):
         try:
             manga: Manga = Manga.objects.get(pk=manga_id)
             self.logger.success("Manga found\n")
-
-            if manga.source == "Readmanga":
-                self.logger.success("Parser found\n")
-                parsers.readmanga_detail_parse(manga.id)
-                self.logger.info(f"Details for `{manga.title}` were parsed succesfully\n")
-            elif manga.source == "Mangalib":
-                self.logger.success("Parser found\n")
-                parsers.mangalib_detail_parse(manga.id)
-                self.logger.info(f"Details for `{manga.title}` were parsed succesfully\n")
-            else:
-                self.logger.error("Parser not found\n")
+            parser = PARSERS[manga.source][DETAIL_PARSER]
+            self.logger.success("Parser found\n")
+            parser(manga.id)
+            self.logger.info(f"Details for `{manga.title}` were parsed succesfully\n")
         except Manga.DoesNotExist:
             self.logger.error(f"Can't find manga with id {manga_id}\n")
+        except KeyError:
+            self.logger.error(f"Can't find details parser for {manga.source}")
         except Exception as exc:
             print(exc)
             self.logger.error("Some errors occured in the parser")
