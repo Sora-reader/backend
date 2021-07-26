@@ -7,12 +7,14 @@ from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
 
 from apps.core.commands import ParseCommandLogger
+from apps.parse.readmanga.list_parser.utils import parse_rating
 
 from .consts import (
     ALT_TITLE_URL,
     GENRES_TAG,
     MANGA_TILE_TAG,
     SOURCE_URL_TAG,
+    STAR_RATE_TAG,
     THUMBNAIL_IMG_URL_TAG,
     TITLE_TAG,
 )
@@ -67,6 +69,7 @@ class MangaSpider(scrapy.Spider):
         for description in descriptions:
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
+            rating = parse_rating(response.xpath(STAR_RATE_TAG).extract_first(""))
             title = response.xpath(TITLE_TAG).extract_first("")
             source_url = response.xpath(SOURCE_URL_TAG).extract_first("")
             genres = response.xpath(GENRES_TAG).extract()
@@ -76,6 +79,7 @@ class MangaSpider(scrapy.Spider):
 
             mangas.append(
                 {
+                    "rating": rating,
                     "title": title,
                     "alt_title": alt_title,
                     "thumbnail": thumbnail,

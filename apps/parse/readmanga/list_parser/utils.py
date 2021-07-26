@@ -13,3 +13,14 @@ def chapters_into_dict(chapters: list) -> dict:
         chapters_catalogue.update({readmanga_base_url + link: name})
 
     return chapters_catalogue
+
+
+def parse_rating(rate_str: str):
+    """
+    rate_str example '9.439212799072266 из 10'
+    """
+    try:
+        rating = round(float(rate_str.split(" из ")[0]) / 2, 2)
+    except Exception:
+        rating = 0.0
+    return rating
