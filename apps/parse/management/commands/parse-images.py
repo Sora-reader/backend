@@ -1,8 +1,8 @@
 from django.core.management.base import CommandParser
 
 from apps.core.commands import BaseParseCommand
-from apps.parse import parsers
 from apps.parse.models import Chapter, Manga
+from apps.parse.parsers import IMAGE_PARSER, PARSERS
 
 
 class Command(BaseParseCommand):
@@ -20,20 +20,20 @@ class Command(BaseParseCommand):
             chapter: Chapter = Chapter.objects.get(number=number, volume=vol, manga__id=id)
             self.logger.success("Chapter found\n")
             manga: Manga = chapter.manga_set.first()
-            if manga.source == "Readmanga":
-                self.logger.success("Parser found\n")
-                parsers.readmanga_image_parse(chapter)
-                self.logger.info(
-                    f"Chapter `{vol}/{number}` images for `{manga.title}` were parsed succesfully\n"
-                )
-            else:
-                self.logger.error("Parser not found\n")
+            parser = PARSERS[manga.source][IMAGE_PARSER]
+            self.logger.success("Parser found\n")
+            parser(chapter)
+            self.logger.info(
+                f"Chapter `{vol}/{number}` images for `{manga.title}` were parsed succesfully\n"
+            )
         except Manga.DoesNotExist:
             self.logger.error(f"Can't find manga with id {id}\n")
         except Chapter.DoesNotExist:
             self.logger.error(
                 "Can't find chapter with provided vol and chapter. Try to parse chapters\n"
             )
+        except KeyError:
+            self.logger.error("Can't find image parser")
         except Exception as exc:
             print(exc)
             self.logger.error("Some errors occured in the parser")
