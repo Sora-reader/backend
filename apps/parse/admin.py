@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from apps.core.admin import BaseAdmin, ImagePreviewMixin, RelatedField
-from apps.parse.models import Author, Chapter, Genre, Manga, Person
+from apps.parse.models import Author, Chapter, Genre, Manga, Person, PersonRelatedToManga
 
 
 @admin.display(description="Manga")
@@ -9,9 +9,25 @@ def manga_name(obj):
     return obj.manga_set.first().title
 
 
+class ChapterInline(admin.TabularInline):
+    model = Manga.chapters.through
+    verbose_name = "Chapter"
+    verbose_name_plural = "Chapters"
+
+
+class PersonInline(admin.TabularInline):
+    model = PersonRelatedToManga
+    verbose_name = "Person"
+    verbose_name_plural = "Persons"
+
+
 @admin.register(Manga)
 class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
     search_fields = ("title", "alt_title")
+    inlines = [
+        ChapterInline,
+        PersonInline,
+    ]
     list_display = (
         "custom_title",
         "get_image",
