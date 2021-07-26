@@ -49,5 +49,6 @@ PARSERS = {
     Manga.SOURCE_MAP.get("https://mangalib.me"): {
         DETAIL_PARSER: detail_manga_parser,
         LIST_PARSER: mangalib_parser,
+        CHAPTER_PARSER: mangalib_chapters_info,
     },
 }
