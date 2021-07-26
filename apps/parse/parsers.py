@@ -4,6 +4,7 @@ import os
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+from apps.parse.mangalib.chapter_parser.parse import chapters_manga_info as mangalib_chapters_info
 from apps.parse.mangalib.detail_parser.parser import detail_manga_parser
 from apps.parse.mangalib.list_parser.parser import Crawler
 from apps.parse.models import Manga
@@ -48,5 +49,6 @@ PARSERS = {
     Manga.SOURCE_MAP.get("https://mangalib.me"): {
         DETAIL_PARSER: detail_manga_parser,
         LIST_PARSER: mangalib_parser,
+        CHAPTER_PARSER: mangalib_chapters_info,
     },
 }
