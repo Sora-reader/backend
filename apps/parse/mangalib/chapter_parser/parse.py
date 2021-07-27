@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 from typing import List, Optional
 
 from django.utils import timezone
@@ -25,10 +26,8 @@ async def get_chapters_info(url: str) -> dict:
         await browser.close()
         raise Exception("Chapter info not found")
     for line in chapter_data.strip().split("\n"):
-        if line.startswith("window.__DATA__"):
-            start_pos = line.find("=") + 2
-            end_pos = line.find(";")
-            data = json.loads(line[start_pos:end_pos])
+        if result := re.search(r"window\.__DATA__ = ([^;]*)", line):
+            data = json.loads(result.group(1))
             break
     chapters = data.get("chapters").get("list")
     return chapters
@@ -67,7 +66,7 @@ def save_chapters_manga_info(manga: Manga, volumes: List[dict]) -> None:
 def chapters_manga_info(id: int) -> Optional[dict]:
     manga: Manga = Manga.objects.get(pk=id)
 
-    if needs_update(manga):
+    if needs_update(manga, "updated_chapters"):
         url = f"{manga.source_url}?section=chapters"
         info: dict = asyncio.get_event_loop().run_until_complete(get_chapters_info(url))
         save_chapters_manga_info(manga=manga, volumes=info)
