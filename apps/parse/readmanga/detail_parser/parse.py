@@ -85,7 +85,7 @@ def save_detailed_manga_info(
 def deepen_manga_info(id: int) -> Optional[dict]:
     manga = Manga.objects.get(pk=id)
 
-    if needs_update(manga):
+    if needs_update(manga, "updated_detail"):
         url = manga.source_url
         info: dict = get_detailed_info(url)
         save_detailed_manga_info(manga=manga, **info)

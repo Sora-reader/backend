@@ -3,9 +3,10 @@ from django.utils import timezone
 from apps.parse.models import Manga, Person, PersonRelatedToManga
 
 
-def needs_update(manga: Manga):
-    if manga.updated_detail:
-        update_deadline = manga.updated_detail + Manga.UPDATED_DETAIL_FREQUENCY
+def needs_update(manga: Manga, field: str):
+    updated_field = getattr(manga, field)
+    if updated_field:
+        update_deadline = updated_field + Manga.UPDATED_DETAIL_FREQUENCY
         if not timezone.now() >= update_deadline:
             return False
     return True

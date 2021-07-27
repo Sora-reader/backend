@@ -5,7 +5,7 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
 from apps.parse.mangalib.chapter_parser.parse import chapters_manga_info as mangalib_chapters_info
-from apps.parse.mangalib.detail_parser.parser import detail_manga_parser
+from apps.parse.mangalib.detail_parser.parse import detail_manga_parser
 from apps.parse.mangalib.image_parser.parse import images_manga_info as mangalib_images_info
 from apps.parse.mangalib.list_parser.parser import Crawler
 from apps.parse.models import Manga

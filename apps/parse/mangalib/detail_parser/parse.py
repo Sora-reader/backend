@@ -93,7 +93,7 @@ def save_detailed_manga_info(
 def detail_manga_parser(id: int) -> Optional[dict]:
     manga = Manga.objects.get(pk=id)
 
-    if needs_update(manga):
+    if needs_update(manga, "updated_detail"):
         url = f"{manga.source_url}?section=info"
         info: dict = asyncio.get_event_loop().run_until_complete(get_detailed_info(url))
         save_detailed_manga_info(manga=manga, **info)
