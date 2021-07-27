@@ -165,3 +165,16 @@ class BaseAdmin(admin.ModelAdmin):
             else:
                 list_display.append(f"get_{field.name}_display")
         return list_display
+
+
+class BaseTabularInline(admin.TabularInline):
+    show_change_link = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

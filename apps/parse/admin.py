@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.core.admin import BaseAdmin, ImagePreviewMixin, RelatedField
+from apps.core.admin import BaseAdmin, BaseTabularInline, ImagePreviewMixin, RelatedField
 from apps.parse.models import Author, Chapter, Genre, Manga, Person, PersonRelatedToManga
 
 
@@ -9,13 +9,18 @@ def manga_name(obj):
     return obj.manga_set.first().title
 
 
-class ChapterInline(admin.TabularInline):
+class ChapterInline(BaseTabularInline):
     model = Manga.chapters.through
+    fields = ("chapter", "chapter_link")
     verbose_name = "Chapter"
     verbose_name_plural = "Chapters"
+    readonly_fields = ("chapter_link",)
+
+    def chapter_link(self, obj):
+        return obj.chapter.link
 
 
-class PersonInline(admin.TabularInline):
+class PersonInline(BaseTabularInline):
     model = PersonRelatedToManga
     verbose_name = "Person"
     verbose_name_plural = "Persons"
