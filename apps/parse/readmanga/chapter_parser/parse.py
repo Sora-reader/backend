@@ -7,6 +7,7 @@ import requests
 from django.utils import timezone
 
 from apps.parse.models import Chapter, Manga
+from apps.parse.utils import needs_update
 
 from .consts import ITEM_TAG, LINK_TAG, TITLE_TAG
 
@@ -71,18 +72,10 @@ def save_chapters_manga_info(
     manga.save()
 
 
-def needs_update(manga: Manga):
-    if manga.updated_chapters:
-        update_deadline = manga.updated_chapters + Manga.UPDATED_CHAPTER_FREQUENCY
-        if not timezone.now() >= update_deadline:
-            return False
-    return True
-
-
 def chapters_manga_info(id: int) -> Optional[dict]:
     manga: Manga = Manga.objects.get(pk=id)
 
-    if needs_update(manga):
+    if needs_update(manga, "updated_chapters"):
         rss_url = manga.rss_url
         info: dict = get_chapters_info(rss_url)
         save_chapters_manga_info(manga=manga, volumes=info)

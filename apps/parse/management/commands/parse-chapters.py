@@ -20,7 +20,6 @@ class Command(BaseParseCommand):
         manga_id = options.get("id")
         try:
             manga = Manga.objects.get(pk=manga_id)
-            print(manga.title, manga.source)
             self.logger.success("Manga found\n")
 
             self.check_rss_url(manga)
