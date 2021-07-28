@@ -4,6 +4,7 @@ import os
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+from apps.parse.anibel.list_parser.manga_spider import AnibelMangaSpider
 from apps.parse.mangalib.chapter_parser.parse import chapters_manga_info as mangalib_chapters_info
 from apps.parse.mangalib.detail_parser.parse import detail_manga_parser
 from apps.parse.mangalib.image_parser.parse import images_manga_info as mangalib_images_info
@@ -15,6 +16,7 @@ from apps.parse.readmanga.images_parser.parse import images_manga_info
 from apps.parse.readmanga.list_parser.manga_spider import MangaSpider
 
 SETTINGS_PATH = "apps.parse.readmanga.list_parser.settings"
+ANIBEL_SETTINGS_PATH = "apps.parse.anibel.list_parser.settings"
 
 
 def readmanga_parser(settings=None, logger=None):
@@ -35,6 +37,19 @@ def mangalib_parser(settings=None, logger=None):
     asyncio.get_event_loop().run_until_complete(crawler.get_list())
 
 
+def anibel_parser(settings=None, logger=None):
+    os.environ.setdefault("SCRAPY_SETTINGS_MODULE", ANIBEL_SETTINGS_PATH)
+    process = CrawlerProcess(
+        {
+            **get_project_settings(),
+            **(settings if settings else {}),
+        }
+    )
+
+    process.crawl(AnibelMangaSpider, logger=logger)
+    process.start()
+
+
 DETAIL_PARSER = "details"
 LIST_PARSER = "list"
 IMAGE_PARSER = "images"
@@ -52,5 +67,8 @@ PARSERS = {
         LIST_PARSER: mangalib_parser,
         CHAPTER_PARSER: mangalib_chapters_info,
         IMAGE_PARSER: mangalib_images_info,
+    },
+    Manga.SOURCE_MAP.get("https://anibel.net"): {
+        LIST_PARSER: anibel_parser,
     },
 }
