@@ -5,12 +5,13 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from apps.core.utils import init_redis_client
+from apps.core.utils import format_error_response, init_redis_client
 from apps.parse.models import Chapter, Manga
 from apps.parse.readmanga.chapter_parser.parse import chapters_manga_info
 from apps.parse.readmanga.detail_parser.parse import deepen_manga_info
 from apps.parse.readmanga.images_parser.parse import parse_new_images
 from apps.parse.serializers import MangaChaptersSerializer, MangaSerializer
+from apps.parse.utils import get_source_url_from_source
 
 
 class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -34,7 +35,7 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         try:
             chapters_manga_info(manga.pk)
         except MissingSchema:
-            return Response("Parse the manga details", status=status.HTTP_400_BAD_REQUEST)
+            return format_error_response("Parse the manga details first")
         serializer = MangaChaptersSerializer(
             manga.chapters.order_by("-volume", "-number").all(), many=True
         )
@@ -55,16 +56,38 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             )
         return Response(self.redis_client.lrange(chapter.link, 0, -1), status=status.HTTP_200_OK)
 
+    @staticmethod
+    def get_search_filter(request):
+        """Get search query filter"""
+        title: str = request.GET.get("title", None)
+        catalogue: str = request.GET.get("catalogue", None)
+
+        if not title:
+            raise ValueError("No title found")
+
+        search_filter = Q(title__icontains=title) | Q(alt_title__icontains=title)
+
+        if catalogue:
+            catalogue_url = get_source_url_from_source(catalogue.capitalize())
+            if catalogue_url:
+                search_filter = search_filter & Q(source_url__contains=catalogue_url)
+            else:
+                raise ValueError(f"Catalogue should be one of {', '.join(Manga.SOURCE_MAP.keys())}")
+
+        print(search_filter)
+
+        return search_filter
+
     @action(
         detail=False,
         methods=("get",),
         url_path="search",
     )
     def search(self, request):
-        title = request.GET.get("title", None)
-        if not title:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        mangas = Manga.objects.filter(Q(title__icontains=title) | Q(alt_title__icontains=title))
+        query_filter = self.get_search_filter(request)
+        if not query_filter:
+            return format_error_response(query_filter)
+        mangas = Manga.objects.filter(query_filter)
 
         page = self.paginate_queryset(mangas)
         if page is not None:
