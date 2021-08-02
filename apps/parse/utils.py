@@ -1,6 +1,16 @@
+from typing import Optional
+
 from django.utils import timezone
 
 from apps.parse.models import Manga, Person, PersonRelatedToManga
+
+
+def get_source_url_from_source(source: str) -> Optional[str]:
+    """Reverse Manga.SOURCE_MAP lookup and return source_url"""
+
+    for url, source_name in Manga.SOURCE_MAP.items():
+        if source_name == source:
+            return url
 
 
 def needs_update(manga: Manga, field: str):

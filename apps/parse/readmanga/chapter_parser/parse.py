@@ -1,10 +1,10 @@
 import re
-import xml.etree.ElementTree as ET
 from copy import deepcopy
 from typing import Optional
 
 import requests
 from django.utils import timezone
+from lxml.etree import fromstring
 
 from apps.parse.models import Chapter, Manga
 from apps.parse.utils import needs_update
@@ -18,7 +18,7 @@ def get_chapters_info(url: str) -> dict:
     chapters_info = dict()
     response = requests.get(url)
 
-    chapters_rss = ET.fromstring(response.text)
+    chapters_rss = fromstring(response.text)
     items = chapters_rss.findall(ITEM_TAG)
     for item in items:
         link = item.find(LINK_TAG).text
