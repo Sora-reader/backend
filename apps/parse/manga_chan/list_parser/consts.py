@@ -1,0 +1,6 @@
+PAGE_SELECTOR = '//div[@id = "pagination"]//span//a/text()'
+MANGA_CARD_TAG = '//div[@class = "content_row"]'
+FULL_TITLE_TAG = '//div[@class = "manga_row1"]//a[@class = "title_link"]/text()'
+SOURCE_URL_TAG = '//div[@class = "manga_row1"]//a[@class = "title_link"]/@href'
+GENRES_TAG = '//div[@class = "genre"]//a/text()'
+IMAGE_TAG = '//div[@class = "manga_images"]//a//img/@src'
