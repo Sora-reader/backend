@@ -19,7 +19,7 @@ def convert_readmanga_rating(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("parse", "0019_rename_volumes_manga_chapters"),
+        ("parse", "0020_auto_20210727_2035"),
     ]
 
     operations = [
