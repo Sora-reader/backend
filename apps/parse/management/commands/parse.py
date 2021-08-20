@@ -6,6 +6,7 @@ from apps.core.commands import BaseParseCommand
 from apps.parse import parsers
 
 SETTINGS_PATH = "apps.parse.readmanga.list_parser.settings"
+MANGA_CHAN_SETTINGS_PATH = "apps.parse.manga_chan.list_parser.settings"
 
 
 class Command(BaseParseCommand):
@@ -16,7 +17,7 @@ class Command(BaseParseCommand):
             "parser",
             type=str,
             default="readmanga",
-            choices=["readmanga", "mangalib"],
+            choices=["readmanga", "mangalib", "manga_chan"],
             help="parser to use which respresents a website source",
         )
 

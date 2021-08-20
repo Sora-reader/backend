@@ -4,6 +4,7 @@ import os
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+from apps.parse.manga_chan.list_parser.manga_spider import MangaChanSpider
 from apps.parse.mangalib.chapter_parser.parse import chapters_manga_info as mangalib_chapters_info
 from apps.parse.mangalib.detail_parser.parse import detail_manga_parser
 from apps.parse.mangalib.image_parser.parse import images_manga_info as mangalib_images_info
@@ -15,6 +16,7 @@ from apps.parse.readmanga.images_parser.parse import images_manga_info
 from apps.parse.readmanga.list_parser.manga_spider import MangaSpider
 
 SETTINGS_PATH = "apps.parse.readmanga.list_parser.settings"
+MANGA_CHAN_SETTINGS_PATH = "apps.parse.manga_chan.list_parser.settings"
 
 
 def readmanga_parser(settings=None, logger=None):
@@ -27,6 +29,19 @@ def readmanga_parser(settings=None, logger=None):
     )
 
     process.crawl(MangaSpider, logger=logger)
+    process.start()
+
+
+def manga_chan_parser(settings=None, logger=None):
+    os.environ.setdefault("SCRAPY_SETTINGS_MODULE", MANGA_CHAN_SETTINGS_PATH)
+    process = CrawlerProcess(
+        {
+            **get_project_settings(),
+            **(settings if settings else {}),
+        }
+    )
+
+    process.crawl(MangaChanSpider, logger=logger)
     process.start()
 
 
@@ -52,5 +67,8 @@ PARSERS = {
         LIST_PARSER: mangalib_parser,
         CHAPTER_PARSER: mangalib_chapters_info,
         IMAGE_PARSER: mangalib_images_info,
+    },
+    Manga.SOURCE_MAP.get("https://manga-chan.me"): {
+        LIST_PARSER: manga_chan_parser,
     },
 }
