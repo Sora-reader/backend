@@ -1,4 +1,4 @@
-import ast
+import json
 import re
 from typing import List
 
@@ -12,10 +12,11 @@ COUNT_LINK_ELEMENTS = 3
 
 def find_images(html: str) -> List[str]:
     image_links = []
-    image_hints = re.search(r"rm_h.init\( \[(.*)\],.*\)", html)
+    image_hints = re.search(r"rm_h.initReader\(.*(\[{2}.*\]{2}).*\)", html)
     if image_hints:
         image_links = [
-            "".join(image[:COUNT_LINK_ELEMENTS]) for image in ast.literal_eval(image_hints.group(1))
+            "".join(image[:COUNT_LINK_ELEMENTS])
+            for image in json.loads(image_hints.group(1).replace("'", '"'))
         ]
     return image_links
 
