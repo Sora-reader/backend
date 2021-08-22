@@ -20,6 +20,7 @@ WSGI_APPLICATION = "manga_reader.wsgi.application"
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = int(os.getenv("DEBUG", 1))
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(" ")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ########
 # Apps #

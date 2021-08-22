@@ -34,4 +34,4 @@ if [ "$RUN_CELERY" = 1 ]; then
     celery -A manga_reader.celery.app worker -n manga@%h --loglevel=INFO -B &
 fi
 
-./manage.py runserver 0.0.0.0:$PORT
+./manage.py runserver_plus $PORT
