@@ -2,7 +2,7 @@ import logging
 
 from django.core.management.base import CommandParser
 
-from apps.core.commands import BaseParseCommand
+from apps.core.abc.commands import BaseParseCommand
 from apps.parse import parsers
 
 SETTINGS_PATH = "apps.parse.readmanga.list_parser.settings"
@@ -37,7 +37,7 @@ class Command(BaseParseCommand):
 
             # Clear log file
             try:
-                open("parse-readmanga.log", "w")
+                open(f"parse-{parser_name}.log", "w")
             except Exception:
                 pass
 

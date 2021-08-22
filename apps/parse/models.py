@@ -6,7 +6,7 @@ from django.db.models.fields import FloatField, IntegerField, TextField, URLFiel
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
-from apps.core.models import BaseModel
+from apps.core.abc.models import BaseModel
 
 
 class Category(BaseModel):

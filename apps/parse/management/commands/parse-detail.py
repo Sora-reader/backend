@@ -1,6 +1,6 @@
 from django.core.management.base import CommandParser
 
-from apps.core.commands import BaseParseCommand
+from apps.core.abc.commands import BaseParseCommand
 from apps.parse.models import Manga
 from apps.parse.parsers import DETAIL_PARSER, PARSERS
 

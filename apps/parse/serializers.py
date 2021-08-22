@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.core.serializers import NameRelatedField
+from apps.core.abc.serializers import NameRelatedField
 from apps.parse.models import Chapter, Manga
 
 

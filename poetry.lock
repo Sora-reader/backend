@@ -431,14 +431,21 @@ Django = ">=2.2"
 
 [[package]]
 name = "django-jazzmin"
-version = "2.4.8"
+version = "2.4.5"
 description = "Drop-in theme for django admin, that utilises AdminLTE 3 & Bootstrap 4 to make yo' admin look jazzy"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.5"
+develop = false
 
 [package.dependencies]
-django = ">=2.2"
+django = ">=2"
+
+[package.source]
+type = "git"
+url = "https://github.com/dhvcc/django-jazzmin.git"
+reference = "feature/filter-input-length"
+resolved_reference = "488036718b0c2a9d9b928c8dca257164db64857d"
 
 [[package]]
 name = "django-related-admin"
@@ -1470,7 +1477,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "df1555c3d476e12ace81972ece2f055af73b890e931fa4e0cee58d93cd5cb02e"
+content-hash = "52715521bd9783d1eabaa8df732ac0d41d08ae5cb754592fd8bae578d7d9a836"
 
 [metadata.files]
 amqp = [
@@ -1683,10 +1690,7 @@ django-filter = [
     {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
     {file = "django_filter-2.4.0-py3-none-any.whl", hash = "sha256:e00d32cebdb3d54273c48f4f878f898dced8d5dfaad009438fe61ebdf535ace1"},
 ]
-django-jazzmin = [
-    {file = "django-jazzmin-2.4.8.tar.gz", hash = "sha256:355b8ff5939555a7dbecaa364a54bbdbcc20f028605abedd6d9e2b6a4d1532b4"},
-    {file = "django_jazzmin-2.4.8-py3-none-any.whl", hash = "sha256:577b6ef97a51167dac94b12f340a1233b0e5e124c37bce25a7821ba61c22e6b8"},
-]
+django-jazzmin = []
 django-related-admin = [
     {file = "django-related-admin-1.0.1.tar.gz", hash = "sha256:abfa8a3f2fdb8e00e71313aab83de9036be9c0517f297b0d8d414d81cffd1d8d"},
 ]

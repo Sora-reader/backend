@@ -1,14 +1,12 @@
-import os
 import time
 from contextlib import contextmanager
 
 from celery import Task, current_app
 from django.core.cache import cache
-from scrapy.crawler import CrawlerProcess
-from scrapy.utils.project import get_project_settings
+from django.core.management import call_command
 
 from apps.core.models import TaskControl
-from apps.parse.readmanga.list_parser.manga_spider import MangaSpider
+from apps.parse.parsers import PARSER_NAMES
 
 SETTINGS_PATH = "apps.parse.readmanga.readmanga.settings"
 
@@ -39,13 +37,10 @@ def lock_task_by_name(task_name: str):
             cache.delete(task_name)
 
 
-@app.task(bind=True, name="parse_readmanga")
+@app.task(bind=True, name="parse_all")
 def parse_readmanga_task(self: Task):
-    task_status = TaskControl.objects.filter(task_name=self.name, task_status=True)
+    task_status = TaskControl.objects.filter(name=self.name, status=True)
     with lock_task_by_name(self.name) as lock:
         if lock and task_status:
-            os.environ.setdefault("SCRAPY_SETTINGS_MODULE", SETTINGS_PATH)
-            process = CrawlerProcess(get_project_settings())
-
-            process.crawl(MangaSpider)
-            process.start()
+            for parser in PARSER_NAMES:
+                call_command("parse", parser)

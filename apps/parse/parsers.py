@@ -12,13 +12,12 @@ from apps.parse.models import Manga
 from apps.parse.readmanga.chapter_parser.parse import chapters_manga_info
 from apps.parse.readmanga.detail_parser.parse import deepen_manga_info
 from apps.parse.readmanga.images_parser.parse import images_manga_info
+from apps.parse.readmanga.list_parser import READMANGA_SETTINGS_PATH
 from apps.parse.readmanga.list_parser.manga_spider import MangaSpider
-
-SETTINGS_PATH = "apps.parse.readmanga.list_parser.settings"
 
 
 def readmanga_parser(settings=None, logger=None):
-    os.environ.setdefault("SCRAPY_SETTINGS_MODULE", SETTINGS_PATH)
+    os.environ.setdefault("SCRAPY_SETTINGS_MODULE", READMANGA_SETTINGS_PATH)
     process = CrawlerProcess(
         {
             **get_project_settings(),
@@ -40,6 +39,10 @@ LIST_PARSER = "list"
 IMAGE_PARSER = "images"
 CHAPTER_PARSER = "chapters"
 
+PARSER_NAMES = (
+    "readmanga",
+    "mangalib",
+)
 PARSERS = {
     Manga.SOURCE_MAP.get("https://readmanga.live"): {
         DETAIL_PARSER: deepen_manga_info,

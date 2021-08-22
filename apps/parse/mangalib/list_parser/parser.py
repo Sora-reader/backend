@@ -5,7 +5,7 @@ from asgiref.sync import sync_to_async
 from pyppeteer import launch, page
 from scrapy.http import HtmlResponse
 
-from apps.core.commands import ParseCommandLogger
+from apps.core.abc.commands import ParseCommandLogger
 from apps.parse.models import Manga
 
 from .consts import CARDS_TAG, IMAGE_TAG, SOURCE_TAG, STATUS_CODE_TAG, TITLE_TAG

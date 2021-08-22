@@ -6,7 +6,7 @@ from lxml import etree
 from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
 
-from apps.core.commands import ParseCommandLogger
+from apps.core.abc.commands import ParseCommandLogger
 from apps.parse.readmanga.list_parser.utils import parse_rating
 
 from .consts import (
