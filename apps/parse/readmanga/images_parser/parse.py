@@ -31,7 +31,8 @@ def parse_new_images(url: str, redis_client) -> List[str]:
     images = find_images(html_response)
 
     redis_client.delete(url)
-    redis_client.rpush(url, *images)
+    if images:
+        redis_client.rpush(url, *images)
     redis_client.expire(url, Manga.UPDATED_IMAGE_FREQUENCY)
 
     return images

@@ -44,7 +44,8 @@ async def parse_new_images(url: str, redis_client) -> List[str]:
     images = find_images(body)
 
     redis_client.delete(url)
-    redis_client.rpush(url, *images)
+    if images:
+        redis_client.rpush(url, *images)
 
     return images
 

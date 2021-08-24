@@ -1,12 +1,11 @@
 FROM python:3.8-slim as base
 
 RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
+    gcc g++ \
     libffi-dev \
     libpq-dev \
     '^postgresql-client-.+$' \
-    gettext
+    gettext git
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
