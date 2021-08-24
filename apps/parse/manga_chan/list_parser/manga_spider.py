@@ -1,3 +1,5 @@
+import re
+
 import requests
 import scrapy
 from lxml import etree
@@ -7,6 +9,7 @@ from twisted.python.failure import Failure
 from apps.core.commands import ParseCommandLogger
 
 from .consts import (
+    ALT_TITLE_TAG,
     FULL_TITLE_TAG,
     GENRES_TAG,
     IMAGE_TAG,
@@ -64,11 +67,12 @@ class MangaChanSpider(scrapy.Spider):
             source_url = MANGA_CHAN_URL + response.xpath(SOURCE_URL_TAG).extract_first("")
             genres = response.xpath(GENRES_TAG).extract()
             image = response.xpath(IMAGE_TAG).extract_first("")
-            titles = full_title.split(" (")
-            alt_title = titles[0]
-            title = titles[-1]
-            if alt_title != title:
-                title = "".join(list(title)[:-1])
+            alt_title = response.xpath(ALT_TITLE_TAG).extract_first("")
+            title = (
+                re.search(r" \((.+?)\)", full_title).group(1)
+                if re.search(r" \((.+?)\)", full_title)
+                else alt_title
+            )
 
             mangas.append(
                 {

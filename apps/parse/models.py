@@ -83,9 +83,16 @@ class Manga(BaseModel):
     categories = ManyToManyField("Category", related_name="mangas", blank=True)
     updated_detail = models.DateTimeField(blank=True, null=True)
     updated_chapters = models.DateTimeField(blank=True, null=True)
+    # Popularity = index of the manga in the catalogue
+    popularity = models.IntegerField(default=0)
     people_related = ManyToManyField(
         "Person", through="PersonRelatedToManga", related_name="mangas"
     )
+
+    class Meta:
+        ordering = [
+            "popularity",
+        ]
 
     @property
     def url_prefix(self) -> str:

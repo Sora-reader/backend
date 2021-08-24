@@ -14,11 +14,6 @@ class MangaChanPipeline:
         genres = data.pop("genres")
         source_url = data.pop("source_url")
 
-        if not title:
-            message = f"Error processing {data}: No title name was set"
-            spider.logger.error(message)
-            raise KeyError(message)
-
         genres = bulk_get_or_create(Genre, genres)
 
         manga, _ = Manga.objects.get_or_create(source_url=source_url)

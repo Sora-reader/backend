@@ -1,0 +1,31 @@
+name: EC2 deploy
+
+on:
+  workflow_run:
+    workflows:
+      - "pre-commit"
+    branches: [ develop ]
+    types:
+      - "completed"
+
+jobs:
+  Deploy-application:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to ssh server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          script : |
+            cd ${{ secrets.SOURCE_PATH }}
+            git pull origin develop
+            docker build -t "sora-backend:$(git rev-parse HEAD)" .
+            docker stop sora-backend
+            docker rm sora-backend
+            docker run -d --restart unless-stopped --network host \
+              --name sora-backend --env-file=${{ secrets.SOURCE_PATH }}/.envs/local.env \
+              "sora-backend:$(git rev-parse HEAD)"
+            sleep 1
+            docker rmi $(docker images -f "dangling=true" -q)
+            exit

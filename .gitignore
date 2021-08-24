@@ -160,3 +160,4 @@ staticfiles/
 redis-data
 redis.conf
 .vim
+.nohup.out

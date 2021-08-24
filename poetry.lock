@@ -516,6 +516,20 @@ pycodestyle = ">=2.7.0,<2.8.0"
 pyflakes = ">=2.3.0,<2.4.0"
 
 [[package]]
+name = "gunicorn"
+version = "20.1.0"
+description = "WSGI HTTP Server for UNIX"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.extras]
+eventlet = ["eventlet (>=0.24.1)"]
+gevent = ["gevent (>=1.4.0)"]
+setproctitle = ["setproctitle"]
+tornado = ["tornado (>=0.2)"]
+
+[[package]]
 name = "h2"
 version = "3.2.0"
 description = "HTTP/2 State-Machine based protocol implementation"
@@ -1444,6 +1458,19 @@ optional = false
 python-versions = ">=3.6.1"
 
 [[package]]
+name = "werkzeug"
+version = "0.16.0"
+description = "The comprehensive WSGI web application library."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.extras]
+dev = ["pytest", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinx-issues"]
+termcolor = ["termcolor"]
+watchdog = ["watchdog"]
+
+[[package]]
 name = "whitenoise"
 version = "5.3.0"
 description = "Radically simplified static file serving for WSGI applications"
@@ -1470,7 +1497,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "df1555c3d476e12ace81972ece2f055af73b890e931fa4e0cee58d93cd5cb02e"
+content-hash = "52715521bd9783d1eabaa8df732ac0d41d08ae5cb754592fd8bae578d7d9a836"
 
 [metadata.files]
 amqp = [
@@ -1683,10 +1710,7 @@ django-filter = [
     {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
     {file = "django_filter-2.4.0-py3-none-any.whl", hash = "sha256:e00d32cebdb3d54273c48f4f878f898dced8d5dfaad009438fe61ebdf535ace1"},
 ]
-django-jazzmin = [
-    {file = "django-jazzmin-2.4.8.tar.gz", hash = "sha256:355b8ff5939555a7dbecaa364a54bbdbcc20f028605abedd6d9e2b6a4d1532b4"},
-    {file = "django_jazzmin-2.4.8-py3-none-any.whl", hash = "sha256:577b6ef97a51167dac94b12f340a1233b0e5e124c37bce25a7821ba61c22e6b8"},
-]
+django-jazzmin = []
 django-related-admin = [
     {file = "django-related-admin-1.0.1.tar.gz", hash = "sha256:abfa8a3f2fdb8e00e71313aab83de9036be9c0517f297b0d8d414d81cffd1d8d"},
 ]
