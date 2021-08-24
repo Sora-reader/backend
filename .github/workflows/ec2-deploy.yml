@@ -28,5 +28,5 @@ jobs:
               --name sora-backend --env-file=${{ secrets.SOURCE_PATH }}/.envs/local.env \
               "sora-backend:$(git rev-parse HEAD)"
             sleep 1
-            docker rmi $(docker images -f "dangling=true" -q)
+            docker image prune -f -a
             exit
