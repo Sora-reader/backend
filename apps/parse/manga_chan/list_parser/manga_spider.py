@@ -1,3 +1,5 @@
+import re
+
 import requests
 import scrapy
 from lxml import etree
@@ -7,6 +9,7 @@ from twisted.python.failure import Failure
 from apps.core.abc.commands import ParseCommandLogger
 
 from .consts import (
+    ALT_TITLE_TAG,
     FULL_TITLE_TAG,
     GENRES_TAG,
     IMAGE_TAG,
@@ -46,8 +49,8 @@ class MangaChanSpider(scrapy.Spider):
         offsets = [offset for offset in range(0, max_offset, standard_offset)]
         urls = [base_url + str(offset) for offset in offsets]
 
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+        for url, offset in zip(urls, offsets):
+            yield scrapy.Request(url=url, callback=self.parse, meta={"offset": offset})
 
     def request_fallback(self, failure: Failure):
         self.logger.error(
@@ -58,20 +61,23 @@ class MangaChanSpider(scrapy.Spider):
     def parse(self, response):
         mangas = []
         manga_cards = response.xpath(MANGA_CARD_TAG).extract()
-        for manga_card in manga_cards:
+        offset = response.meta["offset"]
+        for index, manga_card in enumerate(manga_cards):
             response = HtmlResponse(url="", body=manga_card, encoding="utf-8")
             full_title = response.xpath(FULL_TITLE_TAG).extract_first("")
             source_url = MANGA_CHAN_URL + response.xpath(SOURCE_URL_TAG).extract_first("")
             genres = response.xpath(GENRES_TAG).extract()
             image = response.xpath(IMAGE_TAG).extract_first("")
-            titles = full_title.split(" (")
-            alt_title = titles[0]
-            title = titles[-1]
-            if alt_title != title:
-                title = "".join(list(title)[:-1])
-
+            alt_title = response.xpath(ALT_TITLE_TAG).extract_first("")
+            popularity = offset + index + 1
+            title = (
+                re.search(r" \((.+?)\)", full_title).group(1)
+                if re.search(r" \((.+?)\)", full_title)
+                else alt_title
+            )
             mangas.append(
                 {
+                    "popularity": popularity,
                     "title": title,
                     "alt_title": alt_title,
                     "source_url": source_url,
