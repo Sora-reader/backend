@@ -4,6 +4,7 @@ from pathlib import Path
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import ignore_logger
 
 ###########
 # Project #
@@ -282,3 +283,4 @@ sentry_sdk.init(
     traces_sample_rate=1.0,
     send_default_pii=True,
 )
+ignore_logger("django.security.DisallowedHost")
