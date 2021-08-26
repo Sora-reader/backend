@@ -276,6 +276,7 @@ LOGGING = {
 #############
 # GlitchTip #
 #############
+
 SENTRY_DSN = os.getenv("SENTRY_DSN", "")
 sentry_sdk.init(
     dsn=SENTRY_DSN,
@@ -284,3 +285,14 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 ignore_logger("django.security.DisallowedHost")
+
+#############
+# Pyppeteer #
+#############
+
+WEBDRIVER_PATH = os.getenv("WEBDRIVER_PATH", None)
+DEFAULT_LAUNCH_ARGS = {
+    "headless": True,
+    "args": ["--no-sandbox", "--disable-setuid-sandbox"],
+    "executablePath": WEBDRIVER_PATH,
+}

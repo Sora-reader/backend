@@ -9,6 +9,7 @@ from scrapy.http import HtmlResponse
 from apps.core.utils import init_redis_client
 from apps.parse.mangalib.image_parser.consts import PAGE_TAG, SCRIPT_SERVER_TAG
 from apps.parse.models import Chapter
+from manga_reader.settings import DEFAULT_LAUNCH_ARGS
 
 
 def find_images(html: str) -> List[str]:
@@ -34,7 +35,7 @@ def find_images(html: str) -> List[str]:
 
 
 async def parse_new_images(url: str, redis_client) -> List[str]:
-    browser = await launch({"headless": True, "args": ["--no-sandbox", "--disable-setuid-sandbox"]})
+    browser = await launch(DEFAULT_LAUNCH_ARGS)
     page = await browser.newPage()
     await page.setJavaScriptEnabled(False)
     await page.goto(url, {"timeout": 0})

@@ -8,6 +8,7 @@ from scrapy.http import HtmlResponse
 
 from apps.parse.models import Category, Genre, Manga, PersonRelatedToManga
 from apps.parse.utils import needs_update, save_persons
+from manga_reader.settings import DEFAULT_LAUNCH_ARGS
 
 from .consts import (
     ALT_TAG,
@@ -23,7 +24,7 @@ from .consts import (
 
 
 async def get_detailed_info(url: str) -> dict:
-    browser = await launch({"headless": True, "args": ["--no-sandbox", "--disable-setuid-sandbox"]})
+    browser = await launch(DEFAULT_LAUNCH_ARGS)
     page = await browser.newPage()
     await page.setJavaScriptEnabled(False)
     await page.goto(url, {"timeout": 0})

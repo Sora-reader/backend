@@ -9,13 +9,14 @@ from scrapy.http import HtmlResponse
 
 from apps.parse.models import Chapter, Manga
 from apps.parse.utils import needs_update
+from manga_reader.settings import DEFAULT_LAUNCH_ARGS
 
 INSTANCE = 0
 
 
 async def get_chapters_info(url: str) -> dict:
     data = dict()
-    browser = await launch({"headless": True, "args": ["--no-sandbox", "--disable-setuid-sandbox"]})
+    browser = await launch(DEFAULT_LAUNCH_ARGS)
     page = await browser.newPage()
     await page.setJavaScriptEnabled(False)
     await page.goto(url, {"timeout": 0})

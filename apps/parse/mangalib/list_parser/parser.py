@@ -7,6 +7,7 @@ from scrapy.http import HtmlResponse
 
 from apps.core.abc.commands import ParseCommandLogger
 from apps.parse.models import Manga
+from manga_reader.settings import DEFAULT_LAUNCH_ARGS
 
 from .consts import CARDS_TAG, IMAGE_TAG, SOURCE_TAG, STATUS_CODE_TAG, TITLE_TAG
 
@@ -33,9 +34,7 @@ class Crawler:
     async def get_list(self):
         self.logger.info("Starting list parser")
         self.logger.info("=====================")
-        self.browser = await launch(
-            {"headless": True, "args": ["--no-sandbox", "--disable-setuid-sandbox"]}
-        )
+        self.browser = await launch(DEFAULT_LAUNCH_ARGS)
         workers = asyncio.gather(
             *[
                 self._worker(await self.browser.newPage(), worker_num)
