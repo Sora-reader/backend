@@ -1,5 +1,10 @@
 # Sora reader backend
 
+## UI Preview
+
+![image](https://user-images.githubusercontent.com/18076967/131153731-0196375e-b650-4b0f-b188-f20b2eba37f1.png)
+
+
 ## Installation requirements
 
 - PostgreSQL(and `libpq-dev`)
