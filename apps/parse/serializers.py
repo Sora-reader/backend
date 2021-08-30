@@ -34,6 +34,7 @@ class MangaSerializer(serializers.ModelSerializer):
             "year",
             "updated_chapters",
             "updated_detail",
+            "popularity",
         )
 
 

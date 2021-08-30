@@ -52,10 +52,11 @@ class MangaSpider(scrapy.Spider):
 
         base_url = f"{READMANGA_URL}/list?&offset="
         offsets = [offset for offset in range(0, maximum_offset, standart_offset)]
-        urls = [base_url + str(offset) for offset in offsets]
 
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+        for offset in offsets:
+            yield scrapy.Request(
+                url=base_url + str(offset), callback=self.parse, cb_kwargs={"offset": offset}
+            )
 
     def request_fallback(self, failure: Failure):
         self.logger.error(
@@ -63,10 +64,10 @@ class MangaSpider(scrapy.Spider):
             f"failed with status {failure.value.response.status}"
         )
 
-    def parse(self, response):
+    def parse(self, response, offset):
         mangas = []
         descriptions = response.xpath(MANGA_TILE_TAG).extract()
-        for description in descriptions:
+        for index, description in enumerate(descriptions, start=1):
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
             rating = parse_rating(response.xpath(STAR_RATE_TAG).extract_first(""))
@@ -76,7 +77,7 @@ class MangaSpider(scrapy.Spider):
             thumbnail = response.xpath(THUMBNAIL_IMG_URL_TAG).extract_first("")
             image = thumbnail.replace("_p", "")
             alt_title = response.xpath(ALT_TITLE_URL).extract_first("")
-
+            popularity = index + offset
             mangas.append(
                 {
                     "rating": rating,
@@ -86,6 +87,7 @@ class MangaSpider(scrapy.Spider):
                     "image": image,
                     "genres": genres,
                     "source_url": READMANGA_URL + source_url,
+                    "popularity": popularity,
                 }
             )
             self.logger.info('Parsed manga "{}"'.format(title))
