@@ -97,7 +97,7 @@ class Manga(BaseModel):
 
     @property
     def url_prefix(self) -> str:
-        return re.match(r"(^http[s]?://(.*))/.*$", self.source_url).group(1)
+        return re.match(r"(^http[s]?://([^/]*))/.*$", self.source_url).group(1)
 
     @property
     def source(self) -> str:
