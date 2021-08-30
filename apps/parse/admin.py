@@ -6,11 +6,6 @@ from apps.core.abc.admin import BaseAdmin, BaseTabularInline, ImagePreviewMixin,
 from apps.parse.models import Author, Chapter, Genre, Manga, Person, PersonRelatedToManga
 
 
-@admin.display(description="Manga")
-def manga_name(obj):
-    return obj.manga_set.first().title
-
-
 class ChapterInline(BaseTabularInline):
     model = Manga.chapters.through
     fields = ("chapter", "chapter_link")
@@ -95,8 +90,11 @@ class GenreAdmin(BaseAdmin, admin.ModelAdmin):
 @admin.register(Chapter)
 class ChapterAdmin(BaseAdmin, admin.ModelAdmin):
     search_fields = ("title",)
-    list_display = ("title", manga_name)
+    list_display = ("title", "manga_name")
     list_filter = ("manga",)
     filter_input_length = {
         "manga": 5,
     }
+
+    def manga_name(self, obj):
+        return obj.manga_set.first().title

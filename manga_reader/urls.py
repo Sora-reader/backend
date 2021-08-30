@@ -10,5 +10,6 @@ apipatterns = [
 
 urlpatterns = [
     path("api/", include(apipatterns)),
+    path("silk/", include("silk.urls", namespace="silk")),
     re_path(r"^(?!api)\w*?", admin.site.urls),
 ]

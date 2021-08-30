@@ -22,10 +22,6 @@ echo
 echo "Running migrations"
 ./manage.py migrate --no-input
 
-echo
-echo "Compiling messages"
-./manage.py compilemessages -i venv
-
 echo "Running the server on port $PORT"
 
 if [ "$RUN_CELERY" = 1 ]; then

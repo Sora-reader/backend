@@ -74,8 +74,6 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             else:
                 raise ValueError(f"Catalogue should be one of {', '.join(Manga.SOURCE_MAP.keys())}")
 
-        print(search_filter)
-
         return search_filter
 
     @action(
