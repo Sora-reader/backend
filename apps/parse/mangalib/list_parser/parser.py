@@ -34,7 +34,7 @@ class Crawler:
         self.logger.info("Starting list parser")
         self.logger.info("=====================")
         self.browser = await launch(
-            {"headless": True, "args": ["--no-sandbox", "--disable-setuid-sandbox"]}
+            {"headless": False, "args": ["--no-sandbox", "--disable-setuid-sandbox"]}
         )
         workers = asyncio.gather(
             *[
@@ -78,25 +78,28 @@ class Crawler:
             self.logger.error(f"Page {full_url} returned 500 status")
             self.continue_parse = False
 
-        self.get_mangas_info(html_body)
+        self.get_mangas_info(html_body, page_num)
 
     def page_has_500_code(self, page_html, full_url):
         return bool(page_html.xpath(STATUS_CODE_TAG).extract_first(""))
 
-    def get_mangas_info(self, page_html):
+    def get_mangas_info(self, page_html, page_num):
         cards = page_html.xpath(CARDS_TAG).extract()
-        for html_card in cards:
+        offset = len(cards) * (page_num - 1)
+        for index, html_card in enumerate(cards, start=1):
             manga_card = HtmlResponse(url="", body=html_card, encoding="utf-8")
 
             title = manga_card.xpath(TITLE_TAG).extract_first("")
             source_url = manga_card.xpath(SOURCE_TAG).extract_first("")
             image = manga_card.xpath(IMAGE_TAG).extract_first("")
+            popularity = index + offset
             self.mangas.append(
                 {
                     "title": title,
                     "image": MANGALIB_SOURCE + image,
                     "thumbnail": MANGALIB_SOURCE + image,
                     "source_url": source_url,
+                    "popularity": popularity,
                 }
             )
             self.logger.info(f"Parsed manga `{title}`")
