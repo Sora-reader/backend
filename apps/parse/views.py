@@ -20,10 +20,20 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     redis_client = init_redis_client()
 
     def retrieve(self, request, pk, *args, **kwargs):
-        manga = Manga.objects.filter(pk=pk).first()
+
+        manga = (
+            Manga.objects.filter(pk=pk)
+            .prefetch_related("chapters")
+            .prefetch_related("genres")
+            .prefetch_related("categories")
+            .prefetch_related("person_relations")
+            .prefetch_related("person_relations__manga")
+            .first()
+        )
         if manga:
             deepen_manga_info(pk)
-        return super().retrieve(request, *args, **kwargs)
+        serializer = self.get_serializer(manga)
+        return Response(serializer.data)
 
     @action(
         detail=False,
@@ -85,7 +95,13 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         query_filter = self.get_search_filter(request)
         if not query_filter:
             return format_error_response(query_filter)
-        mangas = Manga.objects.filter(query_filter)
+        mangas = (
+            Manga.objects.filter(query_filter)
+            .prefetch_related("chapters")
+            .prefetch_related("genres")
+            .prefetch_related("categories")
+            .prefetch_related("person_relations")
+        )
 
         page = self.paginate_queryset(mangas)
         if page is not None:
