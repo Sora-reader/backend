@@ -23,13 +23,15 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script : |
             cd ${{ secrets.SOURCE_PATH }}
-            git pull origin develop
-            docker build -t "sora-backend:$(git rev-parse HEAD)" .
-            docker stop sora-backend
-            docker rm sora-backend
-            docker run -d --restart unless-stopped --network host \
-              --name sora-backend --env-file=${{ secrets.SOURCE_PATH }}/.envs/local.env \
-              "sora-backend:$(git rev-parse HEAD)"
+            git fetch origin develop || exit 1
+            git reset --hard origin/develop || exit 1
+            docker build -t "sora-backend:$(git rev-parse HEAD)" . && \
+              docker stop sora-backend && \
+              docker rm sora-backend && \
+              docker run -d --restart unless-stopped --network host \
+                --name sora-backend --env-file=${{ secrets.SOURCE_PATH }}/.envs/local.env \
+                "sora-backend:$(git rev-parse HEAD)" || \
+                exit 1
             sleep 1
             docker image prune -f -a
             exit
