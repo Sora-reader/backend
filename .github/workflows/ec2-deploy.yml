@@ -11,7 +11,7 @@ on:
 jobs:
   Deploy-application:
     environment:
-      name: "AWS"
+      name: "AWS-T2"
       url: "https://backend.sora-reader.app"
     runs-on: ubuntu-latest
     steps:
