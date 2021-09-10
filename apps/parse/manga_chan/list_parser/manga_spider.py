@@ -7,8 +7,7 @@ from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
 
 from apps.core.abc.commands import ParseCommandLogger
-
-from .consts import (
+from apps.parse.manga_chan.list_parser.consts import (
     ALT_TITLE_TAG,
     FULL_TITLE_TAG,
     GENRES_TAG,
@@ -70,22 +69,20 @@ class MangaChanSpider(scrapy.Spider):
             image = response.xpath(IMAGE_TAG).extract_first("")
             alt_title = response.xpath(ALT_TITLE_TAG).extract_first("")
             popularity = offset + index + 1
-            title = (
-                re.search(r" \((.+?)\)", full_title).group(1)
-                if re.search(r" \((.+?)\)", full_title)
-                else alt_title
-            )
-            mangas.append(
-                {
-                    "popularity": popularity,
-                    "title": title,
-                    "alt_title": alt_title,
-                    "source_url": source_url,
-                    "genres": genres,
-                    "image": image,
-                    "thumbnail": image,
-                }
-            )
+            if re.search(r"\((.+?)\)", full_title):
+                title = re.search(r" \((.+?)\)", full_title).group(1)
+            else:
+                title = alt_title
+            manga_object = {
+                "popularity": popularity,
+                "title": title,
+                "alt_title": alt_title,
+                "source_url": source_url,
+                "genres": genres,
+                "image": image,
+                "thumbnail": image,
+            }
+            mangas.append(manga_object)
             self.logger.info('Parsed manga "{}"'.format(title))
 
         self.logger.info("Processing items...")

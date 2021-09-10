@@ -1,9 +1,8 @@
 from copy import deepcopy
 
+from apps.parse.manga_chan.list_parser.manga_spider import MangaChanSpider
 from apps.parse.models import Genre, Manga
 from apps.parse.readmanga.list_parser.pipelines import bulk_get_or_create
-
-from .manga_spider import MangaChanSpider
 
 
 class MangaChanPipeline:
