@@ -2,6 +2,7 @@ import logging
 
 import requests
 import scrapy
+from django.conf import settings
 from lxml import etree
 from scrapy.http import HtmlResponse
 from twisted.python.failure import Failure
@@ -38,7 +39,7 @@ class MangaSpider(scrapy.Spider):
     def start_requests(self):
         self.logger.info("Starting requests")
         self.logger.info("=================")
-        mangas_list = requests.get(f"{READMANGA_URL}/list")
+        mangas_list = requests.get(f"{READMANGA_URL}/list", headers=settings.HEADERS)
         if not mangas_list.status_code == 200:
             self.logger.error(f"Failed request with code {mangas_list.status_code}")
             return

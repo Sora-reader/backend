@@ -3,6 +3,7 @@ from copy import deepcopy
 from typing import Optional
 
 import requests
+from django.conf import settings
 from django.utils import timezone
 from scrapy.http.response.html import HtmlResponse
 
@@ -27,7 +28,7 @@ logger = logging.getLogger("Detailed manga parser")
 
 
 def get_detailed_info(url: str) -> dict:
-    response = requests.get(url)
+    response = requests.get(url, headers=settings.HEADERS)
     manga_html = HtmlResponse(url="", body=response.text, encoding="utf-8")
     year = manga_html.xpath(YEAR_TAG).extract_first("")
     description = manga_html.xpath(DESCRIPTION_TAG).extract_first("")

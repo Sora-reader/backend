@@ -3,6 +3,7 @@ import re
 from typing import List
 
 import requests
+from django.conf import settings
 
 from apps.core.utils import init_redis_client
 from apps.parse.models import Chapter, Manga
@@ -23,7 +24,7 @@ def find_images(html: str) -> List[str]:
 
 def parse_new_images(url: str, redis_client) -> List[str]:
     images = []
-    response = requests.get(url)
+    response = requests.get(url, headers=settings.HEADERS)
     if not response.ok:
         return images
 
