@@ -29,6 +29,8 @@ logger = logging.getLogger("Detailed manga parser")
 
 def get_detailed_info(url: str) -> dict:
     response = requests.get(url, headers=settings.HEADERS)
+    if response.status_code != 200:
+        raise Exception(response.text)
     manga_html = HtmlResponse(url="", body=response.text, encoding="utf-8")
     year = manga_html.xpath(YEAR_TAG).extract_first("")
     description = manga_html.xpath(DESCRIPTION_TAG).extract_first("")
@@ -87,7 +89,7 @@ def save_detailed_manga_info(
 def deepen_manga_info(id: int) -> Optional[dict]:
     manga = Manga.objects.get(pk=id)
 
-    if needs_update(manga, "updated_detail"):
+    if needs_update(manga, "updated_detail") or True:
         url = manga.source_url
         info: dict = get_detailed_info(url)
         save_detailed_manga_info(manga=manga, **info)

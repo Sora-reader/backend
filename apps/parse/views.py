@@ -1,5 +1,5 @@
 from django.db.models.query_utils import Q
-from requests.exceptions import MissingSchema
+from django.http.response import Http404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from apps.core.utils import format_error_response, init_redis_client
 from apps.parse.models import Chapter, Manga
-from apps.parse.readmanga.chapter_parser.parse import chapters_manga_info
+from apps.parse.parsers import CHAPTER_PARSER, DETAIL_PARSER, PARSERS
 from apps.parse.readmanga.detail_parser.parse import deepen_manga_info
 from apps.parse.readmanga.images_parser.parse import parse_new_images
 from apps.parse.serializers import MangaChaptersSerializer, MangaSerializer
@@ -20,18 +20,16 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     redis_client = init_redis_client()
 
     def retrieve(self, request, pk, *args, **kwargs):
-
         manga = (
             Manga.objects.filter(pk=pk)
-            .prefetch_related("chapters")
             .prefetch_related("genres")
             .prefetch_related("categories")
             .prefetch_related("person_relations")
-            .prefetch_related("person_relations__manga")
             .first()
         )
-        if manga:
-            deepen_manga_info(pk)
+        if not manga:
+            raise Http404
+        deepen_manga_info(pk)
         serializer = self.get_serializer(manga)
         return Response(serializer.data)
 
@@ -42,10 +40,13 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     )
     def chapters_list(self, request, manga_id):
         manga: Manga = get_object_or_404(Manga, id=manga_id)
+        chapter_parser = PARSERS[manga.source][CHAPTER_PARSER]
+        detail_parser = PARSERS[manga.source][DETAIL_PARSER]
         try:
-            chapters_manga_info(manga.pk)
-        except MissingSchema:
-            return format_error_response("Parse the manga details first")
+            detail_parser(manga.pk)
+            chapter_parser(manga.pk)
+        except Exception as e:
+            return format_error_response("Errors occured during parsing" + str(e))
         serializer = MangaChaptersSerializer(
             manga.chapters.order_by("-volume", "-number").all(), many=True
         )

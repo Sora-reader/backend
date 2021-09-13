@@ -17,9 +17,9 @@ def needs_update(manga: Manga, field: str):
     updated_field = getattr(manga, field)
     if updated_field:
         update_deadline = updated_field + Manga.UPDATED_DETAIL_FREQUENCY
-        if not timezone.now() >= update_deadline:
-            return False
-    return True
+        if timezone.now() >= update_deadline:
+            return True
+    return False
 
 
 def save_persons(manga, role, persons):
