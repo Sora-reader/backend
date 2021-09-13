@@ -123,6 +123,10 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": int(os.getenv("PAGE_SIZE", 20)),
 }
 
+HEADERS = {
+    "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0",
+}
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),

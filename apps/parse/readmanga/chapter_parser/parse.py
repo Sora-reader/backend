@@ -3,6 +3,7 @@ from copy import deepcopy
 from typing import Optional
 
 import requests
+from django.conf import settings
 from django.utils import timezone
 from lxml.etree import fromstring
 
@@ -16,7 +17,7 @@ INSTANCE = 0
 
 def get_chapters_info(url: str) -> dict:
     chapters_info = dict()
-    response = requests.get(url)
+    response = requests.get(url, headers=settings.HEADERS)
 
     chapters_rss = fromstring(response.text)
     items = chapters_rss.findall(ITEM_TAG)
