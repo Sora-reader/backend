@@ -21,7 +21,7 @@ from .consts import (
 )
 
 logging.getLogger(__name__)
-READMANGA_URL = "https://readmanga.live"
+READMANGA_URL = "https://readmanga.io"
 
 
 class MangaSpider(scrapy.Spider):

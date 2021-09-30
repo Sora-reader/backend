@@ -44,7 +44,7 @@ PARSER_NAMES = (
     "mangalib",
 )
 PARSERS = {
-    Manga.SOURCE_MAP.get("https://readmanga.live"): {
+    Manga.SOURCE_MAP.get("https://readmanga.io"): {
         DETAIL_PARSER: deepen_manga_info,
         CHAPTER_PARSER: chapters_manga_info,
         IMAGE_PARSER: images_manga_info,

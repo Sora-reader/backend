@@ -4,7 +4,7 @@ import re
 def chapters_into_dict(chapters: list) -> dict:
     regex = "[\n]+|[ ]{2,}"
     chapters = [re.sub(regex, "", chapter) for chapter in chapters]
-    readmanga_base_url = "https://readmanga.live"
+    readmanga_base_url = "https://readmanga.io"
     links = filter(lambda m: m.startswith("/"), chapters)
     names = filter(lambda n: not n.startswith("/"), chapters)
 

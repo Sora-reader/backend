@@ -2,7 +2,7 @@ import re
 from datetime import timedelta
 
 from django.db import models
-from django.db.models.fields import FloatField, IntegerField, TextField, URLField
+from django.db.models.fields import FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
@@ -47,8 +47,8 @@ class PersonRelatedToManga(models.Model):
 class Chapter(models.Model):
     title = TextField()
     link = URLField(max_length=2000)
-    number = IntegerField()
-    volume = IntegerField()
+    number = FloatField()
+    volume = FloatField()
 
     def __str__(self) -> str:
         return self.title
@@ -62,7 +62,7 @@ class Manga(BaseModel):
     UPDATED_IMAGE_FREQUENCY = timedelta(hours=8)
 
     SOURCE_MAP = {
-        "https://readmanga.live": "Readmanga",
+        "https://readmanga.io": "Readmanga",
         "https://mangalib.me": "Mangalib",
     }
 

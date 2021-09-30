@@ -148,10 +148,6 @@ cython_debug/
 .envs/
 
 # sitemaps
-readmanga_sitemap.txt
-quotes-readmanga.live.xml
-manga.json
-items.json
 *.code-workspace
 *.session.sql
 *.css.map
