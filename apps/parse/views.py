@@ -5,17 +5,19 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from apps.core.fast import FastLimitOffsetPagination
 from apps.core.utils import format_error_response, init_redis_client
 from apps.parse.models import Chapter, Manga
 from apps.parse.parsers import CHAPTER_PARSER, DETAIL_PARSER, PARSERS
 from apps.parse.readmanga.detail_parser.parse import deepen_manga_info
 from apps.parse.readmanga.images_parser.parse import parse_new_images
-from apps.parse.serializers import MangaChaptersSerializer, MangaSerializer
-from apps.parse.utils import get_source_url_from_source
+from apps.parse.serializers import MANGA_FIELDS, MangaChaptersSerializer, MangaSerializer
+from apps.parse.utils import fast_annotate_manga_query, get_source_url_from_source
 
 
 class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = MangaSerializer
+    pagination_class = FastLimitOffsetPagination
     queryset = Manga.objects.all()
     redis_client = init_redis_client()
 
@@ -96,18 +98,16 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         query_filter = self.get_search_filter(request)
         if not query_filter:
             return format_error_response(query_filter)
-        mangas = (
-            Manga.objects.filter(query_filter)
-            .prefetch_related("chapters")
-            .prefetch_related("genres")
-            .prefetch_related("categories")
-            .prefetch_related("person_relations")
-        )
 
-        page = self.paginate_queryset(mangas)
+        mangas = fast_annotate_manga_query(Manga.objects.filter(query_filter))
+
+        page = self.paginator.paginate_queryset(
+            mangas,
+            request,
+            values=MANGA_FIELDS,
+        )
         if page is not None:
-            serializer = MangaSerializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            return self.paginator.get_paginated_response(page)
 
         serializer = MangaSerializer(mangas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -3,6 +3,28 @@ from rest_framework import serializers
 from apps.core.abc.serializers import NameRelatedField
 from apps.parse.models import Chapter, Manga
 
+MANGA_FIELDS = (
+    "id",
+    "source",
+    "source_url",
+    "title",
+    "alt_title",
+    "rating",
+    "thumbnail",
+    "image",
+    "description",
+    "authors",
+    "screenwriters",
+    "illustrators",
+    "translators",
+    "genres",
+    "categories",
+    "status",
+    "year",
+    "updated_chapters",
+    "updated_detail",
+)
+
 
 class MangaSerializer(serializers.ModelSerializer):
     authors = NameRelatedField(many=True)
@@ -14,27 +36,7 @@ class MangaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Manga
-        fields = (
-            "id",
-            "source",
-            "source_url",
-            "title",
-            "alt_title",
-            "rating",
-            "thumbnail",
-            "image",
-            "description",
-            "authors",
-            "screenwriters",
-            "illustrators",
-            "translators",
-            "genres",
-            "categories",
-            "status",
-            "year",
-            "updated_chapters",
-            "updated_detail",
-        )
+        fields = MANGA_FIELDS
 
 
 class MangaChaptersSerializer(serializers.ModelSerializer):

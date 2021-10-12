@@ -1,8 +1,8 @@
 import asyncio
-import json
 import re
 from typing import List, Optional
 
+import ujson
 from django.utils import timezone
 from pyppeteer import launch
 from scrapy.http import HtmlResponse
@@ -28,7 +28,7 @@ async def get_chapters_info(url: str) -> dict:
         raise Exception("Chapter info not found")
     for line in chapter_data.strip().split("\n"):
         if result := re.search(r"window\.__DATA__ = ([^;]*)", line):
-            data = json.loads(result.group(1))
+            data = ujson.loads(result.group(1))
             break
     chapters = data.get("chapters").get("list")
     return chapters

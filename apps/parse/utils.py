@@ -1,8 +1,30 @@
 from typing import Optional
 
+from django.db.models import Q
 from django.utils import timezone
 
+from apps.core.fast import FastQuerySet
 from apps.parse.models import Manga, Person, PersonRelatedToManga
+
+
+def fast_annotate_manga_query(query: FastQuerySet) -> FastQuerySet:
+    return query.map(source=("source_url__startswith", Manga.SOURCE_MAP)).m2m_agg(
+        authors=("person_relations__person__name", Q(person_relations__role="author")),
+        screenwriters=(
+            "person_relations__person__name",
+            Q(person_relations__role="screenwriter"),
+        ),
+        illustrators=(
+            "person_relations__person__name",
+            Q(person_relations__role="illustrator"),
+        ),
+        translators=(
+            "person_relations__person__name",
+            Q(person_relations__role="translator"),
+        ),
+        genres="genres__name",
+        categories="categories__name",
+    )
 
 
 def get_source_url_from_source(source: str) -> Optional[str]:

@@ -1,8 +1,8 @@
-import json
 import re
 from typing import List
 
 import requests
+import ujson
 from django.conf import settings
 
 from apps.core.utils import init_redis_client
@@ -17,7 +17,7 @@ def find_images(html: str) -> List[str]:
     if image_hints:
         image_links = [
             "".join(image[:COUNT_LINK_ELEMENTS])
-            for image in json.loads(image_hints.group(1).replace("'", '"'))
+            for image in ujson.loads(image_hints.group(1).replace("'", '"'))
         ]
     return image_links
 

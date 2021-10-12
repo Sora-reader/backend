@@ -52,7 +52,12 @@ venv: ## Create virtual environment and install all dependencies
 	echo; echo "${CYAN}Created venv and installed all dependencies${COFF}"
 
 shell: check-dotenv check-venv ## Run django-extension's shell_plus
-	@$(interpreter) ./manage.py shell_plus --ipython -- -i -c """from rich import pretty, inspect
+	@$(interpreter) ./manage.py shell_plus --ipython --print-sql -- -i -c """
+	from rich import pretty, inspect
+	from django.db import connection
+	from django.db.models import *
+	from django.db.models.functions import *
+	from django.contrib.postgres.aggregates import ArrayAgg
 	pretty.install()
 	"""
 

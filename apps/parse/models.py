@@ -7,6 +7,7 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
 from apps.core.abc.models import BaseModel
+from apps.core.fast import FastQuerySet
 
 
 class Category(BaseModel):
@@ -55,6 +56,7 @@ class Chapter(models.Model):
 
 
 class Manga(BaseModel):
+    objects = models.Manager.from_queryset(FastQuerySet)()
     NAME_FIELD = "title"
 
     UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
@@ -118,3 +120,33 @@ class Manga(BaseModel):
         if not self.image:
             self.image = self.thumbnail
         return super().save(**kwargs)
+
+
+# Manga.objects.map(source=("source_url__startswith", Manga.SOURCE_MAP)).m2m_agg(
+#     authors=("person_relations__person__name", Q(person_relations__role="author")),
+#     screenwriters=("person_relations__person__name", Q(person_relations__role="screenwriter")),
+#     illustrators=("person_relations__person__name", Q(person_relations__role="illustrator")),
+#     translators=("person_relations__person__name", Q(person_relations__role="translator")),
+#     genres="genres__name",
+#     categories="categories__name",
+# ).all()[:1].fast_values(
+#     "id",
+#     "source",
+#     "source_url",
+#     "title",
+#     "alt_title",
+#     "rating",
+#     "thumbnail",
+#     "image",
+#     "description",
+#     "authors",
+#     "screenwriters",
+#     "illustrators",
+#     "translators",
+#     "categories",
+#     "genres",
+#     "status",
+#     "year",
+#     "updated_chapters",
+#     "updated_detail",
+# )

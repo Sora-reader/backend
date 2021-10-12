@@ -1,5 +1,6 @@
 [flake8]
 max-line-length = 100
+ignore = E203,W503
 exclude = .git,__pycache__,old,build,dist,migrations,venv,.venv
 per-file-ignores =
     __init__.py:F401

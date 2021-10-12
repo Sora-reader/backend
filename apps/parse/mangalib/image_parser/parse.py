@@ -1,8 +1,8 @@
 import asyncio
-import json
 import re
 from typing import List
 
+import ujson
 from pyppeteer.launcher import launch
 from scrapy.http import HtmlResponse
 
@@ -18,12 +18,12 @@ def find_images(html: str) -> List[str]:
     pg_elem = html_tree.xpath(PAGE_TAG).extract_first("")
     start_pos = pg_elem.find("=") + 2
     end_pos = pg_elem.find(";")
-    pages = json.loads(pg_elem[start_pos:end_pos])
+    pages = ujson.loads(pg_elem[start_pos:end_pos])
 
     script_elem = html_tree.xpath(SCRIPT_SERVER_TAG).extract()[-1]
     for line in script_elem.strip().split("\n"):
         if result := re.search(r"window\.__info = ([^;]*)", line):
-            server_data = json.loads(result.group(1))
+            server_data = ujson.loads(result.group(1))
             break
     domain = server_data.get("servers").get("main")
     url = server_data.get("img").get("url")
