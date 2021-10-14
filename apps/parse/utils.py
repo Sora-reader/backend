@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from django.db.models import Q
@@ -9,7 +10,10 @@ from apps.parse.models import Manga, Person, PersonRelatedToManga
 
 def fast_annotate_manga_query(query: FastQuerySet) -> FastQuerySet:
     return query.map(source=("source_url__startswith", Manga.SOURCE_MAP)).m2m_agg(
-        authors=("person_relations__person__name", Q(person_relations__role="author")),
+        authors=(
+            "person_relations__person__name",
+            Q(person_relations__role="author"),
+        ),
         screenwriters=(
             "person_relations__person__name",
             Q(person_relations__role="screenwriter"),
@@ -35,10 +39,10 @@ def get_source_url_from_source(source: str) -> Optional[str]:
             return url
 
 
-def needs_update(manga: Manga, field: str):
-    updated_field = getattr(manga, field)
-    if updated_field:
-        update_deadline = updated_field + Manga.UPDATED_DETAIL_FREQUENCY
+def needs_update(updated_detail: str):
+    updated_detail = datetime.fromisoformat(updated_detail)
+    if updated_detail:
+        update_deadline = updated_detail + Manga.UPDATED_DETAIL_FREQUENCY
         if timezone.now() >= update_deadline:
             return True
     return False

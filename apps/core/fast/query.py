@@ -23,9 +23,14 @@ class FastQuerySet(QuerySet):
         datetime: str,
     }
 
-    def mangle_annotation(self, field: str):
+    def mangle_annotation(self, field: str) -> str:
         """Mangle annotation if needed name to not coflict with any of model's fields."""
-        return field if not self.model.is_field(field) else f"fast_{field}"
+        return f"_fast_{field}"
+
+    @classmethod
+    def demangle_annotation(cls, field: str) -> str:
+        """Mangle annotation if needed name to not coflict with any of model's fields."""
+        return field.split("_fast_")[-1]
 
     def m2m_agg(self, **kwargs: Dict[str, Tuple[str, dict]]):
         """
@@ -62,20 +67,24 @@ class FastQuerySet(QuerySet):
             }
         )
 
-    def parse_values(self, *args, **kwargs) -> Union[dict, list]:
+    def parse_values(self, *args) -> Union[dict, list]:
         """
         Get queryset's .values(...) and revert mangled annotation names.
 
         Required if you used .map/.m2m_agg
         """
         result = []
-        for item in self.values(*args, **kwargs):
+        annotations = self.query.annotations.keys()
+        values = map(
+            lambda v: self.mangle_annotation(v) if self.mangle_annotation(v) in annotations else v,
+            args,
+        )
+
+        for item in self.values(*values):
             parsed = {}
             for k, v in item.items():
                 convert = self.__class__.TYPE_MAP.get(type(v))
 
-                parsed[k if not k.startswith("fast_") else k.split("fast_")[1]] = (
-                    v if not convert else convert(v)
-                )
+                parsed[self.demangle_annotation(k)] = v if not convert else convert(v)
             result.append(parsed)
         return result

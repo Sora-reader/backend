@@ -25,7 +25,7 @@ interpreter := $(shell poetry env info > /dev/null 2>&1 && echo "poetry run")
 extract_ignores = $(shell awk '/.*.py/{split($$1,a,":"); print a[1]}' .flake8 | tr '\n' ',')
 
 check-dotenv:
-	@$(eval DOTENVS := $(shell test -f ./.envs/docker.env && test -f ./.envs/local.env && echo 'nonzero string'))
+	@$(eval DOTENVS := $(shell test -n "$$SECRET_KEY" || (test -f ./.envs/docker.env && test -f ./.envs/local.env) && echo 'nonzero string'))
 	$(if $(DOTENVS),,$(error No .env files found, maybe run "make env"?))
 
 check-venv:

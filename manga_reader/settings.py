@@ -10,6 +10,7 @@ from sentry_sdk.integrations.logging import ignore_logger
 # Project #
 ###########
 
+SHELL_PLUS_PRINT_SQL_TRUNCATE = None
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_URLCONF = "manga_reader.urls"
 WSGI_APPLICATION = "manga_reader.wsgi.application"
@@ -163,7 +164,6 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "silk.middleware.SilkyMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -302,3 +302,11 @@ DEFAULT_LAUNCH_ARGS = {
     "args": ["--no-sandbox", "--disable-setuid-sandbox"],
     "executablePath": WEBDRIVER_PATH,
 }
+
+
+########
+# Silk #
+########
+
+if DEBUG:
+    MIDDLEWARE.append("silk.middleware.SilkyMiddleware")

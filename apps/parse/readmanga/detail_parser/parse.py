@@ -86,10 +86,14 @@ def save_detailed_manga_info(
     Manga.objects.filter(pk=manga.pk).update(**data)
 
 
-def deepen_manga_info(id: int) -> Optional[dict]:
-    manga = Manga.objects.get(pk=id)
-
-    if needs_update(manga, "updated_detail") or True:
+def deepen_manga_info(id: int, updated_detail: str) -> Optional[dict]:
+    if needs_update(updated_detail):
+        manga = (
+            Manga.objects.filter(pk=id)
+            .prefetch_related("genres")
+            .prefetch_related("categories")
+            .prefetch_related("person_relations")
+        ).first()
         url = manga.source_url
         info: dict = get_detailed_info(url)
         save_detailed_manga_info(manga=manga, **info)

@@ -105,6 +105,47 @@ paths:
               schema:
                 $ref: '#/components/schemas/VerifyToken'
           description: 'successful operation'
+  /api/manga:
+    get:
+      tags:
+        - manga
+      parameters:
+        - name: title
+          in: query
+          description: Manga title
+          required: true
+          schema:
+            type: string
+        - name: catalogue
+          in: query
+          description: Manga catalogue
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Query limit
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: Query offset
+          required: false
+          schema:
+            type: number
+      summary: Search manga by title
+      description: Returns a list of manga items
+      operationId: search
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MangaSearchResult'
   '/api/manga/{mangaId}':
     get:
       tags:
@@ -187,47 +228,6 @@ paths:
               example: ["https://cdn.com/vol1/0?token=some_token", "https://cdn.com/vol1/1?token=some_token"]
         '404':
           description: Manga or volume not found
-  /api/manga/search:
-    get:
-      tags:
-        - manga
-      parameters:
-        - name: title
-          in: query
-          description: Manga title
-          required: true
-          schema:
-            type: string
-        - name: catalogue
-          in: query
-          description: Manga catalogue
-          required: false
-          schema:
-            type: string
-        - name: limit
-          in: query
-          description: Query limit
-          required: false
-          schema:
-            type: number
-        - name: offset
-          in: query
-          description: Query offset
-          required: false
-          schema:
-            type: number
-      summary: Search manga by title
-      description: Returns a list of manga items
-      operationId: search
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MangaSearchResult'
   /api/docs/schema/:
     get:
       summary: Get OpenApi 3.0 schema
