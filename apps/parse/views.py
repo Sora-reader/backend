@@ -1,4 +1,3 @@
-from django.db.models.query_utils import Q
 from django.http.response import Http404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -7,55 +6,44 @@ from rest_framework.response import Response
 
 from apps.core.fast import FastLimitOffsetPagination
 from apps.core.fast.utils import get_fast_response
-from apps.core.utils import format_error_response, init_redis_client
+from apps.core.utils import format_error_response, init_redis_client, url_prefix
+from apps.parse.documents import MangaDocument
 from apps.parse.models import Chapter, Manga
 from apps.parse.parsers import CHAPTER_PARSER, DETAIL_PARSER, PARSERS
 from apps.parse.readmanga.detail_parser.parse import deepen_manga_info
 from apps.parse.readmanga.images_parser.parse import parse_new_images
-from apps.parse.serializers import MANGA_FIELDS, MangaChaptersSerializer, MangaSerializer
-from apps.parse.utils import fast_annotate_manga_query, get_source_url_from_source
+from apps.parse.serializers import CHAPTER_FIELDS, MANGA_FIELDS
+from apps.parse.utils import fast_annotate_manga_query
 
 
 class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    serializer_class = MangaSerializer
     pagination_class = FastLimitOffsetPagination
     queryset = Manga.objects.all()
     redis_client = init_redis_client()
 
-    def retrieve(self, request, pk, *args, **kwargs):
+    @classmethod
+    def get_fast_manga(cls, pk):
         manga = fast_annotate_manga_query(Manga.objects.filter(pk=pk))
         if not manga.exists():
             raise Http404
-        manga = manga.parse_values(*MANGA_FIELDS)[0]
-        deepen_manga_info(pk, manga["updated_detail"])
+        return manga.parse_values(*MANGA_FIELDS)[0]
+
+    def retrieve(self, _, pk, *args, **kwargs):
+        manga = self.get_fast_manga(pk)
+        try:
+            deepen_manga_info(pk, manga["updated_detail"])
+        except Exception as e:
+            return format_error_response("Errors occured during parsing" + str(e))
         return get_fast_response(manga)
 
-    @staticmethod
-    def get_search_filter(request):
-        """Get search query filter"""
-        title: str = request.GET.get("title", None)
-        catalogue: str = request.GET.get("catalogue", None)
-
-        if not title:
-            raise ValueError("No title found")
-
-        search_filter = Q(title__icontains=title) | Q(alt_title__icontains=title)
-
-        if catalogue:
-            catalogue_url = get_source_url_from_source(catalogue.capitalize())
-            if catalogue_url:
-                search_filter = search_filter & Q(source_url__contains=catalogue_url)
-            else:
-                raise ValueError(f"Catalogue should be one of {', '.join(Manga.SOURCE_MAP.keys())}")
-
-        return search_filter
-
     def list(self, request):
-        query_filter = self.get_search_filter(request)
-        if not query_filter:
-            return format_error_response(query_filter)
+        title: str = request.GET.get("title", None)
+        if not title:
+            return format_error_response("No title found")
 
-        mangas = fast_annotate_manga_query(Manga.objects.filter(query_filter))
+        mangas = fast_annotate_manga_query(
+            MangaDocument.search().query("fuzzy", title=title).to_queryset()
+        )
 
         page = self.paginator.paginate_queryset(
             mangas,
@@ -65,28 +53,26 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         if page is not None:
             return self.paginator.get_paginated_response(page)
 
-        serializer = MangaSerializer(mangas, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(list(mangas.parse_values(*MANGA_FIELDS)), status=status.HTTP_200_OK)
 
     @action(
         detail=False,
         methods=("get",),
-        url_path="(?P<manga_id>[^/.]+)/chapters",
+        url_path="(?P<pk>[^/.]+)/chapters",
     )
-    def chapters_list(self, request, manga_id):
-        manga: Manga = get_object_or_404(Manga, id=manga_id)
-        chapter_parser = PARSERS[manga.source][CHAPTER_PARSER]
-        detail_parser = PARSERS[manga.source][DETAIL_PARSER]
+    def chapters_list(self, _, pk):
+        manga: Manga = Manga.objects.prefetch_related("chapters").get(pk=1)
+
+        chapter_parser = PARSERS[url_prefix(manga.source_url)][CHAPTER_PARSER]
+        detail_parser = PARSERS[url_prefix(manga.source_url)][DETAIL_PARSER]
         try:
-            detail_parser(manga.id, str(manga.updated_detail))
-            chapter_parser(manga.pk)
+            detail_parser(pk, str(manga.updated_detail))
+            chapter_parser(pk, str(manga.updated_chapters))
         except Exception as e:
-            pass
-            # return format_error_response("Errors occured during parsing" + str(e))
-        serializer = MangaChaptersSerializer(
-            manga.chapters.order_by("-volume", "-number").all(), many=True
+            return format_error_response("Errors occured during parsing" + str(e))
+        return get_fast_response(
+            list(manga.chapters.order_by("-volume", "-number").values(*CHAPTER_FIELDS))
         )
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=False,

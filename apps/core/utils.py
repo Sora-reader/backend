@@ -1,3 +1,4 @@
+import re
 from typing import Union
 
 import redis
@@ -17,3 +18,7 @@ def format_error_response(
 
 def init_redis_client() -> redis.Redis:
     return redis.StrictRedis.from_url(settings.REDIS_URL, decode_responses=True)
+
+
+def url_prefix(url: str) -> str:
+    return re.match(r"(^http[s]?://(.*))/.*$", url).group(1)

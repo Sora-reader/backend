@@ -1,15 +1,15 @@
 from datetime import datetime
-from typing import Optional
 
 from django.db.models import Q
 from django.utils import timezone
 
 from apps.core.fast import FastQuerySet
+from apps.parse.consts import SOURCE_MAP_INVERT
 from apps.parse.models import Manga, Person, PersonRelatedToManga
 
 
 def fast_annotate_manga_query(query: FastQuerySet) -> FastQuerySet:
-    return query.map(source=("source_url__startswith", Manga.SOURCE_MAP)).m2m_agg(
+    return query.map(source=("source_url__startswith", SOURCE_MAP_INVERT)).m2m_agg(
         authors=(
             "person_relations__person__name",
             Q(person_relations__role="author"),
@@ -31,18 +31,10 @@ def fast_annotate_manga_query(query: FastQuerySet) -> FastQuerySet:
     )
 
 
-def get_source_url_from_source(source: str) -> Optional[str]:
-    """Reverse Manga.SOURCE_MAP lookup and return source_url"""
-
-    for url, source_name in Manga.SOURCE_MAP.items():
-        if source_name == source:
-            return url
-
-
 def needs_update(updated_detail: str):
     updated_detail = datetime.fromisoformat(updated_detail)
     if updated_detail:
-        update_deadline = updated_detail + Manga.UPDATED_DETAIL_FREQUENCY
+        update_deadline = updated_detail + Manga.BASE_UPDATE_FREQUENCY
         if timezone.now() >= update_deadline:
             return True
     return False

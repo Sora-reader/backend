@@ -1,5 +1,5 @@
-import re
 from datetime import timedelta
+from typing import Optional
 
 from django.db import models
 from django.db.models.fields import FloatField, TextField, URLField
@@ -8,6 +8,8 @@ from django.db.models.query import QuerySet
 
 from apps.core.abc.models import BaseModel
 from apps.core.fast import FastQuerySet
+from apps.core.utils import url_prefix
+from apps.parse.consts import SOURCE_MAP
 
 
 class Category(BaseModel):
@@ -55,18 +57,20 @@ class Chapter(models.Model):
         return self.title
 
 
+def get_source_from_source_url(source_url: str) -> Optional[str]:
+    """Reverse PARSERS lookup and return source_url"""
+
+    for url, source_name in SOURCE_MAP.items():
+        if url == source_url:
+            return source_name
+
+
 class Manga(BaseModel):
     objects = models.Manager.from_queryset(FastQuerySet)()
     NAME_FIELD = "title"
 
-    UPDATED_DETAIL_FREQUENCY = timedelta(hours=1)
-    UPDATED_CHAPTER_FREQUENCY = timedelta(hours=1)
-    UPDATED_IMAGE_FREQUENCY = timedelta(hours=8)
-
-    SOURCE_MAP = {
-        "https://readmanga.io": "Readmanga",
-        "https://mangalib.me": "Mangalib",
-    }
+    BASE_UPDATE_FREQUENCY = timedelta(hours=1)
+    IMAGE_UPDATE_FREQUENCY = timedelta(hours=8)
 
     title = TextField()
     alt_title = TextField(null=True, blank=True)
@@ -90,12 +94,8 @@ class Manga(BaseModel):
     )
 
     @property
-    def url_prefix(self) -> str:
-        return re.match(r"(^http[s]?://(.*))/.*$", self.source_url).group(1)
-
-    @property
-    def source(self) -> str:
-        return self.__class__.SOURCE_MAP[self.url_prefix]
+    def source(self):
+        return get_source_from_source_url(url_prefix(self.source_url))
 
     def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
         return Person.objects.filter(manga_relations__manga=self, manga_relations__role=role)
@@ -120,33 +120,3 @@ class Manga(BaseModel):
         if not self.image:
             self.image = self.thumbnail
         return super().save(**kwargs)
-
-
-# Manga.objects.map(source=("source_url__startswith", Manga.SOURCE_MAP)).m2m_agg(
-#     authors=("person_relations__person__name", Q(person_relations__role="author")),
-#     screenwriters=("person_relations__person__name", Q(person_relations__role="screenwriter")),
-#     illustrators=("person_relations__person__name", Q(person_relations__role="illustrator")),
-#     translators=("person_relations__person__name", Q(person_relations__role="translator")),
-#     genres="genres__name",
-#     categories="categories__name",
-# ).all()[:1].fast_values(
-#     "id",
-#     "source",
-#     "source_url",
-#     "title",
-#     "alt_title",
-#     "rating",
-#     "thumbnail",
-#     "image",
-#     "description",
-#     "authors",
-#     "screenwriters",
-#     "illustrators",
-#     "translators",
-#     "categories",
-#     "genres",
-#     "status",
-#     "year",
-#     "updated_chapters",
-#     "updated_detail",
-# )

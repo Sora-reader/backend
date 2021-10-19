@@ -62,6 +62,7 @@ class FastQuerySet(QuerySet):
                 self.mangle_annotation(field): Case(
                     *[When(**{clause: k, "then": Value(v)}) for k, v in dictionary.items()],
                     output_field=TextField(),
+                    # default="",
                 )
                 for field, (clause, dictionary) in kwargs.items()
             }

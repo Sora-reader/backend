@@ -116,12 +116,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: catalogue
-          in: query
-          description: Manga catalogue
-          required: false
-          schema:
-            type: string
         - name: limit
           in: query
           description: Query limit

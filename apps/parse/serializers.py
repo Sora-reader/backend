@@ -1,8 +1,3 @@
-from rest_framework import serializers
-
-from apps.core.abc.serializers import NameRelatedField
-from apps.parse.models import Chapter, Manga
-
 MANGA_FIELDS = (
     "id",
     "source",
@@ -25,21 +20,10 @@ MANGA_FIELDS = (
     "updated_detail",
 )
 
-
-class MangaSerializer(serializers.ModelSerializer):
-    authors = NameRelatedField(many=True)
-    screenwriters = NameRelatedField(many=True)
-    illustrators = NameRelatedField(many=True)
-    translators = NameRelatedField(many=True)
-    genres = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
-    categories = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
-
-    class Meta:
-        model = Manga
-        fields = MANGA_FIELDS
-
-
-class MangaChaptersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Chapter
-        fields = "__all__"
+CHAPTER_FIELDS = (
+    "id",
+    "title",
+    "link",
+    "number",
+    "volume",
+)

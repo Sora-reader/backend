@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 from scrapy.http.response.html import HtmlResponse
 
+from apps.core.utils import url_prefix
 from apps.parse.models import Category, Manga, PersonRelatedToManga
 from apps.parse.utils import needs_update, save_persons
 
@@ -82,13 +83,13 @@ def save_detailed_manga_info(
     manga.categories.clear()
     manga.categories.set(categories)
     data["updated_detail"] = timezone.now()
-    data["rss_url"] = manga.url_prefix + data.pop("rss_url", "")
+    data["rss_url"] = url_prefix(manga.source_url) + data.pop("rss_url", "")
     Manga.objects.filter(pk=manga.pk).update(**data)
 
 
 def deepen_manga_info(id: int, updated_detail: str) -> Optional[dict]:
     if needs_update(updated_detail):
-        manga = (
+        manga: Manga = (
             Manga.objects.filter(pk=id)
             .prefetch_related("genres")
             .prefetch_related("categories")

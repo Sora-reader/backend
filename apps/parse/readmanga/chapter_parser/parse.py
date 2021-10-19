@@ -73,10 +73,14 @@ def save_chapters_manga_info(
     manga.save()
 
 
-def chapters_manga_info(id: int) -> Optional[dict]:
-    manga: Manga = Manga.objects.get(pk=id)
-
-    if needs_update(manga, "updated_chapters"):
+def chapters_manga_info(id: int, updated_chapters: str) -> Optional[dict]:
+    if needs_update(updated_chapters):
+        manga: Manga = (
+            Manga.objects.filter(pk=id)
+            .prefetch_related("genres")
+            .prefetch_related("categories")
+            .prefetch_related("person_relations")
+        ).first()
         rss_url = manga.rss_url
         info: dict = get_chapters_info(rss_url)
         save_chapters_manga_info(manga=manga, volumes=info)

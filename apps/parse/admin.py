@@ -3,6 +3,7 @@ from django.contrib.admin.filters import SimpleListFilter
 from django.db.models.query import QuerySet
 
 from apps.core.abc.admin import BaseAdmin, BaseTabularInline, ImagePreviewMixin, RelatedField
+from apps.parse.consts import SOURCE_MAP_INVERT
 from apps.parse.models import Author, Chapter, Genre, Manga, Person, PersonRelatedToManga
 
 
@@ -28,7 +29,7 @@ class SourceFilter(SimpleListFilter):
     parameter_name = "source"
 
     def lookups(self, request, model_admin):
-        return Manga.SOURCE_MAP.items()
+        return SOURCE_MAP_INVERT.items()
 
     def queryset(self, request, queryset: QuerySet):
         value = self.value()
