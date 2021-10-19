@@ -46,6 +46,16 @@ services:
     environment:
       - REDIS_REPLICATION_MODE=master
 
+  elasticsearch:
+    image: elasticsearch:7.14.2
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
 volumes:
+  esdata1:
   sora_redis:
   sora_postgres:

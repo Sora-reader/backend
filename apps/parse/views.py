@@ -81,8 +81,7 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             detail_parser(manga.id, str(manga.updated_detail))
             chapter_parser(manga.pk)
         except Exception as e:
-            pass
-            # return format_error_response("Errors occured during parsing" + str(e))
+            return format_error_response("Errors occured during parsing" + str(e))
         serializer = MangaChaptersSerializer(
             manga.chapters.order_by("-volume", "-number").all(), many=True
         )

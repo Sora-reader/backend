@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "django.contrib.postgres",
     "silk",
+    "django_elasticsearch_dsl",
 ]
 
 #########
@@ -310,3 +311,7 @@ DEFAULT_LAUNCH_ARGS = {
 
 if DEBUG:
     MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
+
+ELASTICSEARCH_DSL = {
+    "default": {"hosts": "localhost:9200"},
+}
