@@ -60,6 +60,8 @@ a {
     color: $teal-main !important;
 }
 
-#result_list a {
+#result_list, .card-body .nav-item {
+    a {
     color: $teal-main !important;
+    }
 }

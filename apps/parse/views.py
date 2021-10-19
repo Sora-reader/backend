@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http.response import Http404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -42,7 +43,9 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             return format_error_response("No title found")
 
         mangas = fast_annotate_manga_query(
-            MangaDocument.search().query("fuzzy", title=title).to_queryset()
+            MangaDocument.search()
+            .query("fuzzy", title=title)[: settings.REST_FRAMEWORK["PAGE_SIZE"]]
+            .to_queryset()
         )
 
         page = self.paginator.paginate_queryset(

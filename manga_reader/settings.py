@@ -112,6 +112,7 @@ JAZZMIN_SETTINGS = {
 }
 JAZZMIN_UI_TWEAKS = {
     "sidebar_fixed": True,
+    "actions_sticky_top": True,
 }
 
 #######
