@@ -64,7 +64,7 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         url_path="(?P<pk>[^/.]+)/chapters",
     )
     def chapters_list(self, _, pk):
-        manga: Manga = Manga.objects.prefetch_related("chapters").get(pk=1)
+        manga: Manga = Manga.objects.prefetch_related("chapters").get(pk=pk)
 
         chapter_parser = PARSERS[url_prefix(manga.source_url)][CHAPTER_PARSER]
         detail_parser = PARSERS[url_prefix(manga.source_url)][DETAIL_PARSER]
