@@ -11,19 +11,25 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='manga',
-            name='chapters',
-        ),
-        migrations.RemoveField(
-            model_name='manga',
             name='updated_chapters',
         ),
         migrations.AddField(
             model_name='chapter',
             name='manga',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='chapters', to='parse.manga'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='parse.manga'),
         ),
-        # TODO: move everything from M2M to column
-        migrations.AddField(
+        # move everything from M2M to column
+        migrations.RunSQL("""
+        UPDATE parse_chapter
+            SET manga_id = pmc.manga_id
+            FROM parse_manga_chapters AS pmc
+                WHERE parse_chapter.id = pmc.chapter_id;
+        """),
+        migrations.RemoveField(
+            model_name='manga',
+            name='chapters',
+        ),
+        migrations.AlterField(
             model_name='chapter',
             name='manga',
             field=models.ForeignKey(null=False, on_delete=django.db.models.deletion.CASCADE, related_name='chapters', to='parse.manga'),

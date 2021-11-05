@@ -1,9 +1,13 @@
+import copy
+import logging
 import os
 from datetime import timedelta
 from functools import partial
 from pathlib import Path
 
+import scrapy.utils.log
 import sentry_sdk
+from colorlog import ColoredFormatter
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
@@ -297,17 +301,9 @@ ELASTICSEARCH_DSL = {
     "default": {"hosts": "localhost:9200"},
 }
 
-
 ##########
 # Logging #
 ##########
-
-import copy
-
-import scrapy.utils.log
-from colorlog import ColoredFormatter
-
-PROXY = os.getenv("PROXY")
 
 COLORED_FORMAT = (
     "%(log_color)s%(levelname)-8s%(reset)s"
@@ -328,24 +324,9 @@ SoraColoredLogger = partial(
         "CRITICAL": "red,bg_white",
     },
 )
-import logging
 
-logging.INFO
 color_formatter = SoraColoredLogger(COLORED_FORMAT)
 colorless_formatter = logging.Formatter(COLORLESS_FORMAT, datefmt=DATEFMT)
-_get_handler = copy.copy(scrapy.utils.log._get_handler)
-
-
-def _get_handler_custom(*args, **kwargs):
-    handler = _get_handler(*args, **kwargs)
-    formatter = color_formatter
-    if isinstance(handler, logging.FileHandler):
-        formatter = colorless_formatter
-    handler.setFormatter(formatter)
-    return handler
-
-
-scrapy.utils.log._get_handler = _get_handler_custom
 
 LOGGING = {
     "version": 1,
@@ -380,3 +361,23 @@ LOGGING = {
         },
     },
 }
+
+##########
+# Scrapy #
+##########
+
+PROXY = os.getenv("PROXY")
+
+_get_handler = copy.copy(scrapy.utils.log._get_handler)
+
+
+def _get_handler_custom(*args, **kwargs):
+    handler = _get_handler(*args, **kwargs)
+    formatter = color_formatter
+    if isinstance(handler, logging.FileHandler):
+        formatter = colorless_formatter
+    handler.setFormatter(formatter)
+    return handler
+
+
+scrapy.utils.log._get_handler = _get_handler_custom

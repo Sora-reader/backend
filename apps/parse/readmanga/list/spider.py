@@ -1,7 +1,8 @@
 from typing import List
 
 from scrapy.http import HtmlResponse
-from scrapy.spiders.crawl import Rule
+from scrapy.linkextractors import LinkExtractor
+from scrapy.spiders.crawl import CrawlSpider, Rule
 
 from apps.parse.readmanga.list.utils import parse_rating
 from apps.parse.scrapy.items import MangaItem
@@ -16,9 +17,6 @@ SOURCE_URL_TAG = "//h3/a[1]/@href"
 GENRES_TAG = '//div[@class = "tile-info"]//a[@class = "element-link"]/text()'
 THUMBNAIL_IMG_URL_TAG = '//img[contains(@class, "lazy")][1]/@data-original'
 ALT_TITLE_URL = "//h4[@title]//text()"
-
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders.crawl import CrawlSpider
 
 
 class ReadmangaListSpider(CrawlSpider):

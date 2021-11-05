@@ -1,6 +1,5 @@
 import scrapy
 from scrapy.http import HtmlResponse
-from scrapy.http.response.html import HtmlResponse
 
 from apps.parse.scrapy.items import MangaItem
 

@@ -1,12 +1,9 @@
 import re
 from typing import List
 
-import requests
 import scrapy
 import ujson
-from django.conf import settings
 from scrapy.http import HtmlResponse
-from scrapy.http.response.html import HtmlResponse
 
 from apps.core.utils import init_redis_client
 from apps.parse.models import Manga
