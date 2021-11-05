@@ -17,10 +17,10 @@ def chapters_into_dict(chapters: list) -> dict:
 
 def parse_rating(rate_str: str):
     """
-    rate_str example '9.439212799072266 из 10'
+    >>> parse_rating("9.439212799072266 из 10")
+    9.43
     """
     try:
-        rating = round(float(rate_str.split(" из ")[0]) / 2, 2)
-    except Exception:
-        rating = 0.0
-    return rating
+        return float(re.match(r"^(\d\.\d{2})\d* из 10$", rate_str).group(1))
+    except (AttributeError, ValueError):
+        return 0.0

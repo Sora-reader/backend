@@ -24,10 +24,4 @@ echo "Running migrations"
 
 echo "Running the server on port $PORT"
 
-if [ "$RUN_CELERY" = 1 ]; then
-    echo "Running celery worker"
-    echo "====================="
-    celery -A manga_reader.celery.app worker -n manga@%h --loglevel=INFO -B &
-fi
-
 ./manage.py runserver_plus $PORT

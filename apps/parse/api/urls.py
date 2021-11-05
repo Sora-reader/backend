@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from apps.parse.views import MangaViewSet
+from apps.parse.api.views import MangaViewSet
 
 router = routers.DefaultRouter()
 

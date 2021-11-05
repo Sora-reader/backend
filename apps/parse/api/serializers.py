@@ -16,7 +16,6 @@ MANGA_FIELDS = (
     "categories",
     "status",
     "year",
-    "updated_chapters",
     "updated_detail",
 )
 

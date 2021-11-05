@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from functools import partial
 from pathlib import Path
 
 import sentry_sdk
@@ -259,27 +260,6 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "WARNING",
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            "propagate": False,
-        },
-    },
-}
-
 
 #############
 # GlitchTip #
@@ -315,4 +295,88 @@ if DEBUG:
 
 ELASTICSEARCH_DSL = {
     "default": {"hosts": "localhost:9200"},
+}
+
+
+##########
+# Logging #
+##########
+
+import copy
+
+import scrapy.utils.log
+from colorlog import ColoredFormatter
+
+PROXY = os.getenv("PROXY")
+
+COLORED_FORMAT = (
+    "%(log_color)s%(levelname)-8s%(reset)s"
+    "%(bold_white)s[%(asctime)s]%(reset)s "
+    "%(log_color)s%(message)s%(reset)s"
+)
+COLORLESS_FORMAT = "%(levelname)-8s[%(asctime)s] %(message)s"
+DATEFMT = "%Y-%m-%d %H:%M:%S"
+
+SoraColoredLogger = partial(
+    ColoredFormatter,
+    datefmt=DATEFMT,
+    log_colors={
+        "DEBUG": "white",
+        "INFO": "bold_cyan",
+        "WARNING": "bold_yellow",
+        "ERROR": "bold_red",
+        "CRITICAL": "red,bg_white",
+    },
+)
+import logging
+
+logging.INFO
+color_formatter = SoraColoredLogger(COLORED_FORMAT)
+colorless_formatter = logging.Formatter(COLORLESS_FORMAT, datefmt=DATEFMT)
+_get_handler = copy.copy(scrapy.utils.log._get_handler)
+
+
+def _get_handler_custom(*args, **kwargs):
+    handler = _get_handler(*args, **kwargs)
+    formatter = color_formatter
+    if isinstance(handler, logging.FileHandler):
+        formatter = colorless_formatter
+    handler.setFormatter(formatter)
+    return handler
+
+
+scrapy.utils.log._get_handler = _get_handler_custom
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "colored": {
+            "()": "manga_reader.settings.SoraColoredLogger",
+            "format": COLORED_FORMAT,
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "colored",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+        "management": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
 }

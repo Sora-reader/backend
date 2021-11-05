@@ -421,9 +421,6 @@ components:
         updated_detail:
           type: string
           format: date-time
-        updated_chapters:
-          type: string
-          format: date-time
       required:
       - id
       - title

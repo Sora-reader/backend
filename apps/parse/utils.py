@@ -1,15 +1,16 @@
+import logging
 from datetime import datetime
 
 from django.db.models import Q
 from django.utils import timezone
 
 from apps.core.fast import FastQuerySet
-from apps.parse.consts import SOURCE_MAP_INVERT
+from apps.parse.const import SOURCE_TO_CATALOGUE_MAP
 from apps.parse.models import Manga, Person, PersonRelatedToManga
 
 
 def fast_annotate_manga_query(query: FastQuerySet) -> FastQuerySet:
-    return query.map(source=("source_url__startswith", SOURCE_MAP_INVERT)).m2m_agg(
+    return query.map(source=("source_url__startswith", SOURCE_TO_CATALOGUE_MAP)).m2m_agg(
         authors=(
             "person_relations__person__name",
             Q(person_relations__role="author"),
@@ -55,3 +56,14 @@ def save_persons(manga, role, persons):
         ],
         ignore_conflicts=True,
     )
+
+
+def mute_logger_stdout(logger_name: str, *other_loggers):
+    import warnings
+
+    logger_names = [logger_name, *other_loggers]
+    for name in logger_names:
+        warnings.filterwarnings("ignore", module=name)
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.CRITICAL)
+        logger.propagate = False

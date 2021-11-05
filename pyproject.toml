@@ -21,7 +21,6 @@ whitenoise = "^5.2.0"
 django-jazzmin = { git = "https://github.com/dhvcc/django-jazzmin.git", rev = "feature/filter-input-length" }
 requests = "^2.25.1"
 pytz = "^2021.1"
-celery = "^5.0.5"
 dateutils = "^0.6.12"
 django-cors-headers = "^3.7.0"
 redis = "^3.5.3"
@@ -36,6 +35,8 @@ django-silk = "^4.1.0"
 orjson = "^3.6.4"
 ujson = "^4.2.0"
 django-elasticsearch-dsl = { git = "https://github.com/dhvcc/django-elasticsearch-dsl.git", rev = "53598a336915a795467233f091f3c30836f0f758" }
+colorlog = "^6.5.0"
+django-types = "^0.9.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
