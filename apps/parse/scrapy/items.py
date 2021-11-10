@@ -12,6 +12,21 @@ class MangaItem(Item):
     year = Field()
     source_url = Field()
     rss_url = Field()
+    # FKs
     chapters = Field()
+    # M2Ms
     genres = Field()
     categories = Field()
+    authors = Field()
+    translators = Field()
+    illustrators = Field()
+    screenwriters = Field()
+    # Other
+    updated_detail = Field()
+
+
+class MangaChapterItem(Item):
+    title = Field()
+    volume = Field()
+    number = Field()
+    link = Field()

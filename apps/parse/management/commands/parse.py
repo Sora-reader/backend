@@ -32,10 +32,10 @@ class Command(BaseCommand):
             help="parser to use which respresents a website source",
         )
         parser.add_argument(
-            "--pk",
-            type=int,
+            "--url",
+            type=str,
             required=sys.argv[2] in [DETAIL_PARSER, CHAPTER_PARSER, IMAGE_PARSER],
-            help="PK of an object to parse for",
+            help="A link which to parse (detail/chapter/rss url)",
         )
 
     def handle(self, *args, **options):
@@ -43,8 +43,8 @@ class Command(BaseCommand):
         try:
             catalogue_name: str = options["catalogue"]
             logger.info("Running parser")
-            run_parser(options["type"], catalogue_name, pk=options["pk"])
-            logger.info("\nFinished parsing")
+            run_parser(options["type"], catalogue_name, url=options["url"])
+            logger.info("Finished parsing")
         except (AttributeError, KeyError):
             logger.error(f"Can't find Catalogue [{catalogue_name}]")
         except Exception:

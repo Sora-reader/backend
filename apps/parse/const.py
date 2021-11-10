@@ -1,4 +1,12 @@
+from datetime import timedelta
+
+from apps.parse.readmanga.chapter import ReadmangaChapterSpider
+from apps.parse.readmanga.detail import ReadmangaDetailSpider
+from apps.parse.readmanga.images import ReadmangaImageSpider
 from apps.parse.readmanga.list import ReadmangaListSpider
+
+BASE_UPDATE_FREQUENCY = timedelta(hours=1)
+IMAGE_UPDATE_FREQUENCY = timedelta(hours=8)
 
 LIST_PARSER = "list"
 DETAIL_PARSER = "detail"
@@ -12,6 +20,9 @@ CATALOGUES = {
         "settings": "apps.parse.readmanga.settings",
         "parsers": {
             LIST_PARSER: ReadmangaListSpider,
+            DETAIL_PARSER: ReadmangaDetailSpider,
+            CHAPTER_PARSER: ReadmangaChapterSpider,
+            IMAGE_PARSER: ReadmangaImageSpider,
         },
     }
 }

@@ -33,6 +33,7 @@ class ReadmangaDetailSpider(scrapy.Spider):
         return [
             MangaItem(
                 **{
+                    "source_url": self.start_urls[0],
                     "authors": authors,
                     "year": year,
                     "rating": rating,

@@ -1,7 +1,6 @@
 from functools import cached_property
 from typing import Dict, Optional, Tuple, Type, Union
 
-import easy
 from django.contrib import admin
 from django.db.models import Model
 from django.db.models.fields import Field
@@ -12,10 +11,11 @@ from apps.parse.models import Manga
 
 
 class ImagePreviewMixin:
-    @easy.smart(__name__="Image")
     def get_image(self, obj: Manga):
         style = "max-height: 100px; border-radius: 3px;"
         return format_html(f"<img src='{obj.thumbnail}' style='{str(style)}' />")
+
+    get_image.short_description = "Image"
 
 
 class RelatedField:
