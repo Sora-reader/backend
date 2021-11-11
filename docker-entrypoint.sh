@@ -24,4 +24,5 @@ echo "Running migrations"
 
 echo "Running the server on port $PORT"
 
-./manage.py runserver_plus $PORT
+core_count=$(grep 'cpu[0-9]' /proc/stat | wc -l)
+gunicorn manga_reader.wsgi:application --bind 127.0.0.1:$PORT --workers $core_count*2+1
