@@ -69,7 +69,7 @@ shell-sql: check-dotenv check-venv ## Run django-extension's shell_plus
 runserver: check-dotenv check-venv  ## Run dev server on port 8000, or specify with "make dev port=1234"
 	@. ./.envs/local.env && if [ "$(DEBUG)" = 0 ]; then ./manage.py collectstatic --noinput --clear; fi
 	@$(interpreter) ./manage.py migrate --noinput
-	@$(interpreter) ./manage.py runserver $(port)
+	@$(interpreter) ./manage.py runserver 0.0.0.0:$(port)
 	@echo "${CYAN}Backend is running on localhost:$(port)${COFF}"
 
 development: ## run dev docker

@@ -2,7 +2,11 @@
 name = "backend"
 version = "0.1.0"
 description = "Backend for Sora Reader"
-authors = ["ScriptHound <grinkiko@gmail.com>", "dhvcc <1337kwiz@gmail.com>"]
+authors = [
+  "dhvcc <1337kwiz@gmail.com>",
+  "ScriptHound <grinkiko@gmail.com>",
+  "NikDark <nikefremov.00.008@hotmail.com>",
+]
 license = "GPLv3"
 
 [tool.poetry.dependencies]
@@ -18,24 +22,21 @@ Scrapy = "^2.4.1"
 argon2-cffi = "^20.1.0"
 django-extensions = "^3.1.1"
 whitenoise = "^5.2.0"
-django-jazzmin = { git = "https://github.com/dhvcc/django-jazzmin.git", rev = "feature/filter-input-length" }
+django-jazzmin = { git = "https://github.com/dhvcc/django-jazzmin.git", rev = "488036718b0c2a9d9b928c8dca257164db64857d" }
 requests = "^2.25.1"
 pytz = "^2021.1"
-celery = "^5.0.5"
 dateutils = "^0.6.12"
 django-cors-headers = "^3.7.0"
 redis = "^3.5.3"
 autoflake = "^1.4"
-django-admin-easy = "0.6.1"
-django-related-admin = "^1.0.1"
-pyppeteer = "^0.2.5"
 sentry-sdk = "^1.3.0"
 gunicorn = "^20.1.0"
 Werkzeug = "0.16.0"
 django-silk = "^4.1.0"
 orjson = "^3.6.4"
 ujson = "^4.2.0"
-django-elasticsearch-dsl = { git = "https://github.com/dhvcc/django-elasticsearch-dsl.git", rev = "53598a336915a795467233f091f3c30836f0f758" }
+django-elasticsearch-dsl = { git = "https://github.com/dhvcc/django-elasticsearch-dsl.git", rev = "master" }
+colorlog = "^6.5.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
@@ -46,6 +47,8 @@ ipython = "^7.21.0"
 pre-commit = "^2.11.1"
 rich = "^10.1.0"
 django-typomatic = "^1.5.0"
+ipdb = "^0.13.9"
+django-types = "^0.9.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -1,58 +1,51 @@
 import logging
+import sys
 
-from django.core.management.base import CommandParser
+from django.core.management.base import BaseCommand, CommandParser
 
-from apps.core.abc.commands import BaseParseCommand
-from apps.parse import parsers
-from apps.parse.consts import PARSER_NAMES
+from apps.parse.const import (
+    CATALOGUE_NAMES,
+    CHAPTER_PARSER,
+    DETAIL_PARSER,
+    IMAGE_PARSER,
+    PARSER_TYPES,
+)
+from apps.parse.scrapy.utils import run_parser
+from apps.parse.utils import mute_logger_stdout
 
-SETTINGS_PATH = "apps.parse.readmanga.list_parser.settings"
+logger = logging.getLogger("management")
 
 
-class Command(BaseParseCommand):
-    help = "Parse manga list"
-
+class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
-            "parser",
+            "type",
+            type=str,
+            choices=PARSER_TYPES,
+            help="which type of data to parse",
+        )
+        parser.add_argument(
+            "catalogue",
             type=str,
             default="readmanga",
-            choices=PARSER_NAMES,
+            choices=CATALOGUE_NAMES,
             help="parser to use which respresents a website source",
+        )
+        parser.add_argument(
+            "--url",
+            type=str,
+            required=sys.argv[2] in [DETAIL_PARSER, CHAPTER_PARSER, IMAGE_PARSER],
+            help="A link which to parse (detail/chapter/rss url)",
         )
 
     def handle(self, *args, **options):
-        parser_name = options.get("parser")
+        mute_logger_stdout("scrapy", "elasticsearch", "asyncio", "protego", "urllib3", "requests")
         try:
-            parser = getattr(parsers, f"{parser_name}_parser")
-
-            self.logger.success("Parser found\n")
-
-            # Mute all output
-            logging.getLogger("urllib3").setLevel(logging.CRITICAL)
-            logging.getLogger("requests").setLevel(logging.CRITICAL)
-            logging.getLogger("scrapy").setLevel(logging.CRITICAL)
-            logging.getLogger("scrapy.spiders").setLevel(logging.CRITICAL)
-            logging.getLogger("scrapy").propagate = False
-            logging.getLogger("scrapy.spiders").propagate = False
-
-            # Clear log file
-            log_file = f"parse-{parser_name}.log"
-            try:
-                open(log_file, "w")
-            except Exception:
-                pass
-
-            parser(
-                logger=self.logger,
-                settings={
-                    # Log stdout and errors to file
-                    "LOG_FILE": log_file,
-                    "LOG_STDOUT": True,
-                },
-            )
-            self.logger.success("\nFinished parsing")
-        except AttributeError:
-            self.logger.error(f"Can't find parser [{parser_name}]")
+            catalogue_name: str = options["catalogue"]
+            logger.info("Running parser")
+            run_parser(options["type"], catalogue_name, url=options["url"])
+            logger.info("Finished parsing")
+        except (AttributeError, KeyError):
+            logger.error(f"Can't find Catalogue [{catalogue_name}]")
         except Exception:
-            self.logger.error(f"Some errors occured in the parser {parser_name}")
+            logger.error(f"Some errors occured in the parser {catalogue_name}")

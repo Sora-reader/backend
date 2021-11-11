@@ -1,15 +1,14 @@
 from datetime import timedelta
-from typing import Optional
 
 from django.db import models
-from django.db.models.fields import FloatField, TextField, URLField
+from django.db.models.fields import DateTimeField, FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
 from apps.core.abc.models import BaseModel
 from apps.core.fast import FastQuerySet
 from apps.core.utils import url_prefix
-from apps.parse.consts import SOURCE_MAP
+from apps.parse.const import SOURCE_TO_CATALOGUE_MAP
 
 
 class Category(BaseModel):
@@ -48,6 +47,8 @@ class PersonRelatedToManga(models.Model):
 
 
 class Chapter(models.Model):
+    manga = ForeignKey("Manga", models.CASCADE, related_name="chapters", null=True)
+
     title = TextField()
     link = URLField(max_length=2000)
     number = FloatField()
@@ -55,14 +56,6 @@ class Chapter(models.Model):
 
     def __str__(self) -> str:
         return self.title
-
-
-def get_source_from_source_url(source_url: str) -> Optional[str]:
-    """Reverse PARSERS lookup and return source_url"""
-
-    for url, source_name in SOURCE_MAP.items():
-        if url == source_url:
-            return source_name
 
 
 class Manga(BaseModel):
@@ -84,37 +77,23 @@ class Manga(BaseModel):
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
     rss_url = URLField(max_length=2000, null=True, blank=True)
-    chapters = ManyToManyField("Chapter", blank=True)
     genres = ManyToManyField("Genre", related_name="mangas", blank=True)
     categories = ManyToManyField("Category", related_name="mangas", blank=True)
-    updated_detail = models.DateTimeField(blank=True, null=True)
-    updated_chapters = models.DateTimeField(blank=True, null=True)
+    updated_detail = DateTimeField(blank=True, null=True)
     people_related = ManyToManyField(
         "Person", through="PersonRelatedToManga", related_name="mangas"
     )
 
     @property
     def source(self):
-        return get_source_from_source_url(url_prefix(self.source_url))
-
-    def related_people_filter(self, role: PersonRelatedToManga.Roles) -> QuerySet["Person"]:
-        return Person.objects.filter(manga_relations__manga=self, manga_relations__role=role)
+        return SOURCE_TO_CATALOGUE_MAP[url_prefix(self.source_url)]
 
     @property
-    def authors(self):
-        return self.related_people_filter(role=PersonRelatedToManga.Roles.author)
-
-    @property
-    def screenwriters(self):
-        return self.related_people_filter(role=PersonRelatedToManga.Roles.screenwriter)
-
-    @property
-    def illustrators(self):
-        return self.related_people_filter(role=PersonRelatedToManga.Roles.illustrator)
-
-    @property
-    def translators(self):
-        return self.related_people_filter(role=PersonRelatedToManga.Roles.translator)
+    def authors(self) -> QuerySet["Person"]:
+        """For admin use only"""
+        return Person.objects.filter(
+            manga_relations__manga=self, manga_relations__role=PersonRelatedToManga.Roles.author
+        )
 
     def save(self, **kwargs):
         if not self.image:
