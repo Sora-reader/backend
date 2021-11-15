@@ -19,6 +19,7 @@ SHELL_PLUS_PRINT_SQL_TRUNCATE = None
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_URLCONF = "manga_reader.urls"
 WSGI_APPLICATION = "manga_reader.wsgi.application"
+WEBDRIVER_PATH = os.getenv("WEBDRIVER_PATH", None)
 
 ############
 # Security #
@@ -50,9 +51,12 @@ INSTALLED_APPS = [
     "apps.core.apps.CoreConfig",
     "django_extensions",
     "django.contrib.postgres",
-    "silk",
     "django_elasticsearch_dsl",
 ]
+
+ELASTICSEARCH_DSL = {
+    "default": {"hosts": os.getenv("ELASTICSEARCH_HOST", "localhost:92000")},
+}
 
 #########
 # ADMIN #
@@ -278,28 +282,13 @@ sentry_sdk.init(
 )
 ignore_logger("django.security.DisallowedHost")
 
-#############
-# Pyppeteer #
-#############
-
-WEBDRIVER_PATH = os.getenv("WEBDRIVER_PATH", None)
-DEFAULT_LAUNCH_ARGS = {
-    "headless": True,
-    "args": ["--no-sandbox", "--disable-setuid-sandbox"],
-    "executablePath": WEBDRIVER_PATH,
-}
-
-
 ########
 # Silk #
 ########
 
 if DEBUG:
+    INSTALLED_APPS.append("silk")
     MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
-
-ELASTICSEARCH_DSL = {
-    "default": {"hosts": "localhost:9200"},
-}
 
 ##########
 # Logging #

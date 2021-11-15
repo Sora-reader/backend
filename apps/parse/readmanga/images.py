@@ -15,12 +15,12 @@ class ReadmangaImageSpider(scrapy.Spider):
         "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaImagePipeline": 300}
     }
 
-    def __init__(self, *, url: str):
-        self.start_urls = [url]
-        self.redis_client = init_redis_client()
+    def __init__(self, *args, url: str, **kwargs):
+        super().__init__(*args, **kwargs, start_urls=[url], redis_client=init_redis_client())
 
     def parse(self, response: HtmlResponse):
         images = re.search(r"rm_h.initReader\(.*(\[{2}.*\]{2}).*\)", response.text)
+        image_links = []
         if images:
             image_links = [
                 "".join(image[:COUNT_LINK_ELEMENTS])

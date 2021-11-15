@@ -17,8 +17,8 @@ class ReadmangaChapterSpider(scrapy.Spider):
         "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaChapterPipeline": 300}
     }
 
-    def __init__(self, *, url: str):
-        self.start_urls = [url]
+    def __init__(self, *args, url: str):
+        super().__init__(*args, start_urls=[url])
 
     def parse(self, response: XmlResponse) -> List[MangaChapterItem]:
         chapters = []

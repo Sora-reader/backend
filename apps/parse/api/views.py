@@ -32,9 +32,9 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         manga = self.get_fast_manga(pk)
         try:
             if needs_update(manga["updated_detail"]):
-                run_parser(DETAIL_PARSER, manga.source, manga["source_url"])
+                run_parser(DETAIL_PARSER, manga["source"], manga["source_url"])
         except Exception as e:
-            return format_error_response("Errors occured during parsing" + str(e))
+            return format_error_response("Errors occured during parsing " + str(e))
         return get_fast_response(manga)
 
     def list(self, request):
@@ -67,11 +67,11 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         manga: Manga = Manga.objects.prefetch_related("chapters").get(pk=pk)
 
         try:
-            if needs_update(manga["updated_detail"]):
-                run_parser(DETAIL_PARSER, manga.source, manga["source_url"])
-                run_parser(CHAPTER_PARSER, manga.source, manga["source_url"])
+            if needs_update(manga.updated_detail.isoformat()):
+                run_parser(DETAIL_PARSER, manga.source, manga.source_url)
+                run_parser(CHAPTER_PARSER, manga.source, manga.source_url)
         except Exception as e:
-            return format_error_response("Errors occured during parsing" + str(e))
+            return format_error_response("Errors occured during parsing " + str(e))
         return get_fast_response(
             list(manga.chapters.order_by("-volume", "-number").values(*CHAPTER_FIELDS))
         )

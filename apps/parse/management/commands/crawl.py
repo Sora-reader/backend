@@ -47,5 +47,5 @@ class Command(BaseCommand):
             logger.info("Finished parsing")
         except (AttributeError, KeyError):
             logger.error(f"Can't find Catalogue [{catalogue_name}]")
-        except Exception as e:
-            logger.error(f"Some errors occured in the parser {catalogue_name} {e}")
+        except Exception:
+            logger.error(f"Some errors occured in the parser {catalogue_name}")

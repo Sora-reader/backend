@@ -28,7 +28,7 @@ def bulk_get_or_create(cls: Type[BaseModel], names: List[str]) -> Tuple:
 class ReadmangaImagePipeline:
     @staticmethod
     def process_item(item: Dict[str, List[str]], spider: ReadmangaImageSpider):
-        url, images = item.items()[0]
+        url, images = next(iter(item.items()))
         spider.redis_client.delete(url)
         spider.redis_client.expire(url, IMAGE_UPDATE_FREQUENCY)
         spider.redis_client.rpush(url, *images)

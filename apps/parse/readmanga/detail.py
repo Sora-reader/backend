@@ -17,8 +17,8 @@ STAR_RATING_TAG = "//span[@class='rating-block']/@data-score"
 class ReadmangaDetailSpider(scrapy.Spider):
     name = "readmanga_detail"
 
-    def __init__(self, *, url: str):
-        self.start_urls = [url]
+    def __init__(self, *args, url: str):
+        super().__init__(*args, start_urls=[url])
 
     def parse(self, response: HtmlResponse):
         year = response.xpath(YEAR_TAG).extract_first("")

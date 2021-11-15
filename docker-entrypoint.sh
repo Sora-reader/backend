@@ -22,6 +22,14 @@ echo
 echo "Running migrations"
 ./manage.py migrate --no-input
 
+until curl --output /dev/null --silent --head --fail "http://$ELASTICSEARCH_HOST"; do
+    echo >&2 "Postgres is unavailable - sleeping"
+    sleep 1
+done
+echo
+echo "Rebuilding index"
+./manage.py search_index --rebuild
+
 echo "Running the server on port $PORT"
 
 core_count=$(grep 'cpu[0-9]' /proc/stat | wc -l)
