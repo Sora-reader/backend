@@ -24,20 +24,25 @@ class ReadmangaListSpider(CrawlSpider):
     start_urls = [LIST_URL]
     rules = [
         Rule(
-            LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]), follow=True, callback="parse"
+            LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]),
+            follow=True,
+            callback="parse_page",
         ),
     ]
     custom_settings = {
         "DEPTH_LIMIT": 400,
     }
 
-    def parse(self, response):
+    def parse_start_url(self, response, **kwargs):
+        return self.parse_page(response)
+
+    def parse_page(self, response):
         mangas: List[MangaItem] = []
         descriptions = response.xpath(MANGA_TILE_TAG).extract()
         for description in descriptions:
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
-            rating = parse_rating(response.xpath(STAR_RATE_TAG).extract_first(""))
+            rating = parse_rating(response.xpath(STAR_RATE_TAG).extract_first("")) / 2
             title = response.xpath(TITLE_TAG).extract_first("")
             source_url = response.xpath(SOURCE_URL_TAG).extract_first("")
             genres = response.xpath(GENRES_TAG).extract()

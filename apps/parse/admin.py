@@ -9,7 +9,7 @@ from apps.parse.models import Author, Chapter, Genre, Manga, Person, PersonRelat
 
 class ChapterInline(BaseTabularInline):
     model = Chapter
-    fields = ("chapter", "chapter_link")
+    fields = ("title", "chapter_link")
     verbose_name = "Chapter"
     verbose_name_plural = "Chapters"
     readonly_fields = ("chapter_link",)
