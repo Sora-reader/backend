@@ -67,7 +67,7 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         manga: Manga = Manga.objects.prefetch_related("chapters").get(pk=pk)
 
         try:
-            if needs_update(manga.updated_detail.isoformat()):
+            if not manga.updated_detail or needs_update(manga.updated_detail.isoformat()):
                 run_parser(DETAIL_PARSER, manga.source, manga.source_url)
                 run_parser(CHAPTER_PARSER, manga.source, manga.source_url)
         except Exception as e:

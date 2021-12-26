@@ -1,14 +1,37 @@
-from scrapy.crawler import CrawlerProcess
-from scrapy.utils.project import get_project_settings
+# from scrapy.crawler import CrawlerProcess, CrawlerRunner
+# from crochet import run_in_reactor, wait_for, setup
+# setup()
 
-from apps.parse.const import CATALOGUES
+import scrapydo
+
+from apps.parse.readmanga.chapter import ReadmangaChapterSpider
+
+scrapydo.setup()
 
 
+# @wait_for(10)
+# def run(spider, url):
+#     import time
+#     time.sleep(2)
+# process = CrawlerProcess(get_project_settings())
+#     process = CrawlerRunner(get_project_settings())
+
+#     process.crawl(spider, url=url)
+# process.start()
+
+# @run_in_reactor
 def run_parser(parser_type: str, catalogue_name: str = "readmanga", url: str = None):
-    catalogue = CATALOGUES[catalogue_name]
-    spider = catalogue["parsers"][parser_type]
+    # catalogue = CATALOGUES[catalogue_name]
+    # spider = catalogue["parsers"][parser_type]
 
-    process = CrawlerProcess(get_project_settings())
+    scrapydo.crawl(
+        url=url,
+        callback=ReadmangaChapterSpider.parse,
+        spider_cls=ReadmangaChapterSpider,
+    )
 
-    process.crawl(spider, url=url)
-    process.start()
+    # try:
+    # run(spider, url)
+    # Avoid scrapy's signal
+    # except ValueError:
+    # pass

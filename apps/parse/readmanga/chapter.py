@@ -17,10 +17,12 @@ class ReadmangaChapterSpider(scrapy.Spider):
         "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaChapterPipeline": 300}
     }
 
-    def __init__(self, *args, url: str):
-        super().__init__(*args, start_urls=[url])
+    # def __init__(self, *args, url: str):
+    # super().__init__(*args, start_urls=[url])
 
-    def parse(self, response: XmlResponse) -> List[MangaChapterItem]:
+    @staticmethod
+    # def parse(self, response: XmlResponse) -> List[MangaChapterItem]:
+    def parse(response: XmlResponse, *args, **kwargs) -> List[MangaChapterItem]:
         chapters = []
 
         items = response.xpath(ITEM_TAG)
@@ -39,6 +41,7 @@ class ReadmangaChapterSpider(scrapy.Spider):
             chapters.append(
                 MangaChapterItem(
                     **{
+                        "manga_rss_url": response.url,
                         "title": chapter_title,
                         "volume": volume,
                         "number": number,

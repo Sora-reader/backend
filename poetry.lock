@@ -1359,6 +1359,20 @@ w3lib = ">=1.17.0"
 "zope.interface" = ">=4.1.3"
 
 [[package]]
+name = "scrapydo"
+version = "0.2.2"
+description = "Crochet-based blocking API for Scrapy."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+crochet = ">=1.4.0"
+pygments = "*"
+Scrapy = ">=1.0.0"
+six = "*"
+
+[[package]]
 name = "sentry-sdk"
 version = "1.4.3"
 description = "Python client for Sentry (https://sentry.io)"
@@ -1617,7 +1631,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "8e80492e86d70e3b4c8383920d182078984470f8b7bc14f787a3eb696d1de687"
+content-hash = "4fa71d78b130f07bb3a8472bae777f984b6f682d18144a969b9604b16b07621b"
 
 [metadata.files]
 amqp = [
@@ -2396,6 +2410,9 @@ rich = [
 scrapy = [
     {file = "Scrapy-2.5.1-py2.py3-none-any.whl", hash = "sha256:1a9a36970004950ee3c519a14c4db945f9d9a63fecb3d593dddcda477331dde9"},
     {file = "Scrapy-2.5.1.tar.gz", hash = "sha256:13af6032476ab4256158220e530411290b3b934dd602bb6dacacbf6d16141f49"},
+]
+scrapydo = [
+    {file = "scrapydo-0.2.2.tar.gz", hash = "sha256:376ce6fd133dfcefcc1ac5e2d61e768ea38866467c3ba36caa73b0e5b66876b9"},
 ]
 sentry-sdk = [
     {file = "sentry-sdk-1.4.3.tar.gz", hash = "sha256:b9844751e40710e84a457c5bc29b21c383ccb2b63d76eeaad72f7f1c808c8828"},

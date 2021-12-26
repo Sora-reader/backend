@@ -1,3 +1,4 @@
+import logging
 from copy import deepcopy
 from typing import Dict, List, Tuple, Type
 
@@ -15,6 +16,8 @@ from apps.parse.readmanga.images import ReadmangaImageSpider
 from apps.parse.readmanga.list.spider import ReadmangaListSpider
 from apps.parse.scrapy.items import MangaChapterItem
 from apps.parse.utils import save_persons
+
+logger = logging.getLogger("scrapy")
 
 
 @transaction.atomic
@@ -37,7 +40,11 @@ class ReadmangaImagePipeline:
 class ReadmangaChapterPipeline:
     @staticmethod
     def process_item(chapter: MangaChapterItem, spider: ReadmangaChapterSpider):
-        manga = Manga.objects.get(rss_url=spider.start_urls[0])
+        # with open('pipeline.log', 'w') as f:
+        #     # f.write("LOG")
+        logger.warning("HEY!")
+        rss_url = chapter.pop("manga_rss_url")
+        manga = Manga.objects.get(rss_url=rss_url)
         Chapter.objects.get_or_create(
             manga=manga,
             **chapter,

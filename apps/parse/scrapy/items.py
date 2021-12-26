@@ -30,3 +30,5 @@ class MangaChapterItem(Item):
     volume = Field()
     number = Field()
     link = Field()
+    # Meta
+    manga_rss_url = Field()
