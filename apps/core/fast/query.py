@@ -1,10 +1,12 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Dict, Tuple, Union
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.expressions import Case, Value, When
 from django.db.models.fields import TextField
 from django.db.models.query import QuerySet
+from django.db.models.query_utils import Q
 from typing_extensions import Annotated
 
 from apps.core.abc.models import BaseModel
@@ -21,6 +23,8 @@ class FastQuerySet(QuerySet):
 
     TYPE_MAP: Annotated[dict, "Mapping to convert DB returned types into JSON-valid types"] = {
         datetime: str,
+        # Help orjson a bit
+        Decimal: float,
     }
 
     def mangle_annotation(self, field: str) -> str:
@@ -46,7 +50,12 @@ class FastQuerySet(QuerySet):
             if type(args) is tuple:
                 output = ArrayAgg(args[0], filter=args[1], distinct=True)
             else:
-                output = ArrayAgg(args, distinct=True)
+                output = ArrayAgg(
+                    args,
+                    # Avoid [null] arrays when using ArrayAgg
+                    filter=Q(**{f"{args}__isnull": False}),
+                    distinct=True,
+                )
             annotation[self.mangle_annotation(field)] = output
 
         return self.annotate(**annotation)

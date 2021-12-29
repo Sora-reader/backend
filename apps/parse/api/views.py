@@ -31,7 +31,8 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     def retrieve(self, _, pk, *args, **kwargs):
         manga = self.get_fast_manga(pk)
         try:
-            if needs_update(manga["updated_detail"]):
+            criterea = manga["updated_detail"]
+            if not criterea or needs_update(criterea):
                 run_parser(DETAIL_PARSER, manga["source"], manga["source_url"])
         except Exception as e:
             return format_error_response("Errors occurred during parsing " + str(e))
@@ -67,7 +68,8 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         manga: Manga = Manga.objects.prefetch_related("chapters").get(pk=pk)
 
         try:
-            if not manga.updated_detail or needs_update(manga.updated_detail.isoformat()):
+            criterea = manga.updated_detail
+            if not criterea or needs_update(criterea.isoformat()):
                 run_parser(DETAIL_PARSER, manga.source, manga.source_url)
                 run_parser(CHAPTER_PARSER, manga.source, manga.source_url)
         except Exception as e:
