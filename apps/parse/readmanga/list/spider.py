@@ -6,6 +6,7 @@ from scrapy.spiders.crawl import CrawlSpider, Rule
 
 from apps.parse.readmanga.list.utils import parse_rating
 from apps.parse.scrapy.items import MangaItem
+from apps.parse.scrapy.spider import InjectUrlMixin
 
 READMANGA_URL = "https://readmanga.io"
 LIST_URL = f"{READMANGA_URL}/list"
@@ -14,24 +15,19 @@ MANGA_TILE_TAG = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md
 STAR_RATE_TAG = '//div[@class = "rating"]/@title'
 TITLE_TAG = "//h3/a[1]/@title"
 SOURCE_URL_TAG = "//h3/a[1]/@href"
-GENRES_TAG = '//div[@class = "tile-info"]//a[@class = "element-link"]/text()'
+GENRES_TAG = '//div[@class = "tile-info"]//a[contains(@class, "badge")]/text()'
 THUMBNAIL_IMG_URL_TAG = '//img[contains(@class, "lazy")][1]/@data-original'
 ALT_TITLE_URL = "//h4[@title]//text()"
 
 
-import logging
-
-logger = logging.getLogger("django")
-
-
-class ReadmangaListSpider(CrawlSpider):
+class ReadmangaListSpider(InjectUrlMixin, CrawlSpider):
     name = "readmanga_list"
     start_urls = [LIST_URL]
     rules = [
         Rule(
             LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]),
             follow=True,
-            callback="callback",
+            callback="parse",
         ),
     ]
     custom_settings = {
@@ -39,10 +35,9 @@ class ReadmangaListSpider(CrawlSpider):
     }
 
     def parse_start_url(self, response, **kwargs):
-        return self.callback(response)
+        return self.parse(response, **kwargs)
 
-    @staticmethod
-    def callback(response):
+    def parse(self, response):
         mangas: List[MangaItem] = []
         descriptions = response.xpath(MANGA_TILE_TAG).extract()
         for description in descriptions:
@@ -69,9 +64,7 @@ class ReadmangaListSpider(CrawlSpider):
                     }
                 )
             )
-            # self.logger.info('Parsed manga "{}"'.format(title))
-            logger.info('Parsed manga "{}"'.format(title))
+            self.logger.info('Parsed manga "{}"'.format(title))
 
-        # self.logger.info("===================")
-        logger.info("===================")
+        self.logger.info("===================")
         return mangas

@@ -39,7 +39,6 @@ django-elasticsearch-dsl = { git = "https://github.com/dhvcc/django-elasticsearc
 colorlog = "^6.5.0"
 celery = "^5.2.0"
 crochet = "^2.0.0"
-scrapydo = "^0.2.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

@@ -5,11 +5,12 @@ import ujson
 from scrapy.http import HtmlResponse
 
 from apps.core.utils import init_redis_client
+from apps.parse.scrapy.spider import InjectUrlMixin
 
 COUNT_LINK_ELEMENTS = 3
 
 
-class ReadmangaImageSpider(scrapy.Spider):
+class ReadmangaImageSpider(InjectUrlMixin, scrapy.Spider):
     name = "readmanga_image"
     custom_settings = {
         "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaImagePipeline": 300}

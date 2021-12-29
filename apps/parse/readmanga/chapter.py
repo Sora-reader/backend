@@ -5,24 +5,20 @@ import scrapy
 from scrapy.http import XmlResponse
 
 from apps.parse.scrapy.items import MangaChapterItem
+from apps.parse.scrapy.spider import InjectUrlMixin
 
 ITEM_TAG = "//item"
 LINK_TAG = 'guid[@isPermaLink="true"]/text()'
 TITLE_TAG = ".//title/text()"
 
 
-class ReadmangaChapterSpider(scrapy.Spider):
+class ReadmangaChapterSpider(InjectUrlMixin, scrapy.Spider):
     name = "readmanga_chapter"
     custom_settings = {
         "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaChapterPipeline": 300}
     }
 
-    # def __init__(self, *args, url: str):
-    # super().__init__(*args, start_urls=[url])
-
-    @staticmethod
-    # def parse(self, response: XmlResponse) -> List[MangaChapterItem]:
-    def callback(response: XmlResponse, *args, **kwargs) -> List[MangaChapterItem]:
+    def parse(self, response: XmlResponse) -> List[MangaChapterItem]:
         chapters = []
 
         items = response.xpath(ITEM_TAG)

@@ -42,7 +42,7 @@ class ReadmangaChapterPipeline:
     def process_item(chapter: MangaChapterItem, spider: ReadmangaChapterSpider):
         # with open('pipeline.log', 'w') as f:
         #     # f.write("LOG")
-        logger.warning("HEY!")
+        # logger.warning("HEY!")
         rss_url = chapter.pop("manga_rss_url")
         manga = Manga.objects.get(rss_url=rss_url)
         Chapter.objects.get_or_create(
