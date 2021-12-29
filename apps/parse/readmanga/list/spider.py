@@ -19,6 +19,11 @@ THUMBNAIL_IMG_URL_TAG = '//img[contains(@class, "lazy")][1]/@data-original'
 ALT_TITLE_URL = "//h4[@title]//text()"
 
 
+import logging
+
+logger = logging.getLogger("django")
+
+
 class ReadmangaListSpider(CrawlSpider):
     name = "readmanga_list"
     start_urls = [LIST_URL]
@@ -26,7 +31,7 @@ class ReadmangaListSpider(CrawlSpider):
         Rule(
             LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]),
             follow=True,
-            callback="parse_page",
+            callback="callback",
         ),
     ]
     custom_settings = {
@@ -34,9 +39,10 @@ class ReadmangaListSpider(CrawlSpider):
     }
 
     def parse_start_url(self, response, **kwargs):
-        return self.parse_page(response)
+        return self.callback(response)
 
-    def parse_page(self, response):
+    @staticmethod
+    def callback(response):
         mangas: List[MangaItem] = []
         descriptions = response.xpath(MANGA_TILE_TAG).extract()
         for description in descriptions:
@@ -63,7 +69,9 @@ class ReadmangaListSpider(CrawlSpider):
                     }
                 )
             )
-            self.logger.info('Parsed manga "{}"'.format(title))
+            # self.logger.info('Parsed manga "{}"'.format(title))
+            logger.info('Parsed manga "{}"'.format(title))
 
-        self.logger.info("===================")
+        # self.logger.info("===================")
+        logger.info("===================")
         return mangas

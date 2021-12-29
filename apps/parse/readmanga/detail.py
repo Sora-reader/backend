@@ -17,10 +17,8 @@ STAR_RATING_TAG = "//span[@class='rating-block']/@data-score"
 class ReadmangaDetailSpider(scrapy.Spider):
     name = "readmanga_detail"
 
-    def __init__(self, *args, url: str):
-        super().__init__(*args, start_urls=[url])
-
-    def parse(self, response: HtmlResponse):
+    @staticmethod
+    def callback(response: HtmlResponse):
         year = response.xpath(YEAR_TAG).extract_first("")
         description = response.xpath(DESCRIPTION_TAG).extract_first("")
         rating = response.xpath(STAR_RATING_TAG).extract_first(0.0)
@@ -33,7 +31,7 @@ class ReadmangaDetailSpider(scrapy.Spider):
         return [
             MangaItem(
                 **{
-                    "source_url": self.start_urls[0],
+                    "source_url": response.url,
                     "authors": authors,
                     "year": year,
                     "rating": rating,

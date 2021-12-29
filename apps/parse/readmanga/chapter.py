@@ -22,7 +22,7 @@ class ReadmangaChapterSpider(scrapy.Spider):
 
     @staticmethod
     # def parse(self, response: XmlResponse) -> List[MangaChapterItem]:
-    def parse(response: XmlResponse, *args, **kwargs) -> List[MangaChapterItem]:
+    def callback(response: XmlResponse, *args, **kwargs) -> List[MangaChapterItem]:
         chapters = []
 
         items = response.xpath(ITEM_TAG)
