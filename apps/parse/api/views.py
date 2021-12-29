@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.http.response import Http404
 from rest_framework import mixins, status, viewsets
@@ -34,6 +36,10 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             criterea = manga["updated_detail"]
             if not criterea or needs_update(criterea):
                 run_parser(DETAIL_PARSER, manga["source"], manga["source_url"])
+                run_parser(CHAPTER_PARSER, manga["source"], manga["source_url"])
+                now = datetime.now()
+                Manga.objects.filter(pk=pk).update(updated_detail=now)
+                manga["updated_detail"] = now
         except Exception as e:
             return format_error_response("Errors occurred during parsing " + str(e))
         return get_fast_response(manga)
@@ -72,6 +78,8 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             if not criterea or needs_update(criterea.isoformat()):
                 run_parser(DETAIL_PARSER, manga.source, manga.source_url)
                 run_parser(CHAPTER_PARSER, manga.source, manga.source_url)
+                manga.updated_detail = datetime.now()
+                manga.save()
         except Exception as e:
             return format_error_response("Errors occurred during parsing " + str(e))
         return get_fast_response(
