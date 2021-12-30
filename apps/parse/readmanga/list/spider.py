@@ -6,6 +6,7 @@ from scrapy.spiders.crawl import CrawlSpider, Rule
 
 from apps.parse.readmanga.list.utils import parse_rating
 from apps.parse.scrapy.items import MangaItem
+from apps.parse.scrapy.spider import InjectUrlMixin
 
 READMANGA_URL = "https://readmanga.io"
 LIST_URL = f"{READMANGA_URL}/list"
@@ -14,22 +15,27 @@ MANGA_TILE_TAG = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md
 STAR_RATE_TAG = '//div[@class = "rating"]/@title'
 TITLE_TAG = "//h3/a[1]/@title"
 SOURCE_URL_TAG = "//h3/a[1]/@href"
-GENRES_TAG = '//div[@class = "tile-info"]//a[@class = "element-link"]/text()'
+GENRES_TAG = '//div[@class = "tile-info"]//a[contains(@class, "badge")]/text()'
 THUMBNAIL_IMG_URL_TAG = '//img[contains(@class, "lazy")][1]/@data-original'
 ALT_TITLE_URL = "//h4[@title]//text()"
 
 
-class ReadmangaListSpider(CrawlSpider):
+class ReadmangaListSpider(InjectUrlMixin, CrawlSpider):
     name = "readmanga_list"
     start_urls = [LIST_URL]
     rules = [
         Rule(
-            LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]), follow=True, callback="parse"
+            LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]),
+            follow=True,
+            callback="parse",
         ),
     ]
     custom_settings = {
         "DEPTH_LIMIT": 400,
     }
+
+    def parse_start_url(self, response, **kwargs):
+        return self.parse(response, **kwargs)
 
     def parse(self, response):
         mangas: List[MangaItem] = []
@@ -37,7 +43,7 @@ class ReadmangaListSpider(CrawlSpider):
         for description in descriptions:
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
-            rating = parse_rating(response.xpath(STAR_RATE_TAG).extract_first(""))
+            rating = parse_rating(response.xpath(STAR_RATE_TAG).extract_first("")) / 2
             title = response.xpath(TITLE_TAG).extract_first("")
             source_url = response.xpath(SOURCE_URL_TAG).extract_first("")
             genres = response.xpath(GENRES_TAG).extract()

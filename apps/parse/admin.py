@@ -9,7 +9,7 @@ from apps.parse.models import Author, Chapter, Genre, Manga, Person, PersonRelat
 
 class ChapterInline(BaseTabularInline):
     model = Chapter
-    fields = ("chapter", "chapter_link")
+    fields = ("title", "chapter_link")
     verbose_name = "Chapter"
     verbose_name_plural = "Chapters"
     readonly_fields = ("chapter_link",)
@@ -54,7 +54,7 @@ class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
         "status",
         "genre_list",
     )
-    list_filter = ("genres", SourceFilter)
+    # list_filter = ("genres", SourceFilter)
 
     def custom_title(self, obj: Manga):
         concat = f"{obj.title}{', ' + obj.year if obj.year else ''}"
@@ -98,4 +98,4 @@ class ChapterAdmin(BaseAdmin, admin.ModelAdmin):
     }
 
     def manga_name(self, obj):
-        return obj.manga_set.first().title
+        return obj.manga.title

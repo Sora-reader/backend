@@ -37,6 +37,8 @@ orjson = "^3.6.4"
 ujson = "^4.2.0"
 django-elasticsearch-dsl = { git = "https://github.com/dhvcc/django-elasticsearch-dsl.git", rev = "master" }
 colorlog = "^6.5.0"
+celery = "^5.2.0"
+crochet = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

@@ -48,6 +48,7 @@ services:
 
   elasticsearch:
     image: elasticsearch:7.14.2
+    restart: unless-stopped
     environment:
       - discovery.type=single-node
     volumes:

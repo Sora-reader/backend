@@ -2,6 +2,7 @@ import scrapy
 from scrapy.http import HtmlResponse
 
 from apps.parse.scrapy.items import MangaItem
+from apps.parse.scrapy.spider import InjectUrlMixin
 
 RSS_TAG = "//head/link[@type='application/rss+xml'][1]/@href"
 AUTHORS_TAG = "//span[@class='elem_author ']/a[@class='person-link']/text()"
@@ -14,11 +15,8 @@ DESCRIPTION_TAG = "//meta[@itemprop='description'][1]/@content"
 STAR_RATING_TAG = "//span[@class='rating-block']/@data-score"
 
 
-class ReadmangaDetailSpider(scrapy.Spider):
+class ReadmangaDetailSpider(InjectUrlMixin, scrapy.Spider):
     name = "readmanga_detail"
-
-    def __init__(self, *, url: str):
-        self.start_urls = [url]
 
     def parse(self, response: HtmlResponse):
         year = response.xpath(YEAR_TAG).extract_first("")
@@ -33,7 +31,7 @@ class ReadmangaDetailSpider(scrapy.Spider):
         return [
             MangaItem(
                 **{
-                    "source_url": self.start_urls[0],
+                    "source_url": response.url,
                     "authors": authors,
                     "year": year,
                     "rating": rating,

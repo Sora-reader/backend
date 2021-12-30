@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.db import models
-from django.db.models.fields import DateTimeField, FloatField, TextField, URLField
+from django.db.models.fields import DateTimeField, DecimalField, FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
@@ -67,7 +67,7 @@ class Manga(BaseModel):
 
     title = TextField()
     alt_title = TextField(null=True, blank=True)
-    rating = FloatField(default=0)
+    rating = DecimalField(default=0, max_digits=4, decimal_places=2)
     thumbnail = URLField(max_length=2000, default="", blank=True)
     image = URLField(max_length=2000, default="", blank=True)
     description = TextField(default="", blank=True)

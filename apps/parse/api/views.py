@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.http.response import Http404
 from rest_framework import mixins, status, viewsets
@@ -31,10 +33,15 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     def retrieve(self, _, pk, *args, **kwargs):
         manga = self.get_fast_manga(pk)
         try:
-            if needs_update(manga["updated_detail"]):
-                run_parser(DETAIL_PARSER, manga.source, manga["source_url"])
+            criterea = manga["updated_detail"]
+            if not criterea or needs_update(criterea):
+                run_parser(DETAIL_PARSER, manga["source"], manga["source_url"])
+                run_parser(CHAPTER_PARSER, manga["source"], manga["source_url"])
+                now = datetime.now()
+                Manga.objects.filter(pk=pk).update(updated_detail=now)
+                manga["updated_detail"] = now
         except Exception as e:
-            return format_error_response("Errors occured during parsing" + str(e))
+            return format_error_response("Errors occurred during parsing " + str(e))
         return get_fast_response(manga)
 
     def list(self, request):
@@ -67,11 +74,14 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         manga: Manga = Manga.objects.prefetch_related("chapters").get(pk=pk)
 
         try:
-            if needs_update(manga["updated_detail"]):
-                run_parser(DETAIL_PARSER, manga.source, manga["source_url"])
-                run_parser(CHAPTER_PARSER, manga.source, manga["source_url"])
+            criterea = manga.updated_detail
+            if not criterea or needs_update(criterea.isoformat()):
+                run_parser(DETAIL_PARSER, manga.source, manga.source_url)
+                run_parser(CHAPTER_PARSER, manga.source, manga.source_url)
+                manga.updated_detail = datetime.now()
+                manga.save()
         except Exception as e:
-            return format_error_response("Errors occured during parsing" + str(e))
+            return format_error_response("Errors occurred during parsing " + str(e))
         return get_fast_response(
             list(manga.chapters.order_by("-volume", "-number").values(*CHAPTER_FIELDS))
         )
@@ -87,4 +97,8 @@ class MangaViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         images = self.redis_client.lrange(chapter.link, 0, -1)
         if not images or parse is not None:
             run_parser(IMAGE_PARSER, chapter.manga.source, chapter.link)
-        return Response(self.redis_client.lrange(chapter.link, 0, -1), status=status.HTTP_200_OK)
+            return Response(
+                {"message": "started parsing images, refetch later"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(images, status=status.HTTP_200_OK)
