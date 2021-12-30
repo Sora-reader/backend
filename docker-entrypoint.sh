@@ -23,7 +23,7 @@ echo "Running migrations"
 ./manage.py migrate --no-input
 
 until curl --output /dev/null --silent --head --fail "http://$ELASTICSEARCH_HOST"; do
-    echo >&2 "Postgres is unavailable - sleeping"
+    echo >&2 "Elasticsearch is unavailable - sleeping"
     sleep 1
 done
 echo

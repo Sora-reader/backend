@@ -5,13 +5,13 @@ services:
   web:
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     expose:
       - 8000
     environment:
       - PORT=8000
     ports:
-      - "8880:8000"
+      - "8888:8000"
     volumes:
       - ./:/app
       # exclude dotenvs in volume
