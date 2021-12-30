@@ -28,8 +28,9 @@ until curl --output /dev/null --silent --head --fail "http://$ELASTICSEARCH_HOST
 done
 echo
 echo "Rebuilding index"
-./manage.py search_index --rebuild
+./manage.py search_index --rebuild -f
 
+PORT="${PORT:-8000}"
 echo "Running the server on port $PORT"
 
 core_count=$(grep 'cpu[0-9]' /proc/stat | wc -l)
