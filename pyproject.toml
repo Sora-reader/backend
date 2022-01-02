@@ -35,7 +35,7 @@ Werkzeug = "0.16.0"
 django-silk = "^4.1.0"
 orjson = "^3.6.4"
 ujson = "^4.2.0"
-django-elasticsearch-dsl = { git = "https://github.com/dhvcc/django-elasticsearch-dsl.git", rev = "master" }
+django-elasticsearch-dsl = { git = "https://github.com/dhvcc/django-elasticsearch-dsl.git", rev = "53598a336915a795467233f091f3c30836f0f758" }
 colorlog = "^6.5.0"
 celery = "^5.2.0"
 crochet = "^2.0.0"
