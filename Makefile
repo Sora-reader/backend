@@ -1,6 +1,8 @@
 ##########
 # Config #
 ##########
+SHELL = bash
+print = echo -e
 
 CYAN ?= \033[0;36m
 RED ?= \033[0;31m
@@ -33,15 +35,11 @@ check-venv:
 
 env: ## Copy env examples and init .envs directory
 	@mkdir -p .envs
-	@cp -R .envs.example/. .envs
-	@for file in .envs/*.example; do \
-		if [ -f "$${file%%.example}" ]; then
-			rm "$$file"
-		else
-			mv --backup=numbered "$$file" "$${file%%.example}"
-		fi;
+	@for file in .envs.example/*; do
+			[[ "$$file" != *deployment* ]] && \
+			echo "$$file" ".envs/$$(basename ".envs/$${file%%.example}")"
 	@done
-	@echo "${CYAN}Done${COFF}"
+	@$(print) "${CYAN}Done${COFF}"
 
 githooks:
 	@$(interpreter) pre-commit install -t=pre-commit -t=pre-push
@@ -49,7 +47,7 @@ githooks:
 venv: ## Create virtual environment and install all dependencies
 	@python3.8 -m pip install poetry==1.1.4
 	@poetry install && \
-	echo; echo "${CYAN}Created venv and installed all dependencies${COFF}"
+	$(print); $(print) "${CYAN}Created venv and installed all dependencies${COFF}"
 
 shell: check-dotenv check-venv ## Run django-extension's shell_plus
 	@$(interpreter) ./manage.py shell_plus --ipython --print-sql -- -i -c """
@@ -70,13 +68,13 @@ runserver: check-dotenv check-venv  ## Run dev server on port 8000, or specify w
 	@. ./.envs/local.env && if [ "$(DEBUG)" = 0 ]; then ./manage.py collectstatic --noinput --clear; fi
 	@$(interpreter) ./manage.py migrate --noinput
 	@$(interpreter) ./manage.py runserver 0.0.0.0:$(port)
-	@echo "${CYAN}Backend is running on localhost:$(port)${COFF}"
+	@$(print) "${CYAN}Backend is running on localhost:$(port)${COFF}"
 
 development: ## run dev docker
 	@# Force recreate to reload NGINX config
 	@# as it won't rebuild because the config is passed as a volume
 	@docker-compose -f ${COMPOSE} up -d --build --force-recreate
-	@echo "${CYAN}Backend is running on http://localhost:8880${COFF}"
+	@$(print) "${CYAN}Backend is running on http://localhost:8880${COFF}"
 
 stop: ## stop docker containers
 	@docker-compose -f ${COMPOSE} down
@@ -89,17 +87,17 @@ clear: ## down containers and clear volumes
 ###############
 
 check: check-venv ## Run linters
-	@echo "flake8"
-	@echo "======"
+	@$(print) "flake8"
+	@$(print) "======"
 	@$(interpreter) flake8 || exit 1
-	@echo "OK"
-	@echo;
-	@echo "black"
-	@echo "======"
+	@$(print) "OK"
+	@$(print);
+	@$(print) "black"
+	@$(print) "======"
 	@$(interpreter) black --check . || exit 1
-	@echo;
-	@echo "isort"
-	@echo "======"
+	@$(print);
+	@$(print) "isort"
+	@$(print) "======"
 	@$(interpreter) isort --check-only .
 
 # Fix $(filename) with autoflake ignoring extracted files from .flake8
@@ -108,15 +106,15 @@ autoflake_fix:
 	@$(interpreter) autoflake -i --remove-all-unused-imports --exclude $(extract_ignores) $(filename)
 
 fix: check-venv ## Run code formatters
-	@echo "autoflake"
-	@echo "========="
+	@$(print) "autoflake"
+	@$(print) "========="
 	@$(interpreter) autoflake -ri --remove-all-unused-imports --exclude $(extract_ignores) .
-	@echo "black"
-	@echo "====="
+	@$(print) "black"
+	@$(print) "====="
 	@$(interpreter) black .
-	@echo;
-	@echo "isort"
-	@echo "====="
+	@$(print);
+	@$(print) "isort"
+	@$(print) "====="
 	@$(interpreter) isort .
 
 watch-sass:
