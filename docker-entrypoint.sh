@@ -34,4 +34,4 @@ PORT="${PORT:-8000}"
 echo "Running the server on port $PORT"
 
 core_count=$(grep 'cpu[0-9]' /proc/stat | wc -l)
-gunicorn manga_reader.wsgi:application --bind 127.0.0.1:$PORT --workers $(expr $core_count \* 2 + 1)
+gunicorn manga_reader.wsgi:application --bind $HOST:$PORT --workers $(expr $core_count \* 2 + 1)
