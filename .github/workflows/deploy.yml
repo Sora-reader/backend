@@ -1,0 +1,29 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows:
+      - "pre-commit"
+    branches: [ develop ]
+    types:
+      - "completed"
+
+jobs:
+  ssh-trigger-deploy:
+    environment:
+      name: "Main"
+      url: "https://backend.sora-reader.app"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to ssh server
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          debug: true
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script : |
+            . $HOME/.profile
+            cd "$DEPLOYMENT_DIR"
+            make deploy backend
+
