@@ -23,13 +23,6 @@ sudo apt-get install -y \
     make
 ```
 
-```bash
-pip install poetry
-sudo snap install docker --classic
-# Don't forget to follow post installation steps
-# https://docs.docker.com/engine/install/linux-postinstall/
-```
-
 ## Usage
 
 Use `make` for project management
