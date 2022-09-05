@@ -8,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenViewBase
 
 from apps.login.serializers import users
+import logging
 
 
 class SignUpView(APIView):
@@ -31,15 +32,15 @@ class SignInView(TokenViewBase):
 
 class SignOutView(APIView):
     def get(self, request):
-        print("Blacklisting")
+        logging.info("Blacklisting")
         refresh = request.COOKIES.get("sora_refresh")
         if refresh:
             try:
-                print("Blocking token ", refresh)
+                logging.info("Blocking token ", refresh)
                 token = RefreshToken(refresh)
                 token.blacklist()
             except (TokenError, TokenBackendError):
-                print("Token already expired")
+                logging.info("Token already expired")
         else:
-            print("No token, nothing to blacklist")
+            logging.info("No token, nothing to blacklist")
         return HttpResponse(status=200)

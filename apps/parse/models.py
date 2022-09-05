@@ -6,7 +6,6 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
 from apps.core.abc.models import BaseModel
-from apps.core.fast import FastQuerySet
 from apps.core.utils import url_prefix
 from apps.parse.const import SOURCE_TO_CATALOGUE_MAP
 
@@ -59,7 +58,6 @@ class Chapter(models.Model):
 
 
 class Manga(BaseModel):
-    objects = models.Manager.from_queryset(FastQuerySet)()
     NAME_FIELD = "title"
 
     BASE_UPDATE_FREQUENCY = timedelta(hours=1)
