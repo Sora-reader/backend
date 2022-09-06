@@ -1,8 +1,34 @@
-from ninja import NinjaAPI
+from functools import reduce
 
-api = NinjaAPI()
+from elasticsearch_dsl import Q
+from ninja import Router
+from typing import List
+from django.shortcuts import get_object_or_404
+
+from apps.parse.documents import MangaDocument
+from apps.parse.models import Manga
+from apps.parse.api.schemas import MangaOut
+
+router = Router(tags=["Manga"])
 
 
-@api.get("hello/")
-def hello(request):
-    return "Hello world"
+@router.get("/search", response=List[MangaOut])
+def search_manga(request, title: str):
+    title = title.split(" ")
+
+    def fuzzy_query(title_part: str):
+        return Q("fuzzy", title=title_part)
+
+    if len(title) > 1:
+        query = reduce(lambda a, b: fuzzy_query(a) | fuzzy_query(b), title)
+    else:
+        query = fuzzy_query(title[0])
+
+    qs = MangaDocument.search().query(query).to_queryset()
+    return qs
+
+
+@router.get("/{manga_id}", response=MangaOut)
+def get_manga(request, manga_id: int):
+    manga = get_object_or_404(Manga, id=manga_id)
+    return manga

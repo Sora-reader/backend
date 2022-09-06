@@ -1,24 +1,19 @@
-import copy
-import logging
 import os
-from datetime import timedelta
-from functools import partial
 from pathlib import Path
 
 import dj_database_url
 import environ
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, True),
     ALLOWED_HOSTS=(lambda a: a.split(" "), ["*"]),
     DJANGO_LOG_LEVEL=(str, "INFO"),
-    REDIS_URL=(str, "redis://localhost:6079"),
-    ELASTICSEARCH_HOST=(str, "localhost:92000"),
+    REDIS_URL=(str, "redis://localhost:8883"),
+    ELASTICSEARCH_HOST=(str, "localhost:9200"),
     PROXY=(str, ""),
 )
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 ###########
 # Project #
@@ -162,7 +157,7 @@ MIDDLEWARE = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 DATABASES = {
-    'default': dj_database_url.config(default='postgres://postgres:postgres@localhost:5432/sora'),
+    "default": dj_database_url.config(default="postgres://postgres:postgres@localhost:8882/sora"),
 }
 
 #################
@@ -184,10 +179,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
-    'django.contrib.auth.hashers.ScryptPasswordHasher',
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher",
 ]
 
 ###########
@@ -234,22 +229,22 @@ USE_TZ = True
 ##########
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': env('DJANGO_LOG_LEVEL'),
-            'propagate': False,
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": env("DJANGO_LOG_LEVEL"),
+            "propagate": False,
         },
     },
 }

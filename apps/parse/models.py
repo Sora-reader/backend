@@ -1,9 +1,10 @@
 from datetime import timedelta
 
 from django.db import models
-from django.db.models.fields import DateTimeField, DecimalField, FloatField, TextField, URLField
+from django.db.models.fields import DecimalField, FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
+from django_extensions.db.models import TimeStampedModel
 
 from apps.core.abc.models import BaseModel
 from apps.core.utils import url_prefix
@@ -57,7 +58,7 @@ class Chapter(models.Model):
         return self.title
 
 
-class Manga(BaseModel):
+class Manga(BaseModel, TimeStampedModel):
     NAME_FIELD = "title"
 
     BASE_UPDATE_FREQUENCY = timedelta(hours=1)
@@ -77,7 +78,6 @@ class Manga(BaseModel):
     rss_url = URLField(max_length=2000, null=True, blank=True)
     genres = ManyToManyField("Genre", related_name="mangas", blank=True)
     categories = ManyToManyField("Category", related_name="mangas", blank=True)
-    updated_detail = DateTimeField(blank=True, null=True)
     people_related = ManyToManyField(
         "Person", through="PersonRelatedToManga", related_name="mangas"
     )
