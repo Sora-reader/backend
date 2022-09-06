@@ -1,6 +1,6 @@
 #!/bin/bash
 
-until pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER"; do
+until pg_isready "$DATBASE_URL"; do
     echo >&2 "Postgres is unavailable - sleeping"
     sleep 1
 done
