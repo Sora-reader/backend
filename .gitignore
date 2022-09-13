@@ -180,3 +180,4 @@ redis.conf
 .vim
 nohup.out
 .vscode
+tests/.jmeter*

@@ -86,6 +86,11 @@ clear: ## down containers and clear volumes
 # Code checks #
 ###############
 
+jmeter: ## Run jmeter tests
+	cd tests
+	rm -rf .jmeter_report .jmeter_results
+	jmeter -n -t Manga.jmx -l .jmeter_results -e -o .jmeter_results && firefox .jmeter_report/index.html
+
 check: check-venv ## Run linters
 	@$(print) "flake8"
 	@$(print) "======"

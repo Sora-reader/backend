@@ -1,15 +1,40 @@
 from functools import reduce
+from typing import List
 
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from elasticsearch import AsyncElasticsearch
 from elasticsearch_dsl import Q
 from ninja import Router
-from typing import List
-from django.shortcuts import get_object_or_404
 
+from apps.core.utils import async_es_search_to_queryset
+from apps.parse.api.schemas import MangaOut
 from apps.parse.documents import MangaDocument
 from apps.parse.models import Manga
-from apps.parse.api.schemas import MangaOut
 
 router = Router(tags=["Manga"])
+
+
+@router.get("/search/async", response=List[MangaOut])
+async def search_manga(request, title: str):
+    client = AsyncElasticsearch(settings.ELASTICSEARCH_DSL['default']['hosts'])
+
+    title = title.split(" ")
+
+    fuzzy = [
+        {"fuzzy": {"title": word}}
+        for word in title
+    ]
+    body = {"query": {"bool": {"should": fuzzy}}}
+
+    search = await client.search(
+        index=MangaDocument.Index.name,
+        body=body,
+    )
+
+    qs = await async_es_search_to_queryset(search, model=Manga)
+
+    return qs
 
 
 @router.get("/search", response=List[MangaOut])
