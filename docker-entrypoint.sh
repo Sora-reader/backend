@@ -1,37 +1,49 @@
 #!/bin/bash
 
-until pg_isready "$DATBASE_URL"; do
+function info () {
+    echo ""
+    echo "$1"
+    echo "==============="
+    echo "$2"
+}
+function is_debug() {
+    [ ! "$DEBUG" = 0 ]
+}
+
+if $(is_debug); then
+    info "Debug mode" "Installing dependencies"
+    sudo chown sora:sora ~/.cache/pypoetry/
+    poetry install
+else
+    info "Production mode" "Collecting static files to /app/staticfiles"
+    poetry run ./manage.py collectstatic --no-input --clear
+fi
+
+info "Waiting for postgres"
+until psql "$DATABASE_URL" -c ';'; do
     echo >&2 "Postgres is unavailable - sleeping"
     sleep 1
 done
 
-echo
-echo "Database is available"
+info "Running migrations"
+poetry run ./manage.py migrate --no-input
 
-if [ "$DEBUG" = 0 ]; then
-    echo "Production mode"
-    echo "==============="
-    echo "Collecting static files to /app/staticfiles"
-    ./manage.py collectstatic --no-input --clear
-else
-    echo "Debug mode"
-    echo "=========="
-fi
-
-echo
-echo "Running migrations"
-./manage.py migrate --no-input
-
-until curl --output /dev/null --silent --head --fail "http://$ELASTICSEARCH_HOST"; do
+info "Waiting for elasticsearch"
+until curl "http://$ELASTICSEARCH_HOST/_cat/health"; do
     echo >&2 "Elasticsearch is unavailable - sleeping"
     sleep 1
 done
-echo
-echo "Rebuilding index"
-./manage.py search_index --rebuild -f
 
-PORT="${PORT:-8000}"
-echo "Running the server on port $PORT"
+info "Rebuilding index"
+poetry run ./manage.py search_index --rebuild -f
 
+# Get core count
 core_count=$(grep 'cpu[0-9]+' /proc/stat | wc -l)
-gunicorn manga_reader.wsgi:application --bind $HOST:$PORT --workers $(expr $core_count \* 2 + 1)
+# Calculate worker count, max 12
+worker_count=$(expr $core_count \* 2 + 1)
+worker_count=$([ "$worker_count" -gt 12 ] && echo 12 || echo "$worker_count")
+
+info "Running the server on $HOST:$PORT"
+poetry run uvicorn manga_reader.asgi:application \
+  $(is_debug && echo --reload) \
+  --host $HOST --port $PORT --workers $core_count

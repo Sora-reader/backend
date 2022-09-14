@@ -1,39 +1,51 @@
 # Compose for development using volumes to ensure hot reload
-version: "3"
+#version: "3"
 
 services:
   web:
+    profiles:
+      - app
     build:
       context: ./
       dockerfile: Dockerfile.dev
     expose:
       - 8000
     environment:
+      - DEBUG
+      - ALLOWED_HOSTS
+      - PROXY
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
+      - SECRET_KEY=${SECRET_KEY:-DevServer}
+      # Static
+      - HOST=0.0.0.0
       - PORT=8000
       - REDIS_URL=redis://redis:6379
       - ELASTICSEARCH_HOST=elasticsearch:9200
-      - DATABASE_URL=postgres://$POSTGRES_USER:POSTGRES_PASSWORD@db:5432/sora
     ports:
-      - "8888:8000"
+      - "${PORT:-8888}:8000"
     volumes:
       - ./:/app
+      - sora_poetry:/home/sora/.cache/pypoetry
       # exclude dotenvs in volume
-      - /app/.envs
-    env_file:
-      - ./.envs/docker.env
-    depends_on:
-      - db
-      - redis
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8000/api/health" ]
+      interval: 5s
+      timeout: 5s
 
   db:
+    profiles:
+      - data
+      - app
     restart: unless-stopped
     image: postgres:12
     ports:
       - "8882:5432"
     volumes:
       - sora_postgres:/var/lib/postgresql/data
-    env_file:
-      - .envs/docker.env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-sora}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
     healthcheck:
       # Wait for postgres to actually start before consider service 'healthy'
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
@@ -41,6 +53,9 @@ services:
       timeout: 5s
 
   redis:
+    profiles:
+      - data
+      - app
     image: redis
     command: redis-server
     restart: unless-stopped
@@ -55,10 +70,13 @@ services:
       - REDIS_REPLICATION_MODE=master
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-      interval: 1m
+      interval: 5s
       timeout: 5s
 
   elasticsearch:
+    profiles:
+      - data
+      - app
     image: elasticsearch:7.14.2
     restart: unless-stopped
     environment:
@@ -67,13 +85,18 @@ services:
       - esdata1:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
+    healthcheck:
+        test: [ "CMD", "curl", "http://localhost:9200/_cat/health" ]
+        interval: 5s
+        timeout: 5s
     deploy:
       resources:
         limits:
-          cpus: 0.50
-          memory: 2048M
+          cpus: "0.50"
+          memory: 4096M
 
 volumes:
   esdata1:
+  sora_poetry:
   sora_redis:
   sora_postgres:

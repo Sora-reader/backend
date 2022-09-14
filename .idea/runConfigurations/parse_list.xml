@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="uvicorn" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+  <configuration default="false" name="parse list" type="PythonConfigurationType" factoryName="Python">
     <module name="backend" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -12,11 +12,11 @@
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-    <option name="SCRIPT_NAME" value="uvicorn" />
-    <option name="PARAMETERS" value="manga_reader.asgi:application --reload" />
+    <option name="SCRIPT_NAME" value="manage.py" />
+    <option name="PARAMETERS" value="parse list readmanga" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
-    <option name="MODULE_MODE" value="true" />
+    <option name="MODULE_MODE" value="false" />
     <option name="REDIRECT_INPUT" value="false" />
     <option name="INPUT_FILE" value="" />
     <method v="2" />

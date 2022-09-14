@@ -87,6 +87,8 @@ cover/
 # Django stuff:
 *.log
 local_settings.py
+*.sqlite3
+*.sqlite
 db.sqlite3
 db.sqlite3-journal
 
@@ -106,10 +108,6 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
