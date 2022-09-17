@@ -17,8 +17,10 @@ STAR_RATING_TAG = "//span[@class='rating-block']/@data-score"
 
 class ReadmangaDetailSpider(InjectUrlMixin, scrapy.Spider):
     name = "readmanga_detail"
+    url: str = None
+    "Detail url, like https://readmanga.live/podniatie_urovnia_v_odinochku__A5664"
 
-    def parse(self, response: HtmlResponse):
+    def parse(self, response: HtmlResponse, **kwargs):
         year = response.xpath(YEAR_TAG).extract_first("")
         description = response.xpath(DESCRIPTION_TAG).extract_first("")
         rating = response.xpath(STAR_RATING_TAG).extract_first(0.0)

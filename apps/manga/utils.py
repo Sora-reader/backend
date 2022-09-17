@@ -1,8 +1,8 @@
 from datetime import datetime
-import logging
+
 from django.utils import timezone
 
-from apps.parse.models import Manga, Person, PersonRelatedToManga
+from apps.manga.models import Manga, Person, PersonRelatedToManga
 
 
 def needs_update(updated_detail: str):
@@ -29,13 +29,3 @@ def save_persons(manga, role, persons):
         ],
         ignore_conflicts=True,
     )
-
-def mute_logger_stdout(logger_name: str, *other_loggers):
-    import warnings
-
-    logger_names = [logger_name, *other_loggers]
-    for name in logger_names:
-        warnings.filterwarnings("ignore", module=name)
-        logger = logging.getLogger(name)
-        logger.setLevel(logging.CRITICAL)
-        logger.propagate = False

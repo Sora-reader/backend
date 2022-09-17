@@ -1,6 +1,6 @@
 from ninja import ModelSchema
 
-from apps.parse.models import Manga
+from apps.manga.models import Manga
 
 
 class MangaOut(ModelSchema):

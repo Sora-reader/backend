@@ -4,11 +4,10 @@ from django.db import models
 from django.db.models.fields import DecimalField, FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
-from django_extensions.db.models import TimeStampedModel
 
 from apps.core.abc.models import BaseModel
 from apps.core.utils import url_prefix
-from apps.parse.const import SOURCE_TO_CATALOGUE_MAP
+from apps.parse.source import SOURCE_TO_CATALOGUE_MAP
 
 
 class Category(BaseModel):
@@ -58,7 +57,7 @@ class Chapter(models.Model):
         return self.title
 
 
-class Manga(BaseModel, TimeStampedModel):
+class Manga(BaseModel):
     NAME_FIELD = "title"
 
     BASE_UPDATE_FREQUENCY = timedelta(hours=1)

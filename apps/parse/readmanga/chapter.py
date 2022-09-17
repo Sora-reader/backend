@@ -17,8 +17,10 @@ class ReadmangaChapterSpider(InjectUrlMixin, scrapy.Spider):
     custom_settings = {
         "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaChapterPipeline": 300}
     }
+    url: str = None
+    "RSS url, like https://readmanga.live/rss/manga?name=podniatie_urovnia_v_odinochku"
 
-    def parse(self, response: XmlResponse) -> List[MangaChapterItem]:
+    def parse(self, response: XmlResponse, **kwargs) -> List[MangaChapterItem]:
         chapters = []
 
         items = response.xpath(ITEM_TAG)

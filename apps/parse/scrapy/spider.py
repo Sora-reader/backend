@@ -1,4 +1,6 @@
 class InjectUrlMixin:
+    url: str
+
     def __init__(self, *args, **kwargs):
         url = kwargs.pop("url", None)
         if not getattr(self.__class__, "start_urls", None) and url:

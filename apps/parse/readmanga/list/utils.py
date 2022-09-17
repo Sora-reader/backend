@@ -1,10 +1,12 @@
 import re
 
+from apps.parse.source import CATALOGUES
+
 
 def chapters_into_dict(chapters: list) -> dict:
     regex = "[\n]+|[ ]{2,}"
     chapters = [re.sub(regex, "", chapter) for chapter in chapters]
-    readmanga_base_url = "https://readmanga.io"
+    readmanga_base_url = CATALOGUES["readmanga"]["source"]
     links = filter(lambda m: m.startswith("/"), chapters)
     names = filter(lambda n: not n.startswith("/"), chapters)
 

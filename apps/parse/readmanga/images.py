@@ -15,11 +15,13 @@ class ReadmangaImageSpider(InjectUrlMixin, scrapy.Spider):
     custom_settings = {
         "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaImagePipeline": 300}
     }
+    url: str = None
+    "Chapter url, like https://readmanga.live/podniatie_urovnia_v_odinochku__A5664/vol1/0"
 
     def __init__(self, *args, url: str, **kwargs):
         super().__init__(*args, **kwargs, start_urls=[url], redis_client=init_redis_client())
 
-    def parse(self, response: HtmlResponse):
+    def parse(self, response: HtmlResponse, **kwargs):
         images = re.search(r"rm_h.initReader\(.*(\[{2}.*\]{2}).*\)", response.text)
         image_links = []
         if images:

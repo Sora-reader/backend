@@ -7,8 +7,9 @@ from scrapy.spiders.crawl import CrawlSpider, Rule
 from apps.parse.readmanga.list.utils import parse_rating
 from apps.parse.scrapy.items import MangaItem
 from apps.parse.scrapy.spider import InjectUrlMixin
+from apps.parse.source import CATALOGUES
 
-READMANGA_URL = "https://readmanga.io"
+READMANGA_URL = CATALOGUES["readmanga"]["source"]
 LIST_URL = f"{READMANGA_URL}/list"
 
 MANGA_TILE_TAG = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md-6")]'
@@ -35,9 +36,9 @@ class ReadmangaListSpider(InjectUrlMixin, CrawlSpider):
     }
 
     def parse_start_url(self, response, **kwargs):
-        return self.parse(response, **kwargs)
+        return self.parse(response)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         mangas: List[MangaItem] = []
         descriptions = response.xpath(MANGA_TILE_TAG).extract()
         for description in descriptions:

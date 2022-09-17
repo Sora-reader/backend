@@ -7,7 +7,7 @@ from django.db.models.fields import Field
 from django.utils.html import format_html
 
 from apps.core.abc.models import BaseModel
-from apps.parse.models import Manga
+from apps.manga.models import Manga
 
 
 class ImagePreviewMixin:

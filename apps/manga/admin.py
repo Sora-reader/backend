@@ -3,8 +3,8 @@ from django.contrib.admin.filters import SimpleListFilter
 from django.db.models.query import QuerySet
 
 from apps.core.abc.admin import BaseAdmin, BaseTabularInline, ImagePreviewMixin, RelatedField
-from apps.parse.const import CATALOGUE_NAMES
-from apps.parse.models import Author, Chapter, Genre, Manga, Person, PersonRelatedToManga
+from apps.manga.models import Author, Chapter, Genre, Manga, Person, PersonRelatedToManga
+from apps.parse.source import CATALOGUE_NAMES
 
 
 class ChapterInline(BaseTabularInline):

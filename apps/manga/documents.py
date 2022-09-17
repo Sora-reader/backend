@@ -1,7 +1,7 @@
 from django_elasticsearch_dsl import Document
 from django_elasticsearch_dsl.registries import registry
 
-from .models import Manga
+from apps.manga.models import Manga
 
 
 @registry.register_document

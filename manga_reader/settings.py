@@ -60,13 +60,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
-    "apps.api_docs",
-    "apps.login.apps.LoginConfig",
-    "apps.parse",
-    "apps.core.apps.CoreConfig",
     "django_extensions",
-    "django.contrib.postgres",
     "django_elasticsearch_dsl",
+    "apps.core.apps.CoreConfig",
+    "apps.manga",
+    "apps.parse",
 ]
 
 #########

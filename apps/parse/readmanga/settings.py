@@ -1,19 +1,16 @@
-from apps.parse.readmanga.pipelines import ReadmangaPipeline
+import os
 
-ROBOTSTXT_OBEY = True
+import django
 
-DOWNLOAD_DELAY = 2
+os.environ["DJANGO_SETTINGS_MODULE"] = "manga_reader.settings"  # noqa
+django.setup()  # noqa
 
-AUTOTHROTTLE_ENABLED = True
-AUTOTHROTTLE_DEBUG = True
-AUTOTHROTTLE_START_DELAY = 2
-AUTOTHROTTLE_MAX_DELAY = 15
-AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
-
+from apps.parse.readmanga.pipelines import ReadmangaPipeline  # noqa
+from apps.parse.scrapy.base_settings import *  # noqa
 
 BOT_NAME = "readmanga"
 SPIDER_MODULES = ["apps.parse.readmanga.list"]
-NEWSPIDER_MODULE = "apps.parse.readmanga"
+LOG_FILE = "parse-readmanga.log"
 
 DOWNLOADER_MIDDLEWARES = {
     "apps.parse.scrapy.middleware.ErrbackMiddleware": 340,
@@ -23,5 +20,3 @@ DOWNLOADER_MIDDLEWARES = {
 ITEM_PIPELINES = {
     ReadmangaPipeline: 300,
 }
-
-LOG_FILE = "parse-readmanga.log"

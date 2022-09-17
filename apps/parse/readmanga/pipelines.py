@@ -8,14 +8,13 @@ from scrapy.spiders import Spider
 
 from apps.core.abc.models import BaseModel
 from apps.core.utils import url_prefix
-from apps.parse.const import IMAGE_UPDATE_FREQUENCY
-from apps.parse.models import Category, Chapter, Genre, Manga, PersonRelatedToManga
+from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga
+from apps.manga.utils import save_persons
 from apps.parse.readmanga.chapter import ReadmangaChapterSpider
 from apps.parse.readmanga.detail import ReadmangaDetailSpider
 from apps.parse.readmanga.images import ReadmangaImageSpider
 from apps.parse.readmanga.list.spider import ReadmangaListSpider
 from apps.parse.scrapy.items import MangaChapterItem
-from apps.parse.utils import save_persons
 
 logger = logging.getLogger("scrapy")
 
@@ -33,7 +32,7 @@ class ReadmangaImagePipeline:
     def process_item(item: Dict[str, List[str]], spider: ReadmangaImageSpider):
         url, images = next(iter(item.items()))
         spider.redis_client.delete(url)
-        spider.redis_client.expire(url, IMAGE_UPDATE_FREQUENCY)
+        spider.redis_client.expire(url, Manga.IMAGE_UPDATE_FREQUENCY)
         spider.redis_client.rpush(url, *images)
 
 
@@ -104,5 +103,7 @@ class ReadmangaPipeline:
 
         if isinstance(spider, ReadmangaDetailSpider):
             data["updated_detail"] = timezone.now()
+
+        manga.save()
 
         return item
