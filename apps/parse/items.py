@@ -30,3 +30,8 @@ class MangaChapterItem(Item):
     link = Field()
     # Meta
     manga_rss_url = Field()
+
+
+class ImagesItem(Item):
+    chapter_url = Field()
+    images = Field()

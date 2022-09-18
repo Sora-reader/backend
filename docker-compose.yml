@@ -6,8 +6,8 @@ services:
     profiles:
       - app
     build:
-      context: ./
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: docker/web/Dockerfile.dev
     expose:
       - 8000
     environment:
@@ -21,14 +21,39 @@ services:
       - PORT=8000
       - REDIS_URL=redis://redis:6379
       - ELASTICSEARCH_HOST=elasticsearch:9200
+      - SCRAPYD_HOST=http://scrapyd:6800
     ports:
       - "${PORT:-8888}:8000"
     volumes:
       - ./:/app
       - sora_poetry:/home/sora/.cache/pypoetry
-      # exclude dotenvs in volume
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:8000/api/health" ]
+      interval: 5s
+      timeout: 5s
+
+  scrapyd:
+    profiles:
+      - app
+    image: backend_web
+    command: poetry run scrapyd
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
+      - SECRET_KEY=${SECRET_KEY:-DevServer}
+      - REDIS_URL=redis://redis:6379
+      - ELASTICSEARCH_HOST=elasticsearch:9200
+    expose:
+      - 6800
+    ports:
+      - 6800:6800
+    volumes:
+      - ./:/app
+      - sora_poetry:/home/sora/.cache/pypoetry
+      - ./docker/scrapyd/scrapyd.conf:/app/scrapyd.conf
+    depends_on:
+      - web
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:6800/daemonstatus.json" ]
       interval: 5s
       timeout: 5s
 

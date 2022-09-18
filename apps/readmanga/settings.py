@@ -9,7 +9,12 @@ from apps.parse.base_settings import *  # noqa
 from apps.readmanga.pipelines import ReadmangaPipeline  # noqa
 
 BOT_NAME = "readmanga"
-SPIDER_MODULES = ["apps.readmanga.list"]
+SPIDER_MODULES = [
+    "apps.readmanga.list",
+    "apps.readmanga.detail",
+    "apps.readmanga.chapter",
+    "apps.readmanga.images",
+]
 LOG_FILE = "parse-readmanga.log"
 
 DOWNLOADER_MIDDLEWARES = {

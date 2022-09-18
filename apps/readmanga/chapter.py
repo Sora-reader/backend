@@ -36,13 +36,11 @@ class ReadmangaChapterSpider(InjectUrlMixin, scrapy.Spider):
 
             chapters.append(
                 MangaChapterItem(
-                    **{
-                        "manga_rss_url": response.url,
-                        "title": chapter_title,
-                        "volume": volume,
-                        "number": number,
-                        "link": link,
-                    }
+                    manga_rss_url=response.url,
+                    title=chapter_title,
+                    volume=volume,
+                    number=number,
+                    link=link,
                 )
             )
         return chapters

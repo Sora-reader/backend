@@ -1,6 +1,6 @@
 import logging
 from copy import deepcopy
-from typing import Dict, List, Tuple, Type
+from typing import List, Tuple, Type
 
 from django.db import transaction
 from scrapy.spiders import Spider
@@ -8,7 +8,8 @@ from scrapy.spiders import Spider
 from apps.core.abc.models import BaseModel
 from apps.core.utils import url_prefix
 from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga, PersonRole
-from apps.parse.items import MangaChapterItem
+from apps.parse.items import ImagesItem, MangaChapterItem
+from apps.parse.pipeline import BasePipeline
 from apps.readmanga.chapter import ReadmangaChapterSpider
 from apps.readmanga.images import ReadmangaImageSpider
 from apps.readmanga.list import ReadmangaListSpider
@@ -24,27 +25,24 @@ def bulk_get_or_create(cls: Type[BaseModel], names: List[str]) -> Tuple:
     return tuple(obj for obj, _ in objects)
 
 
-class ReadmangaImagePipeline:
-    @staticmethod
-    def process_item(item: Dict[str, List[str]], spider: ReadmangaImageSpider):
-        url, images = next(iter(item.items()))
-        spider.redis_client.delete(url)
-        spider.redis_client.expire(url, Manga.IMAGE_UPDATE_FREQUENCY)
-        spider.redis_client.rpush(url, *images)
+class ReadmangaImagePipeline(BasePipeline):
+    def process_item(self, item: ImagesItem, spider: ReadmangaImageSpider):
+        self.save_to_cache(item, spider)
 
 
-class ReadmangaChapterPipeline:
-    @staticmethod
-    def process_item(chapter: MangaChapterItem, _: ReadmangaChapterSpider):
+class ReadmangaChapterPipeline(BasePipeline):
+    def process_item(self, chapter: MangaChapterItem, spider: ReadmangaChapterSpider):
         rss_url = chapter.pop("manga_rss_url")
         manga = Manga.objects.get(rss_url=rss_url)
-        Chapter.objects.get_or_create(
+        chapter, _ = Chapter.objects.get_or_create(
             manga=manga,
             **chapter,
         )
 
+        self.save_to_cache(chapter, spider)
 
-class ReadmangaPipeline:
+
+class ReadmangaPipeline(BasePipeline):
     @staticmethod
     def get_or_create_or_update_manga(spider: Spider, source_url, **data) -> Manga:
         """Explicit is better than implicit."""
@@ -63,8 +61,8 @@ class ReadmangaPipeline:
             spider.logger.info(f'Created item "{manga}"')
         return manga
 
-    @classmethod
-    def process_item(cls, item: dict, spider: Spider) -> dict:
+    def process_item(self, item: dict, spider: Spider) -> dict:
+        spider.logger.info(f"Processing item {item}")
         data = deepcopy(item)
 
         if isinstance(spider, ReadmangaListSpider) and not data.get("title", None):
@@ -84,7 +82,7 @@ class ReadmangaPipeline:
         translators = data.pop("translators", [])
         categories = data.pop("categories", [])
 
-        manga = cls.get_or_create_or_update_manga(spider, source_url, **data)
+        manga = self.get_or_create_or_update_manga(spider, source_url, **data)
 
         genres = bulk_get_or_create(Genre, genres)
         manga.genres.add(*genres)
@@ -99,5 +97,7 @@ class ReadmangaPipeline:
         manga.categories.set(categories)
 
         manga.save()
+        spider.logger.info(f"Saved manga {manga}")
+        self.save_to_cache(manga, spider)
 
         return item

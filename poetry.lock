@@ -1096,6 +1096,17 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 six = ">=1.5"
 
 [[package]]
+name = "python-scrapyd-api"
+version = "2.1.2"
+description = "A Python wrapper for working with the Scrapyd API"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "pytz"
 version = "2021.3"
 description = "World timezone definitions, modern and historical"
@@ -1211,6 +1222,19 @@ tldextract = "*"
 Twisted = ">=17.9.0"
 w3lib = ">=1.17.0"
 "zope.interface" = ">=4.1.3"
+
+[[package]]
+name = "scrapyd"
+version = "1.3.0"
+description = "A service for running Scrapy spiders, with an HTTP API"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Scrapy = ">=1.2.0"
+six = "*"
+Twisted = ">=17.9"
 
 [[package]]
 name = "service-identity"
@@ -1520,7 +1544,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "6de76c45317909ddcddd964be0bfda028d0546057060a437ed12f622a8fc7de1"
+content-hash = "32e4957cf762612aba4028657e8d32539ec0c37d05982343290e0d6edb9fd2d6"
 
 [metadata.files]
 amqp = [
@@ -2230,6 +2254,10 @@ python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
     {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
 ]
+python-scrapyd-api = [
+    {file = "python-scrapyd-api-2.1.2.tar.gz", hash = "sha256:e64f7caab23e541967fdf78926af5e6be6a863227f78d16b7ebb3a35acfc2099"},
+    {file = "python_scrapyd_api-2.1.2-py2.py3-none-any.whl", hash = "sha256:ab92d3461a81f46aaa6d82cc3de610642892c5454ddebb74d2b81fbc55e9c807"},
+]
 pytz = [
     {file = "pytz-2021.3-py2.py3-none-any.whl", hash = "sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c"},
     {file = "pytz-2021.3.tar.gz", hash = "sha256:acad2d8b20a1af07d4e4c9d2e9285c5ed9104354062f275f3fcd88dcef4f1326"},
@@ -2299,6 +2327,10 @@ rich = [
 scrapy = [
     {file = "Scrapy-2.6.2-py2.py3-none-any.whl", hash = "sha256:53528bcaf8c2c77aca359af11f349dec5dad98845a13d4c0bb9abd07f302298d"},
     {file = "Scrapy-2.6.2.tar.gz", hash = "sha256:55e21181165f25337105fff1efc8393296375cea7de699a7e703bbd265595f26"},
+]
+scrapyd = [
+    {file = "scrapyd-1.3.0-py2.py3-none-any.whl", hash = "sha256:b97f47bc010a6cbf13f91ee0f421a42924c888bd1d03d9691aa1a15d1fb39b8a"},
+    {file = "scrapyd-1.3.0.tar.gz", hash = "sha256:0b4bc7dd9c4c44c14ca3819879bd0032fd6283c280d4ff129925b2f00683f10a"},
 ]
 service-identity = [
     {file = "service-identity-21.1.0.tar.gz", hash = "sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34"},

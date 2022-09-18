@@ -179,3 +179,5 @@ redis.conf
 nohup.out
 .vscode
 tests/.jmeter*
+dbs/
+*.pid
