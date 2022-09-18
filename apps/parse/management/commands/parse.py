@@ -4,7 +4,6 @@ import sys
 from django.core.management.base import BaseCommand, CommandParser
 
 from apps.parse.management.utils import mute_logger_stdout
-from apps.parse.scrapy.utils import run_parser
 from apps.parse.source import (
     CATALOGUE_NAMES,
     CHAPTER_PARSER,
@@ -12,6 +11,7 @@ from apps.parse.source import (
     IMAGE_PARSER,
     PARSER_TYPES,
 )
+from apps.parse.utils import run_parser
 
 logger = logging.getLogger("management")
 

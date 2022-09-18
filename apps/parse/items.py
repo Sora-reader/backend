@@ -21,8 +21,6 @@ class MangaItem(Item):
     translators = Field()
     illustrators = Field()
     screenwriters = Field()
-    # Other
-    updated_detail = Field()
 
 
 class MangaChapterItem(Item):

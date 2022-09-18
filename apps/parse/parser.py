@@ -1,7 +1,7 @@
-from apps.parse.readmanga.chapter import ReadmangaChapterSpider
-from apps.parse.readmanga.detail import ReadmangaDetailSpider
-from apps.parse.readmanga.images import ReadmangaImageSpider
-from apps.parse.readmanga.list import ReadmangaListSpider
+from apps.readmanga.chapter import ReadmangaChapterSpider
+from apps.readmanga.detail import ReadmangaDetailSpider
+from apps.readmanga.images import ReadmangaImageSpider
+from apps.readmanga.list import ReadmangaListSpider
 
 LIST_PARSER = "list"
 DETAIL_PARSER = "detail"

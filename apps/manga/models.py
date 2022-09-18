@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.db import models
 from django.db.models.fields import DecimalField, FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
@@ -33,19 +31,38 @@ class Author(Person):
         proxy = True
 
 
-class PersonRelatedToManga(models.Model):
-    class Roles(models.TextChoices):
-        author = "author"
-        illustrator = "illustrator"
-        screenwriter = "screenwriter"
-        translator = "translator"
+class PersonRole(models.TextChoices):
+    author = "author"
+    illustrator = "illustrator"
+    screenwriter = "screenwriter"
+    translator = "translator"
 
+
+class PersonRelatedToManga(models.Model):
     person = ForeignKey("Person", models.CASCADE, related_name="manga_relations")
     manga = ForeignKey("Manga", models.CASCADE, related_name="person_relations")
-    role = TextField(choices=Roles.choices)
+    role = TextField(choices=PersonRole.choices)
+
+    @staticmethod
+    def save_persons(manga: "Manga", role: PersonRole, persons: list):
+        people_related: PersonRelatedToManga = manga.people_related.through
+        people_related.objects.filter(role=role, manga=manga).delete()
+        people_related.objects.bulk_create(
+            [
+                people_related(  # noqa
+                    person=Person.objects.get_or_create(name=person)[0],
+                    manga=manga,
+                    role=role,
+                )
+                for person in persons
+            ],
+            ignore_conflicts=True,
+        )
 
 
-class Chapter(models.Model):
+class Chapter(BaseModel):
+    NAME_FIELD = "title"
+
     manga = ForeignKey("Manga", models.CASCADE, related_name="chapters", null=True)
 
     title = TextField()
@@ -53,15 +70,9 @@ class Chapter(models.Model):
     number = FloatField()
     volume = FloatField()
 
-    def __str__(self) -> str:
-        return self.title
-
 
 class Manga(BaseModel):
     NAME_FIELD = "title"
-
-    BASE_UPDATE_FREQUENCY = timedelta(hours=1)
-    IMAGE_UPDATE_FREQUENCY = timedelta(hours=8)
 
     title = TextField()
     alt_title = TextField(null=True, blank=True)
@@ -71,10 +82,12 @@ class Manga(BaseModel):
     description = TextField(default="", blank=True)
     status = TextField(null=True, blank=True)
     year = TextField(null=True, blank=True)
+
     # https://stackoverflow.com/questions/417142
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
     rss_url = URLField(max_length=2000, null=True, blank=True)
+
     genres = ManyToManyField("Genre", related_name="mangas", blank=True)
     categories = ManyToManyField("Category", related_name="mangas", blank=True)
     people_related = ManyToManyField(
@@ -85,14 +98,15 @@ class Manga(BaseModel):
     def source(self):
         return SOURCE_TO_CATALOGUE_MAP[url_prefix(self.source_url)]
 
-    @property
-    def authors(self) -> QuerySet["Person"]:
-        """For admin use only"""
-        return Person.objects.filter(
-            manga_relations__manga=self, manga_relations__role=PersonRelatedToManga.Roles.author
-        )
-
     def save(self, **kwargs):
         if not self.image:
             self.image = self.thumbnail
         return super().save(**kwargs)
+
+    @property
+    def authors(self) -> QuerySet["Person"]:
+        """For admin use only"""
+        return Person.objects.filter(
+            manga_relations__manga=self,
+            manga_relations__role=PersonRole.author,
+        )

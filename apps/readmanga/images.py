@@ -5,16 +5,14 @@ import ujson
 from scrapy.http import HtmlResponse
 
 from apps.core.utils import init_redis_client
-from apps.parse.scrapy.spider import InjectUrlMixin
+from apps.parse.spider import InjectUrlMixin
 
 COUNT_LINK_ELEMENTS = 3
 
 
 class ReadmangaImageSpider(InjectUrlMixin, scrapy.Spider):
     name = "readmanga_image"
-    custom_settings = {
-        "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaImagePipeline": 300}
-    }
+    custom_settings = {"ITEM_PIPELINES": {"apps.readmanga.pipelines.ReadmangaImagePipeline": 300}}
     url: str = None
     "Chapter url, like https://readmanga.live/podniatie_urovnia_v_odinochku__A5664/vol1/0"
 

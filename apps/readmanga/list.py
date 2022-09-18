@@ -1,13 +1,13 @@
+import re
 from typing import List
 
 from scrapy.http import HtmlResponse
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders.crawl import CrawlSpider, Rule
 
-from apps.parse.readmanga.list.utils import parse_rating
-from apps.parse.scrapy.items import MangaItem
-from apps.parse.scrapy.spider import InjectUrlMixin
+from apps.parse.items import MangaItem
 from apps.parse.source import CATALOGUES
+from apps.parse.spider import InjectUrlMixin
 
 READMANGA_URL = CATALOGUES["readmanga"]["source"]
 LIST_URL = f"{READMANGA_URL}/list"
@@ -19,6 +19,17 @@ SOURCE_URL_TAG = "//h3/a[1]/@href"
 GENRES_TAG = '//div[@class = "tile-info"]//a[contains(@class, "badge")]/text()'
 THUMBNAIL_IMG_URL_TAG = '//img[contains(@class, "lazy")][1]/@data-original'
 ALT_TITLE_URL = "//h4[@title]//text()"
+
+
+def parse_rating(rate_str: str):
+    """
+    >>> parse_rating("9.439212799072266 из 10")
+    9.43
+    """
+    try:
+        return float(re.match(r"^(\d\.\d{2})\d* из 10$", rate_str).group(1))
+    except (AttributeError, ValueError):
+        return 0.0
 
 
 class ReadmangaListSpider(InjectUrlMixin, CrawlSpider):

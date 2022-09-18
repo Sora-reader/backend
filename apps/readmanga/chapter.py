@@ -4,8 +4,8 @@ from typing import List
 import scrapy
 from scrapy.http import XmlResponse
 
-from apps.parse.scrapy.items import MangaChapterItem
-from apps.parse.scrapy.spider import InjectUrlMixin
+from apps.parse.items import MangaChapterItem
+from apps.parse.spider import InjectUrlMixin
 
 ITEM_TAG = "//item"
 LINK_TAG = 'guid[@isPermaLink="true"]/text()'
@@ -14,9 +14,7 @@ TITLE_TAG = ".//title/text()"
 
 class ReadmangaChapterSpider(InjectUrlMixin, scrapy.Spider):
     name = "readmanga_chapter"
-    custom_settings = {
-        "ITEM_PIPELINES": {"apps.parse.readmanga.pipelines.ReadmangaChapterPipeline": 300}
-    }
+    custom_settings = {"ITEM_PIPELINES": {"apps.readmanga.pipelines.ReadmangaChapterPipeline": 300}}
     url: str = None
     "RSS url, like https://readmanga.live/rss/manga?name=podniatie_urovnia_v_odinochku"
 

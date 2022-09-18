@@ -1,8 +1,8 @@
 import scrapy
 from scrapy.http import HtmlResponse
 
-from apps.parse.scrapy.items import MangaItem
-from apps.parse.scrapy.spider import InjectUrlMixin
+from apps.parse.items import MangaItem
+from apps.parse.spider import InjectUrlMixin
 
 RSS_TAG = "//head/link[@type='application/rss+xml'][1]/@href"
 AUTHORS_TAG = "//span[@class='elem_author ']/a[@class='person-link']/text()"

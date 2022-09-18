@@ -3,18 +3,15 @@ from copy import deepcopy
 from typing import Dict, List, Tuple, Type
 
 from django.db import transaction
-from django.utils import timezone
 from scrapy.spiders import Spider
 
 from apps.core.abc.models import BaseModel
 from apps.core.utils import url_prefix
-from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga
-from apps.manga.utils import save_persons
-from apps.parse.readmanga.chapter import ReadmangaChapterSpider
-from apps.parse.readmanga.detail import ReadmangaDetailSpider
-from apps.parse.readmanga.images import ReadmangaImageSpider
-from apps.parse.readmanga.list.spider import ReadmangaListSpider
-from apps.parse.scrapy.items import MangaChapterItem
+from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga, PersonRole
+from apps.parse.items import MangaChapterItem
+from apps.readmanga.chapter import ReadmangaChapterSpider
+from apps.readmanga.images import ReadmangaImageSpider
+from apps.readmanga.list import ReadmangaListSpider
 
 logger = logging.getLogger("scrapy")
 
@@ -92,17 +89,14 @@ class ReadmangaPipeline:
         genres = bulk_get_or_create(Genre, genres)
         manga.genres.add(*genres)
 
-        save_persons(manga, PersonRelatedToManga.Roles.author, authors)
-        save_persons(manga, PersonRelatedToManga.Roles.illustrator, illustrators)
-        save_persons(manga, PersonRelatedToManga.Roles.screenwriter, screenwriters)
-        save_persons(manga, PersonRelatedToManga.Roles.translator, translators)
+        PersonRelatedToManga.save_persons(manga, PersonRole.author, authors)
+        PersonRelatedToManga.save_persons(manga, PersonRole.illustrator, illustrators)
+        PersonRelatedToManga.save_persons(manga, PersonRole.screenwriter, screenwriters)
+        PersonRelatedToManga.save_persons(manga, PersonRole.translator, translators)
 
         categories = [Category.objects.get_or_create(name=category)[0] for category in categories]
         manga.categories.clear()
         manga.categories.set(categories)
-
-        if isinstance(spider, ReadmangaDetailSpider):
-            data["updated_detail"] = timezone.now()
 
         manga.save()
 
