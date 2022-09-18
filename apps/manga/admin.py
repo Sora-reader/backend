@@ -29,7 +29,7 @@ class SourceFilter(SimpleListFilter):
     parameter_name = "source"
 
     def lookups(self, request, model_admin):
-        return CATALOGUE_NAMES
+        return zip(CATALOGUE_NAMES, CATALOGUE_NAMES)
 
     def queryset(self, request, queryset: QuerySet):
         value = self.value()
@@ -54,7 +54,7 @@ class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
         "status",
         "genre_list",
     )
-    # list_filter = ("genres", SourceFilter)
+    list_filter = ("genres", SourceFilter)
 
     def custom_title(self, obj: Manga):
         concat = f"{obj.title}{', ' + obj.year if obj.year else ''}"
@@ -65,7 +65,7 @@ class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
             return concat[:30] + "..."
         return concat
 
-    custom_title.short_description = "Title"
+    custom_title.short_description = "Title"  # noqa
 
     authors = RelatedField(Manga.authors, description="Authors", html=True)
     genre_list = RelatedField(Genre)

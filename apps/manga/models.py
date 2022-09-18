@@ -44,7 +44,7 @@ class PersonRelatedToManga(models.Model):
     role = TextField(choices=PersonRole.choices)
 
     @staticmethod
-    def save_persons(manga: "Manga", role: PersonRole, persons: list):
+    def save_persons(manga: "Manga", role: str, persons: list):
         people_related: PersonRelatedToManga = manga.people_related.through
         people_related.objects.filter(role=role, manga=manga).delete()
         people_related.objects.bulk_create(
@@ -72,6 +72,10 @@ class Chapter(BaseModel):
 
 
 class Manga(BaseModel):
+    class Meta:
+        verbose_name = "Manga"
+        verbose_name_plural = "Manga"
+
     NAME_FIELD = "title"
 
     title = TextField()

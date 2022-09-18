@@ -1,7 +1,7 @@
 import re
 
 import scrapy
-import ujson
+from orjson import loads
 from scrapy.http import HtmlResponse
 
 from apps.core.utils import init_redis_client
@@ -26,6 +26,6 @@ class ReadmangaImageSpider(InjectUrlMixin, scrapy.Spider):
         if images:
             image_links = [
                 "".join(image[:COUNT_LINK_ELEMENTS])
-                for image in ujson.loads(images.group(1).replace("'", '"'))
+                for image in loads(images.group(1).replace("'", '"'))
             ]
         return ImagesItem(chapter_url=self.start_urls[0], images=image_links)

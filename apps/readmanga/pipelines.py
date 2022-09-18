@@ -47,11 +47,10 @@ class ReadmangaPipeline(BasePipeline):
     def get_or_create_or_update_manga(spider: Spider, source_url, **data) -> Manga:
         """Explicit is better than implicit."""
         manga, _ = Manga.objects.get_or_create(source_url=source_url)
-        manga: Manga
         manga_already = Manga.objects.filter(source_url=source_url)
         if manga_already.exists():
             manga_already.update(**data)
-            manga = manga_already.first()
+            manga = manga_already.first()  # noqa
             spider.logger.info(f'Updated item "{manga}"')
         else:
             manga = Manga.objects.create(
