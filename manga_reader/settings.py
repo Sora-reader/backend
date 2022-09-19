@@ -11,7 +11,6 @@ env = environ.Env(
     DJANGO_LOG_LEVEL=(str, "INFO"),
     REDIS_URL=(str, "redis://localhost:8883"),
     ELASTICSEARCH_HOST=(str, "localhost:9200"),
-    SCRAPYD_HOST=(str, "http://localhost:6800"),
     PROXY=(str, ""),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
@@ -47,7 +46,6 @@ REDIS_URL = env("REDIS_URL")
 ELASTICSEARCH_DSL = {
     "default": {"hosts": env("ELASTICSEARCH_HOST")},
 }
-SCRAPYD_HOST = env("SCRAPYD_HOST")
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CACHES = {

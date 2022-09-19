@@ -45,7 +45,6 @@ services:
     volumes:
       - ./:/app
       - sora_poetry:/home/sora/.cache/pypoetry
-      - ./docker/scrapyd/scrapyd.conf:/app/scrapyd.conf
     depends_on:
       - web
     healthcheck:
