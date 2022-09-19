@@ -6,7 +6,7 @@ authors = ["dhvcc <1337kwiz@gmail.com>"]
 license = "GPLv3"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 Django = "^4.1.1"
 psycopg2 = "^2.8.6"
 Markdown = "^3.3.3"
@@ -23,21 +23,21 @@ orjson = "^3.6.4"
 celery = "^5.2.0"
 django-environ = "^0.9.0"
 dj-database-url = "^1.0.0"
-whitenoise = {extras = ["brotli"], version = "^6.2.0"}
+whitenoise = { extras = ["brotli"], version = "^6.2.0" }
 django-ninja = "^0.19.1"
 uvicorn = "^0.18.3"
 django-elasticsearch-dsl = "^7.2.2"
 elasticsearch-dsl = "^7.4.0"
-scrapyd = "^1.3.0"
-python-scrapyd-api = "^2.1.2"
+scrapyscript = "^1.1.5"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flake8 = "^5.0.4"
 black = "^22.8.0"
 isort = "^5.7.0"
 pre-commit = "^2.11.1"
 rich = "^12.5.1"
 ipdb = "^0.13.9"
+autoflake = "^1.6.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -45,7 +45,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 100
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py310']
 force-exclude = '''
 (
     \.eggs

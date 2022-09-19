@@ -48,13 +48,14 @@ ELASTICSEARCH_DSL = {
     "default": {"hosts": env("ELASTICSEARCH_HOST")},
 }
 SCRAPYD_HOST = env("SCRAPYD_HOST")
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
     }
 }
-
 
 ########
 # Apps #
@@ -219,7 +220,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
 
 ################
 # Localization #

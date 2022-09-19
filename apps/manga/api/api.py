@@ -1,21 +1,18 @@
 from functools import reduce
 from typing import List
 
-from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from elasticsearch_dsl import Q
 from ninja import Router
-from scrapyd_api import ScrapydAPI
 
 from apps.manga.api.schemas import MangaDetail, MangaSchema
 from apps.manga.documents import MangaDocument
 from apps.manga.models import Manga
+from apps.parse.tasks import run_spider_task
 from apps.parse.types import ParsingStatus
-from apps.readmanga.detail import ReadmangaDetailSpider
 
 router = Router(tags=["Manga"])
-scrapyd = ScrapydAPI(settings.SCRAPYD_HOST)
 
 
 @router.get("/search", response=List[MangaSchema])
@@ -42,7 +39,7 @@ def get_manga(request, manga_id: int):
     if cache_entry and cache_entry != ParsingStatus.parsing.value:
         return cache_entry
     else:
-        scrapyd.schedule("default", ReadmangaDetailSpider.name, url=manga.source_url)
+        run_spider_task.delay("detail", url=manga.source_url)
 
     return MangaDetail(
         status=ParsingStatus.parsing.value,

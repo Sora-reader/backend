@@ -13,7 +13,6 @@ services:
     environment:
       - DEBUG
       - ALLOWED_HOSTS
-      - PROXY
       - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
       - SECRET_KEY=${SECRET_KEY:-DevServer}
       # Static
@@ -21,7 +20,6 @@ services:
       - PORT=8000
       - REDIS_URL=redis://redis:6379
       - ELASTICSEARCH_HOST=elasticsearch:9200
-      - SCRAPYD_HOST=http://scrapyd:6800
     ports:
       - "${PORT:-8888}:8000"
     volumes:
@@ -32,20 +30,18 @@ services:
       interval: 5s
       timeout: 5s
 
-  scrapyd:
+  celery:
     profiles:
       - app
     image: backend_web
-    command: poetry run scrapyd
+    command: poetry run celery -A manga_reader worker -l INFO
     environment:
+      - DEBUG
+      - PROXY
       - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
       - SECRET_KEY=${SECRET_KEY:-DevServer}
       - REDIS_URL=redis://redis:6379
       - ELASTICSEARCH_HOST=elasticsearch:9200
-    expose:
-      - 6800
-    ports:
-      - 6800:6800
     volumes:
       - ./:/app
       - sora_poetry:/home/sora/.cache/pypoetry
@@ -53,7 +49,7 @@ services:
     depends_on:
       - web
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:6800/daemonstatus.json" ]
+      test: poetry run celery -A manga_reader status
       interval: 5s
       timeout: 5s
 
