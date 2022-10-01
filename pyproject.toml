@@ -26,9 +26,8 @@ dj-database-url = "^1.0.0"
 whitenoise = { extras = ["brotli"], version = "^6.2.0" }
 django-ninja = "^0.19.1"
 uvicorn = "^0.18.3"
-django-elasticsearch-dsl = "^7.2.2"
-elasticsearch-dsl = "^7.4.0"
 scrapyscript = "^1.1.5"
+typesense = "^0.14.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^5.0.4"

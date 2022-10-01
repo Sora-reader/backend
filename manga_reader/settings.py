@@ -4,13 +4,16 @@ from pathlib import Path
 import dj_database_url
 import environ
 
+from apps.typesense_bind.client import create_client
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, True),
     ALLOWED_HOSTS=(lambda a: a.split(" "), ["*"]),
     DJANGO_LOG_LEVEL=(str, "INFO"),
     REDIS_URL=(str, "redis://localhost:8883"),
-    ELASTICSEARCH_HOST=(str, "localhost:9200"),
+    TYPESENSE_HOST=(str, "localhost"),
+    TYPESENSE_API_KEY=(str, "tsapikey"),
     PROXY=(str, ""),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
@@ -43,9 +46,11 @@ HEADERS = {
     "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0",
 }
 REDIS_URL = env("REDIS_URL")
-ELASTICSEARCH_DSL = {
-    "default": {"hosts": env("ELASTICSEARCH_HOST")},
-}
+
+typesense_host = env("TYPESENSE_HOST")
+typesense_api_key = env("TYPESENSE_API_KEY")
+TS_CLIENT = create_client(typesense_host, typesense_api_key)
+
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CACHES = {
@@ -69,10 +74,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "django_extensions",
-    "django_elasticsearch_dsl",
     "apps.core.apps.CoreConfig",
     "apps.manga",
     "apps.parse",
+    "apps.typesense_bind",
 ]
 
 #########

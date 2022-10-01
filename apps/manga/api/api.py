@@ -5,11 +5,11 @@ from django.http import Http404, HttpResponse
 from ninja import Router
 
 from apps.manga.api.schemas import ChapterListOut, ImageListOut, MangaOut, MangaSchema
-from apps.manga.documents import MangaDocument
 from apps.manga.models import Chapter, Manga
 from apps.parse.parser import CHAPTER_PARSER, DETAIL_PARSER, IMAGE_PARSER
 from apps.parse.tasks import run_spider_task
 from apps.parse.types import ParsingStatus
+from apps.typesense_bind.query import query_by_title
 
 router = Router(tags=["Manga"])
 
@@ -23,13 +23,7 @@ def get_manga_or_404(pk, prefetch: List[str] = None):
 
 @router.get("/search/", response=List[MangaSchema])
 def search_manga(request, title: str):
-    title = title.split(" ")
-
-    fuzzy = [{"fuzzy": {"title": word}} for word in title]
-    query = {"bool": {"should": fuzzy}}
-
-    qs = MangaDocument.search().query(query).to_queryset()
-    return qs
+    return query_by_title(title)
 
 
 @router.get("/{manga_id}/", response=MangaOut)

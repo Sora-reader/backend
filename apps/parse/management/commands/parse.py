@@ -34,7 +34,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        mute_logger_stdout("scrapy", "elasticsearch", "asyncio", "protego", "urllib3", "requests")
+        mute_logger_stdout("scrapy", "asyncio", "protego", "urllib3", "requests")
         catalogue_name: str = options["catalogue"]
         try:
             logger.info("Running parser")

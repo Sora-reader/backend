@@ -28,14 +28,14 @@ done
 info "Running migrations"
 poetry run ./manage.py migrate --no-input
 
-info "Waiting for elasticsearch"
-until curl "http://$ELASTICSEARCH_HOST/_cat/health"; do
-    echo >&2 "Elasticsearch is unavailable - sleeping"
+info "Waiting for typesense"
+until curl "http://$TYPESENSE_HOST:8108/health"; do
+    echo >&2 "Typesense is unavailable - sleeping"
     sleep 1
 done
 
 #info "Rebuilding index"
-#poetry run ./manage.py search_index --rebuild -f
+#poetry run ./manage.py rebuild_index
 
 # Get core count
 core_count=$(grep 'cpu[0-9]+' /proc/stat | wc -l)
