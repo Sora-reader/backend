@@ -33,6 +33,7 @@ services:
   celery:
     profiles:
       - app
+      - base
     image: backend_web
     command: poetry run celery -A manga_reader worker -l INFO
     environment:
@@ -56,6 +57,7 @@ services:
     profiles:
       - data
       - app
+      - base
     restart: unless-stopped
     image: postgres:12
     ports:
@@ -76,6 +78,7 @@ services:
     profiles:
       - data
       - app
+      - base
     image: redis
     command: redis-server
     restart: unless-stopped
@@ -97,6 +100,7 @@ services:
     profiles:
       - data
       - app
+      - base
     image: elasticsearch:7.14.2
     restart: unless-stopped
     environment:

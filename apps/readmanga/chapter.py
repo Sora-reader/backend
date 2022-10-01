@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 import scrapy
 from scrapy.http import XmlResponse
@@ -18,7 +17,7 @@ class ReadmangaChapterSpider(InjectUrlMixin, scrapy.Spider):
     url: str = None
     "RSS url, like https://readmanga.live/rss/manga?name=podniatie_urovnia_v_odinochku"
 
-    def parse(self, response: XmlResponse, **kwargs) -> List[MangaChapterItem]:
+    def parse(self, response: XmlResponse, **kwargs) -> MangaChapterItem:
         chapters = []
 
         items = response.xpath(ITEM_TAG)
@@ -35,12 +34,11 @@ class ReadmangaChapterSpider(InjectUrlMixin, scrapy.Spider):
             volume = int(volume.replace("vol", ""))
 
             chapters.append(
-                MangaChapterItem(
-                    manga_rss_url=response.url,
+                dict(
                     title=chapter_title,
                     volume=volume,
                     number=number,
                     link=link,
                 )
             )
-        return chapters
+        return MangaChapterItem(chapters=chapters, rss_url=response.url)

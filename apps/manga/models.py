@@ -108,9 +108,5 @@ class Manga(BaseModel):
         return super().save(**kwargs)
 
     @property
-    def authors(self) -> QuerySet["Person"]:
-        """For admin use only"""
-        return Person.objects.filter(
-            manga_relations__manga=self,
-            manga_relations__role=PersonRole.author,
-        )
+    def authors(self) -> QuerySet[Author]:
+        return Author.objects.filter(manga_relations__manga=self)

@@ -3,7 +3,7 @@ from typing import Dict
 from django.core.cache import cache
 from scrapy import Spider
 
-from apps.manga.api.schemas import ChapterOut, ChapterSchema, MangaDetail, MangaSchema
+from apps.manga.api.schemas import ChapterListOut, MangaOut, MangaSchema
 from apps.parse.types import ParsingStatus
 from apps.readmanga.chapter import ReadmangaChapterSpider
 from apps.readmanga.detail import ReadmangaDetailSpider
@@ -12,19 +12,19 @@ from apps.readmanga.images import ReadmangaImageSpider
 CACHE_SAVE_LOGIC: Dict[any, dict] = {
     ReadmangaDetailSpider: {
         "key_getter": lambda manga: manga.source_url,
-        "convert": lambda manga: MangaDetail(
+        "convert": lambda manga: MangaOut(
             status=ParsingStatus.up_to_date.value,
             data=MangaSchema.from_orm(manga),
         ),
         "timeout": 3600 * 24 * 7,
     },
     ReadmangaChapterSpider: {
-        "key_getter": lambda chapter: chapter.link,
-        "convert": lambda chapter: ChapterOut(
+        "key_getter": lambda chapter_data: chapter_data["rss_url"],
+        "convert": lambda chapter_data: ChapterListOut(
             status=ParsingStatus.up_to_date.value,
-            data=ChapterSchema.from_orm(chapter),
+            data=chapter_data["chapters"],
         ),
-        "timeout": 3600 * 12,
+        "timeout": 3600,
     },
     ReadmangaImageSpider: {
         "key_getter": lambda images_item: images_item["chapter_url"],
@@ -38,9 +38,11 @@ class BasePipeline:
     @staticmethod
     def save_to_cache(data, spider: Spider):
         """Save item to cache."""
-        spider.logger.info("Saving data to cache")
-        save_logic = CACHE_SAVE_LOGIC[spider.__class__]
+        save_logic = CACHE_SAVE_LOGIC.get(spider.__class__)
+        if not save_logic:
+            return
 
+        spider.logger.info("Saving data to cache")
         key_getter = save_logic["key_getter"]
         timeout = save_logic["timeout"]
         convert = save_logic.get("convert")

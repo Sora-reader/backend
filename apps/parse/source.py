@@ -1,9 +1,3 @@
-LIST_PARSER = "list"
-DETAIL_PARSER = "detail"
-CHAPTER_PARSER = "chapters"
-IMAGE_PARSER = "images"
-PARSER_TYPES = [LIST_PARSER, DETAIL_PARSER, CHAPTER_PARSER, IMAGE_PARSER]
-
 CATALOGUES = {
     "readmanga": {
         "source": "https://readmanga.live",

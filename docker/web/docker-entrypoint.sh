@@ -34,8 +34,8 @@ until curl "http://$ELASTICSEARCH_HOST/_cat/health"; do
     sleep 1
 done
 
-info "Rebuilding index"
-poetry run ./manage.py search_index --rebuild -f
+#info "Rebuilding index"
+#poetry run ./manage.py search_index --rebuild -f
 
 # Get core count
 core_count=$(grep 'cpu[0-9]+' /proc/stat | wc -l)

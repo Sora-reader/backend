@@ -24,12 +24,9 @@ class MangaItem(Item):
 
 
 class MangaChapterItem(Item):
-    title = Field()
-    volume = Field()
-    number = Field()
-    link = Field()
+    chapters = Field()
     # Meta
-    manga_rss_url = Field()
+    rss_url = Field()
 
 
 class ImagesItem(Item):

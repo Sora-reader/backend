@@ -1,47 +1,85 @@
-from functools import reduce
 from typing import List
 
 from django.core.cache import cache
-from django.shortcuts import get_object_or_404
-from elasticsearch_dsl import Q
+from django.http import Http404, HttpResponse
 from ninja import Router
 
-from apps.manga.api.schemas import MangaDetail, MangaSchema
+from apps.manga.api.schemas import ChapterListOut, ImageListOut, MangaOut, MangaSchema
 from apps.manga.documents import MangaDocument
-from apps.manga.models import Manga
+from apps.manga.models import Chapter, Manga
+from apps.parse.parser import CHAPTER_PARSER, DETAIL_PARSER, IMAGE_PARSER
 from apps.parse.tasks import run_spider_task
 from apps.parse.types import ParsingStatus
 
 router = Router(tags=["Manga"])
 
 
-@router.get("/search", response=List[MangaSchema])
+def get_manga_or_404(pk, prefetch: List[str] = None):
+    manga = Manga.objects.filter(pk=pk).prefetch_related(*(prefetch or [])).first()
+    if not manga:
+        raise Http404("No manga found")
+    return manga
+
+
+@router.get("/search/", response=List[MangaSchema])
 def search_manga(request, title: str):
     title = title.split(" ")
 
-    def fuzzy_query(title_part: str):
-        return Q("fuzzy", title=title_part)
-
-    if len(title) > 1:
-        query = reduce(lambda a, b: fuzzy_query(a) | fuzzy_query(b), title)
-    else:
-        query = fuzzy_query(title[0])
+    fuzzy = [{"fuzzy": {"title": word}} for word in title]
+    query = {"bool": {"should": fuzzy}}
 
     qs = MangaDocument.search().query(query).to_queryset()
     return qs
 
 
-@router.get("/{manga_id}", response=MangaDetail)
+@router.get("/{manga_id}/", response=MangaOut)
 def get_manga(request, manga_id: int):
-    manga = get_object_or_404(Manga, id=manga_id)
+    manga = get_manga_or_404(pk=manga_id)
 
     cache_entry = cache.get(manga.source_url)
     if cache_entry and cache_entry != ParsingStatus.parsing.value:
         return cache_entry
     else:
-        run_spider_task.delay("detail", url=manga.source_url)
+        cache.set(manga.source_url, ParsingStatus.parsing.value)
+        run_spider_task(DETAIL_PARSER, url=manga.source_url)
 
-    return MangaDetail(
+    return MangaOut(
         status=ParsingStatus.parsing.value,
         data=manga,
     )
+
+
+@router.get("/{manga_id}/chapters/", response=ChapterListOut)
+def get_chapters(request, manga_id: int):
+    manga = get_manga_or_404(pk=manga_id, prefetch=["chapters"])
+
+    if not manga.rss_url:
+        return HttpResponse(content="Detail's were not yet parsed", status=425)
+
+    cache_entry = cache.get(manga.rss_url)
+    if cache_entry and cache_entry != ParsingStatus.parsing.value:
+        return cache_entry
+    else:
+        cache.set(manga.rss_url, ParsingStatus.parsing.value)
+        run_spider_task(CHAPTER_PARSER, url=manga.rss_url)
+
+    return ChapterListOut(
+        status=ParsingStatus.parsing.value,
+        data=list(manga.chapters.all()),
+    )
+
+
+@router.get("/{manga_id}/chapters/{chapter_id}/images/", response=ImageListOut)
+def get_chapter_images(request, manga_id: int, chapter_id: int):
+    chapter = Chapter.objects.filter(pk=chapter_id, manga_id=manga_id).first()
+
+    if not chapter:
+        raise Http404("No chapter found")
+
+    if cache_entry := cache.get(chapter.link):
+        return cache_entry
+    else:
+        run_spider_task(IMAGE_PARSER, url=chapter.link)
+
+    # Re-request cache data after spider ran
+    return ImageListOut(__root__=cache.get(chapter.link))

@@ -31,15 +31,20 @@ class ReadmangaImagePipeline(BasePipeline):
 
 
 class ReadmangaChapterPipeline(BasePipeline):
-    def process_item(self, chapter: MangaChapterItem, spider: ReadmangaChapterSpider):
-        rss_url = chapter.pop("manga_rss_url")
-        manga = Manga.objects.get(rss_url=rss_url)
-        chapter, _ = Chapter.objects.get_or_create(
-            manga=manga,
-            **chapter,
-        )
+    @staticmethod
+    @transaction.atomic
+    def bulk_get_or_create(chapters: List[dict]) -> List[Chapter]:
+        objects: List[Chapter, ...] = []
+        for chapter in chapters:
+            objects.append(Chapter.objects.get_or_create(**chapter))
+        return [obj for obj, _ in objects]
 
-        self.save_to_cache(chapter, spider)
+    def process_item(self, chapters_data: MangaChapterItem, spider: ReadmangaChapterSpider):
+        chapter_list, rss_url = chapters_data.values()
+        manga = Manga.objects.get(rss_url=rss_url)
+        chapter_list = self.bulk_get_or_create([{**c, "manga": manga} for c in chapter_list])
+
+        self.save_to_cache({"rss_url": rss_url, "chapters": chapter_list}, spider)
 
 
 class ReadmangaPipeline(BasePipeline):
