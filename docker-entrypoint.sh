@@ -14,9 +14,6 @@ if $(is_debug); then
     info "Debug mode" "Installing dependencies"
     sudo chown sora:sora ~/.cache/pypoetry/
     poetry install
-else
-    info "Production mode" "Collecting static files to /app/staticfiles"
-    poetry run ./manage.py collectstatic --no-input --clear
 fi
 
 info "Waiting for postgres"
@@ -33,9 +30,6 @@ until curl "http://$TYPESENSE_HOST:8108/health"; do
     echo >&2 "Typesense is unavailable - sleeping"
     sleep 1
 done
-
-#info "Rebuilding index"
-#poetry run ./manage.py rebuild_index
 
 # Get core count
 core_count=$(grep 'cpu[0-9]+' /proc/stat | wc -l)

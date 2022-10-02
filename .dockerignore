@@ -107,7 +107,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.envs/.env
+.env
 .venv
 env/
 venv/
@@ -150,3 +150,5 @@ LICENSE
 README.md
 redis-data
 redis.conf
+staticfiles/
+docker/

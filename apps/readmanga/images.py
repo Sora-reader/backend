@@ -4,7 +4,6 @@ import scrapy
 from orjson import loads
 from scrapy.http import HtmlResponse
 
-from apps.core.utils import init_redis_client
 from apps.parse.items import ImagesItem
 from apps.parse.spider import InjectUrlMixin
 
@@ -18,7 +17,7 @@ class ReadmangaImageSpider(InjectUrlMixin, scrapy.Spider):
     "Chapter url, like https://readmanga.live/podniatie_urovnia_v_odinochku__A5664/vol1/0"
 
     def __init__(self, *args, url: str, **kwargs):
-        super().__init__(*args, **kwargs, start_urls=[url], redis_client=init_redis_client())
+        super().__init__(*args, **kwargs, start_urls=[url])
 
     def parse(self, response: HtmlResponse, **kwargs):
         images = re.search(r"rm_h.initReader\(.*(\[{2}.*]{2}).*\)", response.text)

@@ -1,63 +1,50 @@
-# Compose for development using volumes to ensure hot reload
-#version: "3"
-
 services:
   web:
     profiles:
       - app
     build:
       context: .
-      dockerfile: docker/web/Dockerfile.dev
+      dockerfile: docker/web/Dockerfile
+    restart: unless-stopped
     expose:
       - 8000
     environment:
       - DEBUG
       - ALLOWED_HOSTS
+      - SECRET_KEY
       - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
-      - SECRET_KEY=${SECRET_KEY:-DevServer}
       # Static
       - HOST=0.0.0.0
       - PORT=8000
       - REDIS_URL=redis://redis:6379
       - TYPESENSE_HOST=typesense
     ports:
-      - "${PORT:-8888}:8000"
-    volumes:
-      - ./:/app
-      - sora_poetry:/home/sora/.cache/pypoetry
+      - "${PORT:-80}:8000"
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:8000/api/health" ]
       interval: 5s
       timeout: 5s
 
-  celery:
+  rq:
     profiles:
       - app
-      - base
     image: backend_web
-    command: poetry run celery -A manga_reader worker -l INFO
+    restart: unless-stopped
+    command: poetry run python manage.py rqworker default
     environment:
       - DEBUG
       - PROXY
+      - SECRET_KEY
       - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
-      - SECRET_KEY=${SECRET_KEY:-DevServer}
       - REDIS_URL=redis://redis:6379
       - TYPESENSE_HOST=typesense
-    volumes:
-      - ./:/app
-      - sora_poetry:/home/sora/.cache/pypoetry
     depends_on:
       - web
-    healthcheck:
-      test: poetry run celery -A manga_reader status
-      interval: 5s
-      timeout: 5s
 
   db:
     profiles:
       - data
       - app
-      - base
     restart: unless-stopped
     image: postgres:12
     ports:
@@ -78,7 +65,6 @@ services:
     profiles:
       - data
       - app
-      - base
     image: redis
     command: redis-server
     restart: unless-stopped
@@ -100,7 +86,6 @@ services:
     profiles:
       - data
       - app
-      - base
     image: typesense/typesense:0.23.1
     restart: unless-stopped
     command: --data-dir /data --api-key=$TYPESENSE_API_KEY --enable-cors
@@ -111,6 +96,5 @@ services:
 
 volumes:
   tsdata:
-  sora_poetry:
   sora_redis:
   sora_postgres:

@@ -27,7 +27,14 @@ ENV HOME="/home/$USERNAME"
 ENV PATH="${PATH}:$HOME/.local/bin"
 
 RUN pip install --upgrade pip pipx && pipx install poetry
+COPY pyproject.toml poetry.lock ./
+RUN poetry install
+
+COPY . .
+RUN sudo chown -R $USERNAME:$USERNAME .
+
+RUN SECRET_KEY=1 poetry run python manage.py collectstatic --noinput
 
 EXPOSE 8000
-
+RUN chmod +x docker-entrypoint.sh
 CMD ["./docker-entrypoint.sh"]

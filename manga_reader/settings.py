@@ -46,13 +46,16 @@ HEADERS = {
     "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0",
 }
 REDIS_URL = env("REDIS_URL")
+RQ_QUEUES = {
+    "default": {
+        "URL": REDIS_URL,
+    }
+}
 
 typesense_host = env("TYPESENSE_HOST")
 typesense_api_key = env("TYPESENSE_API_KEY")
 TS_CLIENT = create_client(typesense_host, typesense_api_key)
 
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
@@ -74,7 +77,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "django_extensions",
-    "apps.core.apps.CoreConfig",
+    "django_rq",
+    "apps.core.apps",
     "apps.manga",
     "apps.parse",
     "apps.typesense_bind",

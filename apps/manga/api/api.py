@@ -33,9 +33,9 @@ def get_manga(request, manga_id: int):
     cache_entry = cache.get(manga.source_url)
     if cache_entry and cache_entry != ParsingStatus.parsing.value:
         return cache_entry
-    else:
+    elif not cache_entry:
         cache.set(manga.source_url, ParsingStatus.parsing.value)
-        run_spider_task(DETAIL_PARSER, url=manga.source_url)
+        run_spider_task.delay(DETAIL_PARSER, url=manga.source_url)
 
     return MangaOut(
         status=ParsingStatus.parsing.value,
@@ -53,9 +53,9 @@ def get_chapters(request, manga_id: int):
     cache_entry = cache.get(manga.rss_url)
     if cache_entry and cache_entry != ParsingStatus.parsing.value:
         return cache_entry
-    else:
+    elif not cache_entry:
         cache.set(manga.rss_url, ParsingStatus.parsing.value)
-        run_spider_task(CHAPTER_PARSER, url=manga.rss_url)
+        run_spider_task.delay(CHAPTER_PARSER, url=manga.rss_url)
 
     return ChapterListOut(
         status=ParsingStatus.parsing.value,
