@@ -1,0 +1,4 @@
+# I'm not sure why I needed this for my DNS to work, but I'll keep it just in case
+dispatch:
+  - url: "backend.sora-reader.app/*"
+    service: backend

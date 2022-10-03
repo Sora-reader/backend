@@ -1,0 +1,4 @@
+runtime: python310
+service: backend
+env_variables:
+  DEBUG: 0
