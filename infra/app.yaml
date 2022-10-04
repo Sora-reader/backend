@@ -1,6 +1,7 @@
 runtime: python310
 service: backend
 env_variables:
-  DEBUG: 0
+  DEBUG: 1
+  # temp solution
 vpc_access_connector:
   name: projects/sora-reader-364219/locations/europe-central2/connectors/saas-vpc-connector
