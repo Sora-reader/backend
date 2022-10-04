@@ -35,6 +35,11 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# Stub so it works while using cloudflare, I don't want to fix it for now, so here it is
+CSRF_TRUSTED_ORIGINS = [
+    "https://sora-reader.app",
+    "https://*.sora-reader.app",
+]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
