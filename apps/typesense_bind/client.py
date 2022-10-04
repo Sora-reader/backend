@@ -9,7 +9,7 @@ def create_client(host, key, protocol, port=8108):
                 {
                     "host": host,
                     "port": port if protocol != "https" else "443",
-                    "protocol": "http",
+                    "protocol": protocol,
                 },
             ],
             "api_key": key,
