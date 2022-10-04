@@ -19,8 +19,9 @@ steps:
       - 'SECRET_KEY=${_SECRET_KEY}'
       - 'DATABASE_URL=${_DATABASE_URL}'
       - 'REDIS_URL=${_REDIS_URL}'
-      - 'TYPESENSE_API_KEY=${_TYPESENSE_API_KEY}'
       - 'TYPESENSE_HOST=${_TYPESENSE_HOST}'
+      - 'TYPESENSE_PROTOCOL=${_TYPESENSE_PROTOCOL}'
+      - 'TYPESENSE_API_KEY=${_TYPESENSE_API_KEY}'
 
   - name: python
     entrypoint: pip

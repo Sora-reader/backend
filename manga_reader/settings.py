@@ -13,6 +13,7 @@ env = environ.Env(
     DJANGO_LOG_LEVEL=(str, "INFO"),
     REDIS_URL=(str, "redis://localhost:8883"),
     TYPESENSE_HOST=(str, "localhost"),
+    TYPESENSE_PROTOCOL=(str, "http"),
     TYPESENSE_API_KEY=(str, "tsapikey"),
     PROXY=(str, ""),
 )
@@ -53,8 +54,9 @@ RQ_QUEUES = {
 }
 
 typesense_host = env("TYPESENSE_HOST")
+typesense_protocol = env("TYPESENSE_PROTOCOL")
 typesense_api_key = env("TYPESENSE_API_KEY")
-TS_CLIENT = create_client(typesense_host, typesense_api_key)
+TS_CLIENT = create_client(typesense_host, typesense_api_key, typesense_protocol)
 
 CACHES = {
     "default": {
