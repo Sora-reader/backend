@@ -4,7 +4,9 @@ from django.core.management.base import BaseCommand
 from typesense.exceptions import ObjectNotFound
 
 from apps.manga.models import Manga
+from apps.manga.queries import fast_annotate_manga_query
 from apps.typesense_bind.client import get_ts_client
+from apps.typesense_bind.functions import upsert_collection
 from apps.typesense_bind.schema import schema, schema_name
 
 logger = logging.getLogger("management")
@@ -22,12 +24,7 @@ class Command(BaseCommand):
         client.collections.create(schema)
         logger.info("Recreated collection")
 
-        mangas = list(Manga.objects.values('id', 'title', 'alt_title'))
-        # Yeah, I know
-        mangas = [
-            {'id': str(m['id']), 'title': m['title'], 'alt_title': m['alt_title']}
-            for m in mangas
-        ]
+        mangas = fast_annotate_manga_query(Manga.objects.all())
 
-        res = client.collections[schema_name].documents.import_(mangas, {'action': 'upsert'})
+        res = upsert_collection(client, mangas)
         logger.info(f"Imported {len(res)} documents")

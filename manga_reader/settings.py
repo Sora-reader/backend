@@ -6,6 +6,9 @@ import environ
 
 from apps.typesense_bind.client import create_client
 
+# TODO: docstrings in utils and stuff
+# TODO: Make logging better (also for management commands and scrapy)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, True),
@@ -88,7 +91,7 @@ INSTALLED_APPS = [
     "apps.core.apps",
     "apps.manga",
     "apps.parse",
-    "apps.typesense_bind",
+    "apps.typesense_bind.apps.TypesenseBindConfig",
 ]
 
 #########

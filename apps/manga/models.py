@@ -4,6 +4,7 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
 from apps.core.abc.models import BaseModel
+from apps.core.fast import FastQuerySet
 from apps.core.utils import url_prefix
 from apps.parse.source import SOURCE_TO_CATALOGUE_MAP
 
@@ -76,11 +77,12 @@ class Manga(BaseModel):
         verbose_name = "Manga"
         verbose_name_plural = "Manga"
 
+    objects = models.Manager.from_queryset(FastQuerySet)()
     NAME_FIELD = "title"
 
     title = TextField()
     alt_title = TextField(null=True, blank=True)
-    rating = DecimalField(default=0, max_digits=4, decimal_places=2)
+    rating = DecimalField(null=True, blank=True, max_digits=4, decimal_places=2)
     thumbnail = URLField(max_length=2000, default="", blank=True)
     image = URLField(max_length=2000, default="", blank=True)
     description = TextField(default="", blank=True)

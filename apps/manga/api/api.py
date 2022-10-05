@@ -9,7 +9,7 @@ from apps.manga.models import Chapter, Manga
 from apps.parse.parser import CHAPTER_PARSER, DETAIL_PARSER, IMAGE_PARSER
 from apps.parse.tasks import run_spider_task
 from apps.parse.types import ParsingStatus
-from apps.typesense_bind.query import query_by_title
+from apps.typesense_bind.query import query_dict_list_by_title
 
 router = Router(tags=["Manga"])
 
@@ -23,7 +23,7 @@ def get_manga_or_404(pk, prefetch: List[str] = None):
 
 @router.get("/search/", response=List[MangaSchema])
 def search_manga(request, title: str):
-    return query_by_title(title)
+    return query_dict_list_by_title(title)
 
 
 @router.get("/{manga_id}/", response=MangaOut)

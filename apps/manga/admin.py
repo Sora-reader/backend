@@ -54,7 +54,10 @@ class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
         "status",
         "genre_list",
     )
-    list_filter = ("genres", SourceFilter)
+    list_filter = (
+        "genres",
+        SourceFilter,
+    )
 
     def custom_title(self, obj: Manga):
         concat = f"{obj.title}{', ' + obj.year if obj.year else ''}"

@@ -5,9 +5,15 @@ from ninja import ModelSchema, Schema
 from apps.manga.models import Chapter, Manga
 from apps.parse.types import ParsingStatus
 
+# Models
+
 
 class MangaSchema(ModelSchema):
     authors: List[str]
+    screenwriters: List[str]
+    illustrators: List[str]
+    translators: List[str]
+    categories: List[str]
     genres: List[str]
 
     class Config:
@@ -22,22 +28,10 @@ class MangaSchema(ModelSchema):
             "thumbnail",
             "image",
             "description",
-            # "screenwriters",
-            # "illustrators",
-            # "translators",
-            # "categories",
             "status",
             "year",
             "modified",
         )
-
-    @staticmethod
-    def resolve_genres(obj: Manga):
-        return [g.name for g in obj.genres.all()]
-
-    @staticmethod
-    def resolve_authors(obj: Manga):
-        return [g.name for g in obj.authors]
 
 
 class ChapterSchema(ModelSchema):
@@ -53,6 +47,10 @@ class ChapterSchema(ModelSchema):
 
 
 ImageSchema = str
+
+# Modifications and collections
+
+MangaList = List[MangaSchema]
 
 
 class MangaOut(Schema):
