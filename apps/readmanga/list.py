@@ -5,6 +5,7 @@ from scrapy.http import HtmlResponse
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders.crawl import CrawlSpider, Rule
 
+from apps.core.utils import url_prefix
 from apps.parse.items import MangaItem
 from apps.parse.source import CATALOGUES
 from apps.parse.spider import InjectUrlMixin
@@ -12,24 +13,18 @@ from apps.parse.spider import InjectUrlMixin
 READMANGA_URL = CATALOGUES["readmanga"]["source"]
 LIST_URL = f"{READMANGA_URL}/list"
 
-MANGA_TILE_TAG = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md-6")]'
-STAR_RATE_TAG = '//div[@class = "rating"]/@title'
-TITLE_TAG = "//h3/a[1]/@title"
-SOURCE_URL_TAG = "//h3/a[1]/@href"
-GENRES_TAG = '//div[@class = "tile-info"]//a[contains(@class, "badge")]/text()'
-THUMBNAIL_IMG_URL_TAG = '//img[contains(@class, "lazy")][1]/@data-original'
-ALT_TITLE_URL = "//h4[@title]//text()"
+_manga_tile = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md-6")]'
+_identifier = '//div[contains(@class, "tile col-md-6 ")]/@class'
+
+_title = "//h3/a[1]/@title"
+_thumbnail = '//img[contains(@class, "lazy")][1]/@data-original'
+_source_url = "//h3/a[1]/@href"
+_rating = '//div[@class = "compact-rate"]/@title'
+_genres = '//div[@class = "tile-info"]//a[contains(@class, "badge")]/text()'
 
 
-def parse_rating(rate_str: str):
-    """
-    >>> parse_rating("9.439212799072266 из 10")
-    9.43
-    """
-    try:
-        return float(re.match(r"^(\d\.\d{2})\d* из 10$", rate_str).group(1))
-    except (AttributeError, ValueError):
-        return 0.0
+# Not used for now
+# ALT_TITLE_URL = "//h4[@title]//text()"
 
 
 class ReadmangaListSpider(InjectUrlMixin, CrawlSpider):
@@ -37,10 +32,8 @@ class ReadmangaListSpider(InjectUrlMixin, CrawlSpider):
     start_urls = [LIST_URL]
     rules = [
         Rule(
-            LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]),
-            follow=True,
-            callback="parse",
-        ),
+            LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]), follow=True, callback="parse"
+        )
     ]
     custom_settings = {
         "DEPTH_LIMIT": 400,
@@ -51,29 +44,34 @@ class ReadmangaListSpider(InjectUrlMixin, CrawlSpider):
 
     def parse(self, response, **kwargs):
         mangas: List[MangaItem] = []
-        descriptions = response.xpath(MANGA_TILE_TAG).extract()
+        descriptions = response.xpath(_manga_tile).extract()
         for description in descriptions:
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
-            rating = parse_rating(response.xpath(STAR_RATE_TAG).extract_first("")) / 2
-            title = response.xpath(TITLE_TAG).extract_first("")
-            source_url = response.xpath(SOURCE_URL_TAG).extract_first("")
-            genres = response.xpath(GENRES_TAG).extract()
-            thumbnail = response.xpath(THUMBNAIL_IMG_URL_TAG).extract_first("")
+            identifier = response.xpath(_identifier).extract_first()
+
+            title = response.xpath(_title).extract_first("")
+            thumbnail = response.xpath(_thumbnail).extract_first("")
+            source_url = response.xpath(_source_url).extract_first("")
+            rating = response.xpath(_rating).extract_first("")
+            genres = response.xpath(_genres).extract()
+
+            # Post-processing
+            identifier = re.match(r".*el_(\d+).*", identifier).group(1)
             image = thumbnail.replace("_p", "")
-            alt_title = response.xpath(ALT_TITLE_URL).extract_first("")
+
+            if not source_url.startswith("http"):
+                source_url = url_prefix(self.start_urls[0]) + source_url
 
             mangas.append(
                 MangaItem(
-                    **{
-                        "rating": rating,
-                        "title": title,
-                        "alt_title": alt_title,
-                        "thumbnail": thumbnail,
-                        "image": image,
-                        "genres": genres,
-                        "source_url": READMANGA_URL + source_url,
-                    }
+                    identifier=identifier,
+                    title=title,
+                    thumbnail=thumbnail,
+                    image=image,
+                    source_url=source_url,
+                    rating=rating,
+                    genres=genres,
                 )
             )
             self.logger.info('Parsed manga "{}"'.format(title))

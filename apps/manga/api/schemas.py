@@ -9,6 +9,7 @@ from apps.parse.types import ParsingStatus
 
 
 class MangaSchema(ModelSchema):
+    source: str
     authors: List[str]
     screenwriters: List[str]
     illustrators: List[str]
@@ -20,10 +21,9 @@ class MangaSchema(ModelSchema):
         model = Manga
         model_fields = (
             "id",
-            # "source",
             "source_url",
+            "rss_url",
             "title",
-            "alt_title",
             "rating",
             "thumbnail",
             "image",

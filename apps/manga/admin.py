@@ -40,7 +40,7 @@ class SourceFilter(SimpleListFilter):
 
 @admin.register(Manga)
 class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
-    search_fields = ("title", "alt_title")
+    search_fields = ("title",)
     inlines = [
         ChapterInline,
         PersonInline,
@@ -61,10 +61,7 @@ class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
 
     def custom_title(self, obj: Manga):
         concat = f"{obj.title}{', ' + obj.year if obj.year else ''}"
-        if len(concat) < 30:
-            if obj.alt_title:
-                concat += f" ({obj.alt_title})"
-        else:
+        if len(concat) > 30:
             return concat[:30] + "..."
         return concat
 

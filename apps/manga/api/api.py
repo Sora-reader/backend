@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.http import Http404, HttpResponse
 from ninja import Router
 
+from apps.manga.annotate import manga_to_annotated_dict
 from apps.manga.api.schemas import ChapterListOut, ImageListOut, MangaOut, MangaSchema
 from apps.manga.models import Chapter, Manga
 from apps.parse.parser import CHAPTER_PARSER, DETAIL_PARSER, IMAGE_PARSER
@@ -39,7 +40,7 @@ def get_manga(request, manga_id: int):
 
     return MangaOut(
         status=ParsingStatus.parsing.value,
-        data=manga,
+        data=manga_to_annotated_dict(manga),
     )
 
 

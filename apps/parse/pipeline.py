@@ -3,7 +3,8 @@ from typing import Dict
 from django.core.cache import cache
 from scrapy import Spider
 
-from apps.manga.api.schemas import ChapterListOut, MangaOut, MangaSchema
+from apps.manga.annotate import manga_to_annotated_dict
+from apps.manga.api.schemas import ChapterListOut, MangaOut
 from apps.parse.types import ParsingStatus
 from apps.readmanga.chapter import ReadmangaChapterSpider
 from apps.readmanga.detail import ReadmangaDetailSpider
@@ -14,7 +15,7 @@ CACHE_SAVE_LOGIC: Dict[any, dict] = {
         "key_getter": lambda manga: manga.source_url,
         "convert": lambda manga: MangaOut(
             status=ParsingStatus.up_to_date.value,
-            data=MangaSchema.from_orm(manga),
+            data=manga_to_annotated_dict(manga),
         ),
         "timeout": 3600 * 24 * 7,
     },

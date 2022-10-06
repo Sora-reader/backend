@@ -3,6 +3,7 @@ from typing import List
 from django.db.models import CharField, Q
 
 from apps.core.fast import FastQuerySet
+from apps.manga.models import Manga
 from apps.parse.source import SOURCE_TO_CATALOGUE_MAP
 
 
@@ -33,3 +34,7 @@ def fast_annotate_manga_query(query: FastQuerySet) -> List[dict]:
         )
         .parse_values()
     )
+
+
+def manga_to_annotated_dict(obj: Manga) -> dict:
+    return fast_annotate_manga_query(Manga.objects.filter(pk=obj.pk))[0]

@@ -6,7 +6,6 @@ from django.db import transaction
 from scrapy.spiders import Spider
 
 from apps.core.abc.models import BaseModel
-from apps.core.utils import url_prefix
 from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga, PersonRole
 from apps.parse.items import ImagesItem, MangaChapterItem
 from apps.parse.pipeline import BasePipeline
@@ -49,20 +48,22 @@ class ReadmangaChapterPipeline(BasePipeline):
 
 class ReadmangaPipeline(BasePipeline):
     @staticmethod
-    def get_or_create_or_update_manga(spider: Spider, source_url, **data) -> Manga:
+    def get_or_create_or_update_manga(spider: Spider, identifier, **data) -> Manga:
         """Explicit is better than implicit."""
-        manga, _ = Manga.objects.get_or_create(source_url=source_url)
-        manga_already = Manga.objects.filter(source_url=source_url)
-        if manga_already.exists():
-            manga_already.update(**data)
-            manga = manga_already.first()  # noqa
+        matching_query = Manga.objects.filter(identifier=identifier)
+
+        if matching_query.exists():
+            spider.logger.info(f"Manga exists, updating with {data}")
+            matching_query.update(**data)
+            manga = matching_query.first()
             spider.logger.info(f'Updated item "{manga}"')
         else:
             manga = Manga.objects.create(
-                source_url=source_url,
+                identifier=identifier,
                 **data,
             )
             spider.logger.info(f'Created item "{manga}"')
+
         return manga
 
     def process_item(self, item: dict, spider: Spider) -> dict:
@@ -74,11 +75,6 @@ class ReadmangaPipeline(BasePipeline):
             spider.logger.error(message)
             raise KeyError(message)
 
-        source_url = data.pop("source_url")
-        rss_url = data.get("rss_url", None)
-        if rss_url:
-            data["rss_url"] = url_prefix(spider.start_urls[0]) + rss_url
-
         genres = data.pop("genres", [])
         authors = data.pop("authors", [])
         illustrators = data.pop("illustrators", [])
@@ -86,21 +82,23 @@ class ReadmangaPipeline(BasePipeline):
         translators = data.pop("translators", [])
         categories = data.pop("categories", [])
 
-        manga = self.get_or_create_or_update_manga(spider, source_url, **data)
+        identifier = data.pop("identifier")
+        manga = self.get_or_create_or_update_manga(spider, identifier, **data)
 
+        # TODO: move it to model, like for sav_persons use atomic transaction
         genres = bulk_get_or_create(Genre, genres)
+        manga.genres.clear()
         manga.genres.add(*genres)
+
+        categories = bulk_get_or_create(Category, categories)
+        manga.categories.clear()
+        manga.categories.add(*categories)
 
         PersonRelatedToManga.save_persons(manga, PersonRole.author, authors)
         PersonRelatedToManga.save_persons(manga, PersonRole.illustrator, illustrators)
         PersonRelatedToManga.save_persons(manga, PersonRole.screenwriter, screenwriters)
         PersonRelatedToManga.save_persons(manga, PersonRole.translator, translators)
 
-        categories = [Category.objects.get_or_create(name=category)[0] for category in categories]
-        manga.categories.clear()
-        manga.categories.set(categories)
-
-        manga.save()
         spider.logger.info(f"Saved manga {manga}")
         self.save_to_cache(manga, spider)
 

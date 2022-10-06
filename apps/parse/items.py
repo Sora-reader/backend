@@ -2,12 +2,13 @@ from scrapy import Field, Item
 
 
 class MangaItem(Item):
+    identifier = Field()
+
     title = Field()
-    alt_title = Field()
+    description = Field()
     rating = Field()
     thumbnail = Field()
     image = Field()
-    description = Field()
     status = Field()
     year = Field()
     source_url = Field()
@@ -17,6 +18,7 @@ class MangaItem(Item):
     # M2Ms
     genres = Field()
     categories = Field()
+    # M2M persons
     authors = Field()
     translators = Field()
     illustrators = Field()

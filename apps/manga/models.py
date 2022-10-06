@@ -81,7 +81,9 @@ class Manga(BaseModel):
     NAME_FIELD = "title"
 
     title = TextField()
-    alt_title = TextField(null=True, blank=True)
+    # Identifier for source site. Can be a direct ID or a hash
+    identifier = TextField()
+
     rating = DecimalField(null=True, blank=True, max_digits=4, decimal_places=2)
     thumbnail = URLField(max_length=2000, default="", blank=True)
     image = URLField(max_length=2000, default="", blank=True)

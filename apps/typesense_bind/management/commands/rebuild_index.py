@@ -3,8 +3,8 @@ import logging
 from django.core.management.base import BaseCommand
 from typesense.exceptions import ObjectNotFound
 
+from apps.manga.annotate import fast_annotate_manga_query
 from apps.manga.models import Manga
-from apps.manga.queries import fast_annotate_manga_query
 from apps.typesense_bind.client import get_ts_client
 from apps.typesense_bind.functions import upsert_collection
 from apps.typesense_bind.schema import schema, schema_name
