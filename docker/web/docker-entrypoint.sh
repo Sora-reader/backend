@@ -25,11 +25,11 @@ done
 info "Running migrations"
 poetry run ./manage.py migrate --no-input
 
-info "Waiting for typesense"
-until curl "http://$TYPESENSE_HOST:8108/health"; do
-    echo >&2 "Typesense is unavailable - sleeping"
-    sleep 1
-done
+#info "Waiting for typesense"
+#until curl "http://$TYPESENSE_HOST:8108/health"; do
+#    echo >&2 "Typesense is unavailable - sleeping"
+#    sleep 1
+#done
 
 # Get core count
 core_count=$(grep 'cpu[0-9]+' /proc/stat | wc -l)

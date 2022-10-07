@@ -151,4 +151,8 @@ README.md
 redis-data
 redis.conf
 staticfiles/
-docker/
+infra/
+.gcloudignore
+.ipython/
+.editorconfig
+.env.example

@@ -2,10 +2,8 @@ FROM python:3.10-slim as base
 
 RUN apt-get update && apt-get install -y \
     sudo gcc g++ \
-    libffi-dev \
-    libpq-dev \
-    '^postgresql-client-.+$' \
-    gettext
+    libffi-dev libpq-dev \
+    postgresql-client
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -35,6 +33,8 @@ RUN sudo chown -R $USERNAME:$USERNAME .
 
 RUN SECRET_KEY=1 poetry run python manage.py collectstatic --noinput
 
-EXPOSE 8000
-RUN chmod +x docker-entrypoint.sh
-CMD ["./docker-entrypoint.sh"]
+RUN chmod +x docker/web/rqworker-entrypoint.sh
+RUN chmod +x docker/web/docker-entrypoint.sh
+CMD ["./docker/web/docker-entrypoint.sh"]
+
+EXPOSE "$PORT"

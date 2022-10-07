@@ -211,4 +211,10 @@ dmypy.json
 cython_debug/
 
 infra/
+.ipython/
+logs/
 .github/
+LICENSE
+.flake8
+.env.example
+.editorconfig
