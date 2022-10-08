@@ -17,7 +17,7 @@ env = environ.Env(
     REDIS_URL=(str, "redis://localhost:8883"),
     TYPESENSE_HOST=(str, "localhost"),
     TYPESENSE_PROTOCOL=(str, "http"),
-    TYPESENSE_API_KEY=(str, "tsapikey"),
+    TYPESENSE_API_KEY=(str, "api"),
     PROXY=(str, ""),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))

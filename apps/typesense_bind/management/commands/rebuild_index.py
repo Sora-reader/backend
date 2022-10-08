@@ -26,5 +26,13 @@ class Command(BaseCommand):
 
         mangas = fast_annotate_manga_query(Manga.objects.all())
 
-        res = upsert_collection(client, mangas)
-        logger.info(f"Imported {len(res)} documents")
+        start = 0
+        step = 1000
+        end = len(mangas)
+        inserted = 0
+        logger.info(f"Importing {end} documents")
+        for chunk_start in range(start, end, step):
+            inserted += len(upsert_collection(client, mangas[chunk_start:chunk_start + step]))
+            print(f'=> imported {inserted} documents')
+
+        logger.info(f"finished importing {inserted} documents")

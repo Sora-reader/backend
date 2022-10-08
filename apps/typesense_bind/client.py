@@ -13,7 +13,7 @@ def create_client(host, key, protocol, port=8108):
                 },
             ],
             "api_key": key,
-            "connection_timeout_seconds": 10,
+            "connection_timeout_seconds": 20,
         }
     )
 
