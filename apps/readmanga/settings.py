@@ -15,7 +15,7 @@ SPIDER_MODULES = [
     "apps.readmanga.chapter",
     "apps.readmanga.images",
 ]
-LOG_FILE = "parse-readmanga.log"
+# LOG_FILE = "parse-readmanga.log"
 
 DOWNLOADER_MIDDLEWARES = {
     "apps.parse.middleware.ErrorLoggerMiddleware": 340,
