@@ -152,6 +152,7 @@ redis-data
 redis.conf
 staticfiles/
 infra/
+docker/
 .gcloudignore
 .ipython/
 .editorconfig

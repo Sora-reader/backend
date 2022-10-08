@@ -214,6 +214,7 @@ infra/
 .ipython/
 logs/
 .github/
+docker/
 LICENSE
 .flake8
 .env.example

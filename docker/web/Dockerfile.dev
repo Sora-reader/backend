@@ -30,4 +30,4 @@ RUN pip install --upgrade pip pipx && pipx install poetry
 
 EXPOSE 8000
 
-CMD ["./docker-entrypoint.sh"]
+CMD ["./scripts/dev-entrypoint.sh"]

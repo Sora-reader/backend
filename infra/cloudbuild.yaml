@@ -1,89 +1,44 @@
 steps:
-  # Cloud Run rq worker
-
-  # Download cache
-  - name: 'gcr.io/cloud-builders/docker'
-    id: worker-image-pull
+  - name: ubuntu
+    id: poetry-export
     waitFor: [ '-' ]
-    entrypoint: 'bash'
-    args: [ '-c', 'docker pull gcr.io/$PROJECT_ID/task-worker:latest || exit 0' ]
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        apt update
+        apt install python3 python3-pip -y
+        pip3 install poetry
+        poetry export >| requirements.txt
 
-  # Build the container image
-  - name: 'gcr.io/cloud-builders/docker'
-    id: worker-image-build
-    waitFor: [ worker-image-pull ]
-    args: [
-      'build',
-      '-t', 'gcr.io/$PROJECT_ID/task-worker',
-      '-f', 'docker/web/Dockerfile',
-      '--cache-from', 'gcr.io/$PROJECT_ID/task-worker:latest',
-      '.'
-    ]
-  # Push the container image to Container Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    id: worker-image-push
-    waitFor: [ worker-image-build ]
-    args: [ 'push', 'gcr.io/$PROJECT_ID/task-worker' ]
-  # Deploy container image to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    waitFor: [ worker-image-push ]
-    entrypoint: gcloud
-    args: [
-      'run',
-      'deploy',
-      'task-worker',
-      '--image', 'gcr.io/$PROJECT_ID/task-worker',
-      '--region', 'europe-central2',
-      '--update-env-vars',
-      "DEBUG=0,HOST=0.0.0.0,SECRET_KEY=${_SECRET_KEY},
-      DATABASE_URL=${_DATABASE_URL},REDIS_URL=${_REDIS_URL},
-      TYPESENSE_HOST=${_TYPESENSE_HOST},TYPESENSE_PROTOCOL=${_TYPESENSE_PROTOCOL},TYPESENSE_API_KEY=${_TYPESENSE_API_KEY}",
-      '--vpc-connector', 'projects/$PROJECT_ID/locations/europe-central2/connectors/saas-vpc-connector',
-      '--args', './docker/web/rqworker-entrypoint.sh'
-    ]
-#
-#  - name: ubuntu
-#    id: poetry-export
-#    waitFor: [ '-' ]
-#    entrypoint: bash
-#    args:
-#      - '-c'
-#      - |
-#        apt update
-#        apt install python3 python3-pip -y
-#        pip3 install poetry
-#        poetry export >| requirements.txt
-#
-#  - name: ubuntu
-#    waitFor: [ '-' ]
-#    entrypoint: bash
-#    args:
-#      - '-c'
-#      - |
-#        printenv >| .env
-#    env:
-#      - 'SECRET_KEY=${_SECRET_KEY}'
-#      - 'DATABASE_URL=${_DATABASE_URL}'
-#      - 'REDIS_URL=${_REDIS_URL}'
-#      - 'TYPESENSE_HOST=${_TYPESENSE_HOST}'
-#      - 'TYPESENSE_PROTOCOL=${_TYPESENSE_PROTOCOL}'
-#      - 'TYPESENSE_API_KEY=${_TYPESENSE_API_KEY}'
+  - name: ubuntu
+    id: env-setup
+    waitFor: [ '-' ]
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        printenv >| .env
+    env:
+      - 'SECRET_KEY=${_SECRET_KEY}'
+      - 'DATABASE_URL=${_DATABASE_URL}'
+      - 'REDIS_URL=${_REDIS_URL}'
+      - 'TYPESENSE_HOST=${_TYPESENSE_HOST}'
+      - 'TYPESENSE_PROTOCOL=${_TYPESENSE_PROTOCOL}'
+      - 'TYPESENSE_API_KEY=${_TYPESENSE_API_KEY}'
 
-#  - name: python
-#    id: collectstatic
-#    waitFor: [ poetry-export ]
-#    entrypoint: pip
-#    args: [ "install", "-r", "requirements.txt", "--user", "--no-warn-script-location" ]
-#
-#  - name: python
-#    id: collectstatic
-#    waitFor: [ poetry-export, env-setup ]
-#    entrypoint: python
-#    args: [ "manage.py", "collectstatic", "--noinput" ]
-#
-#  - name: "gcr.io/cloud-builders/gcloud"
-#    waitFor: [ collectstatic ]
-#    args: [ "app", "deploy", "--appyaml=infra/app.yaml" ]
+  - name: python
+    id: install-deps
+    waitFor: [ poetry-export ]
+    entrypoint: pip
+    args: [ "install", "-r", "requirements.txt", "--user", "--no-warn-script-location" ]
 
-images:
-  - gcr.io/$PROJECT_ID/task-worker:latest
+  - name: python
+    id: collectstatic
+    waitFor: [ env-setup, install-deps ]
+    entrypoint: python
+    args: [ "manage.py", "collectstatic", "--noinput" ]
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    waitFor: [ collectstatic ]
+    args: [ "app", "deploy", "--appyaml=infra/app.yaml" ]

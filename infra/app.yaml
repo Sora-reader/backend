@@ -1,5 +1,6 @@
 runtime: python310
 service: backend
+entrypoint: ./scripts/web-and-worker.sh
 env_variables:
   DEBUG: 0
 

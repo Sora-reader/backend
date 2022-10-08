@@ -194,19 +194,19 @@ paths:
     get:
       tags:
         - manga
-      summary: Get images for chapter by ID
-      description: Returns images for chapter
+      summary: Get docker for chapter by ID
+      description: Returns docker for chapter
       operationId: mangaChapterImages
       parameters:
         - name: chapterId
           in: path
-          description: ID of chapter to get images for
+          description: ID of chapter to get docker for
           required: true
           schema:
             type: number
         - name: parse
           in: query
-          description: Whether to run parsing of images again (if links are broken)
+          description: Whether to run parsing of docker again (if links are broken)
           required: false
           schema:
             type: boolean
