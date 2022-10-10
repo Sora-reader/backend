@@ -8,6 +8,7 @@
 .idea/**/dictionaries
 .idea/**/shelf
 .idea/dataSources.xml
+.idea/redisSettings.xml
 
 # Generated files
 .idea/**/contentModel.xml
