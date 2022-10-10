@@ -3,6 +3,3 @@ service: backend
 env_variables:
   DEBUG: 0
 
-# TODO: remove or hide lol
-vpc_access_connector:
-  name: projects/sora-reader-364219/locations/europe-central2/connectors/saas-vpc-connector
