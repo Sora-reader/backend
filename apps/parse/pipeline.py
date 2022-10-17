@@ -4,7 +4,7 @@ from django.core.cache import cache
 from scrapy import Spider
 
 from apps.manga.annotate import manga_to_annotated_dict
-from apps.manga.api.schemas import ChapterListOut, MangaOut
+from apps.manga.api.schemas import ChapterListOut, ImageListOut, MangaOut
 from apps.parse.types import ParsingStatus
 from apps.readmanga.chapter import ReadmangaChapterSpider
 from apps.readmanga.detail import ReadmangaDetailSpider
@@ -28,8 +28,10 @@ CACHE_SAVE_LOGIC: Dict[any, dict] = {
         "timeout": 3600,
     },
     ReadmangaImageSpider: {
-        "key_getter": lambda images_item: images_item["chapter_url"],
-        "convert": lambda images_item: images_item["images"],
+        "key_getter": lambda images_data: images_data["chapter_url"],
+        "convert": lambda images_data: ImageListOut(
+            status=ParsingStatus.up_to_date, data=images_data["images"]
+        ),
         "timeout": 3600 * 8,
     },
 }

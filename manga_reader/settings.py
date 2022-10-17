@@ -1,8 +1,13 @@
+import copy
+import logging
 import os
+from functools import partial
 from pathlib import Path
 
 import dj_database_url
 import environ
+import scrapy.utils.log
+from colorlog import ColoredFormatter
 
 from apps.typesense_bind.client import create_client
 
@@ -252,12 +257,44 @@ USE_TZ = True
 # Logging #
 ##########
 
+# Colored formatting into masses
+
+COLORED_FORMAT = (
+    "%(log_color)s%(levelname)-8s%(reset)s"
+    "%(bold_white)s[%(asctime)s]%(reset)s "
+    "%(log_color)s%(message)s%(reset)s"
+)
+COLORLESS_FORMAT = "%(levelname)-8s[%(asctime)s] %(message)s"
+LOGGER_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+SoraColoredLogger = partial(
+    ColoredFormatter,
+    datefmt=LOGGER_DATE_FORMAT,
+    log_colors={
+        "DEBUG": "white",
+        "INFO": "bold_cyan",
+        "WARNING": "bold_yellow",
+        "ERROR": "bold_red",
+        "CRITICAL": "red,bg_white",
+    },
+)
+
+color_formatter = SoraColoredLogger(COLORED_FORMAT)
+colorless_formatter = logging.Formatter(COLORLESS_FORMAT, datefmt=LOGGER_DATE_FORMAT)
+
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "colored": {
+            "()": "manga_reader.settings.SoraColoredLogger",
+            "format": COLORED_FORMAT,
+        }
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "colored",
         },
     },
     "root": {
@@ -270,5 +307,26 @@ LOGGING = {
             "level": env("DJANGO_LOG_LEVEL"),
             "propagate": False,
         },
+        "management": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }
+
+# Hijack Scrapy's logging
+
+_get_handler = copy.copy(scrapy.utils.log._get_handler)  # noqa
+
+
+def _get_handler_custom(*args, **kwargs):
+    handler = _get_handler(*args, **kwargs)
+    formatter = color_formatter
+    if isinstance(handler, logging.FileHandler):
+        formatter = colorless_formatter
+    handler.setFormatter(formatter)
+    return handler
+
+
+scrapy.utils.log._get_handler = _get_handler_custom

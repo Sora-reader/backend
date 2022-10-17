@@ -4,6 +4,7 @@ import scrapy
 from orjson import loads
 from scrapy.http import HtmlResponse
 
+from apps.parse.exceptions import ParsingError
 from apps.parse.items import ImagesItem
 from apps.parse.spider import InjectUrlMixin
 
@@ -21,10 +22,11 @@ class ReadmangaImageSpider(InjectUrlMixin, scrapy.Spider):
 
     def parse(self, response: HtmlResponse, **kwargs):
         images = re.search(r"rm_h.initReader\(.*(\[{2}.*]{2}).*\)", response.text)
-        image_links = []
-        if images:
-            image_links = [
-                "".join(image[:COUNT_LINK_ELEMENTS])
-                for image in loads(images.group(1).replace("'", '"'))
-            ]
+        if not images:
+            raise ParsingError("No image list was found")
+
+        image_links = [
+            "".join(image[:COUNT_LINK_ELEMENTS])
+            for image in loads(images.group(1).replace("'", '"'))
+        ]
         return ImagesItem(chapter_url=self.start_urls[0], images=image_links)

@@ -16,7 +16,7 @@ SPIDER_MODULES = [
     "apps.readmanga.images",
 ]
 # Remove for now as GAE workspace is immutable
-# LOG_FILE = "parse-readmanga.log"
+LOG_FILE = "parse-readmanga.log"
 
 DOWNLOADER_MIDDLEWARES = {
     "apps.parse.middleware.ErrorLoggerMiddleware": 340,

@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 from ninja import ModelSchema, Schema
 
@@ -51,20 +51,29 @@ ImageSchema = str
 # Modifications and collections
 
 MangaList = List[MangaSchema]
+ImageList = List[str]
 
 
-class MangaOut(Schema):
+class ParsingSchemaOut(Schema):
     status: ParsingStatus
+    data: Any
+
+
+class MangaOut(ParsingSchemaOut):
     data: MangaSchema
 
 
-class ChapterListOut(Schema):
-    status: ParsingStatus
+class ChapterListOut(ParsingSchemaOut):
     data: List[ChapterSchema]
 
 
-class ImageListOut(Schema):
-    __root__: List[ImageSchema]
+class ImageListOut(ParsingSchemaOut):
+    data: List[ChapterSchema]
 
-    class Config:
-        arbitrary_types_allowed = True
+
+class MessageSchema(Schema):
+    message: str
+
+
+class ErrorSchema(Schema):
+    error: str

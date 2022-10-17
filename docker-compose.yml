@@ -137,7 +137,7 @@ services:
       - dev
     image: typesense/typesense:0.23.1
     restart: unless-stopped
-    command: --data-dir /data --api-key=$TYPESENSE_API_KEY --enable-cors
+    command: --data-dir /data --api-key=${TYPESENSE_API_KEY:-api} --enable-cors
     volumes:
       - tsdata:/data
     ports:

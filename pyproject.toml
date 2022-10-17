@@ -28,6 +28,7 @@ uvicorn = "^0.18.3"
 scrapyscript = "^1.1.5"
 typesense = "^0.14.0"
 django-rq = "^2.5.1"
+colorlog = "^6.7.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^5.0.4"
