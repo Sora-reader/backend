@@ -64,6 +64,7 @@ def handle_parsing_with_caching(
 
     # Run tasks only if there's no results or parsing status inside cache
     elif not parsing_cache:
+        # Put task into queue
         run_spider_task.delay(spider, url=link)
 
     return 200, fallback

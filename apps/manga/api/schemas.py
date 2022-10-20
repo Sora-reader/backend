@@ -68,7 +68,7 @@ class ChapterListOut(ParsingSchemaOut):
 
 
 class ImageListOut(ParsingSchemaOut):
-    data: List[ChapterSchema]
+    data: ImageList
 
 
 class MessageSchema(Schema):

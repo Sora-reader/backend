@@ -8,6 +8,7 @@ function info () {
     echo "==============="
     echo "$2"
 }
+export -f info
 
 info "Waiting for postgres"
 until psql "$DATABASE_URL" -c ';'; do
