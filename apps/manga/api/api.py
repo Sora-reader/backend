@@ -1,30 +1,28 @@
 from typing import List, Tuple
 
+from django.conf import settings
 from django.core.cache import cache
 from django.http import Http404
 from ninja import Router
 
+from apps.core.api.schemas import ErrorSchema, MessageSchema
+from apps.core.api.utils import sora_schema
 from apps.manga.annotate import manga_to_annotated_dict
 from apps.manga.api.schemas import (
     ChapterListOut,
-    ErrorSchema,
     ImageListOut,
     MangaOut,
     MangaSchema,
-    MessageSchema,
     ParsingSchemaOut,
 )
 from apps.manga.models import Chapter, Manga
+from apps.parse.exceptions import ParsingError
 from apps.parse.parser import CHAPTER_PARSER, DETAIL_PARSER, IMAGE_PARSER
 from apps.parse.tasks import run_spider_task
 from apps.parse.types import ParsingStatus
 from apps.typesense_bind.query import query_dict_list_by_title
 
 router = Router(tags=["Manga"])
-
-
-def with_error_schema(schema):
-    return {200: schema, 400: ErrorSchema, 425: MessageSchema}
 
 
 def is_error_payload(data):
@@ -65,7 +63,13 @@ def handle_parsing_with_caching(
     # Run tasks only if there's no results or parsing status inside cache
     elif not parsing_cache:
         # Put task into queue
-        run_spider_task.delay(spider, url=link)
+        f = run_spider_task
+        if not settings.DEBUG:
+            f = f.delay
+        try:
+            f(spider, url=link)
+        except ParsingError as e:
+            return 400, ErrorSchema(error=str(e))
 
     return 200, fallback
 
@@ -82,7 +86,7 @@ def search_manga(request, title: str):
     return query_dict_list_by_title(title)
 
 
-@router.get("/{manga_id}/", response=with_error_schema(MangaOut))
+@router.get("/{manga_id}/", response=sora_schema(MangaOut))
 def get_manga(request, manga_id: int):
     manga = get_manga_or_404(pk=manga_id)
 
@@ -93,12 +97,11 @@ def get_manga(request, manga_id: int):
     )
 
 
-@router.get("/{manga_id}/chapters/", response=with_error_schema(ChapterListOut))
+@router.get("/{manga_id}/chapters/", response=sora_schema(ChapterListOut))
 def get_chapters(request, manga_id: int):
     manga = get_manga_or_404(pk=manga_id, prefetch=["chapters"])
 
     if not manga.rss_url:
-        print(manga, manga.rss_url)
         return 425, MessageSchema(message="Detail's were not yet parsed")
 
     return handle_parsing_with_caching(
@@ -108,7 +111,7 @@ def get_chapters(request, manga_id: int):
     )
 
 
-@router.get("/{manga_id}/chapters/{chapter_id}/images/", response=with_error_schema(ImageListOut))
+@router.get("/{manga_id}/chapters/{chapter_id}/images/", response=sora_schema(ImageListOut))
 def get_chapter_images(request, manga_id: int, chapter_id: int):
     chapter = Chapter.objects.filter(pk=chapter_id, manga_id=manga_id).first()
 

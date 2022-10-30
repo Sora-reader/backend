@@ -1,4 +1,4 @@
-from apps.manga.api.schemas import ErrorSchema
+from apps.core.api.schemas import ErrorSchema
 
 
 class ParsingError(Exception):

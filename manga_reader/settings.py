@@ -12,7 +12,6 @@ from colorlog import ColoredFormatter
 from apps.typesense_bind.client import create_client
 
 # TODO: docstrings in utils and stuff
-# TODO: Make logging better (also for management commands and scrapy)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
@@ -26,6 +25,11 @@ env = environ.Env(
     PROXY=(str, ""),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# Django debug toolbar IPs
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 ###########
 # Project #
@@ -43,13 +47,19 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # Stub so it works while using cloudflare, I don't want to fix it for now, so here it is
 CSRF_TRUSTED_ORIGINS = [
     "https://sora-reader.app",
     "https://*.sora-reader.app",
+    "http://localhost:3000",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
+CORS_ALLOW_CREDENTIALS = True
+
+SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_NAME = "sessionId"
 
 ############
 # Scraping #
@@ -92,8 +102,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "django_extensions",
+    "debug_toolbar",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "django_rq",
-    "apps.core.apps",
+    "apps.core",
+    "apps.authentication.apps.AuthenticationConfig",
     "apps.manga",
     "apps.parse",
     "apps.typesense_bind.apps.TypesenseBindConfig",
@@ -148,7 +164,6 @@ JAZZMIN_SETTINGS = {
         "parse.genre",
         "auth",
         "login",
-        "authtoken",
         "core",
     ],
     "default_icon_parents": "fas fa-chevron-circle-right",
@@ -179,6 +194,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ############
@@ -193,6 +209,31 @@ DATABASES = {
 #################
 # Authorization #
 #################
+
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": "",
+            "secret": "",
+            "key": "",
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {

@@ -69,11 +69,3 @@ class ChapterListOut(ParsingSchemaOut):
 
 class ImageListOut(ParsingSchemaOut):
     data: ImageList
-
-
-class MessageSchema(Schema):
-    message: str
-
-
-class ErrorSchema(Schema):
-    error: str

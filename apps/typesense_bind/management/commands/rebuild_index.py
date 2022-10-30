@@ -33,6 +33,6 @@ class Command(BaseCommand):
         logger.info(f"Importing {end} documents")
         for chunk_start in range(start, end, step):
             inserted += len(upsert_collection(client, mangas[chunk_start:chunk_start + step]))
-            print(f'=> imported {inserted} documents')
+            logger.info(f'=> imported {inserted} documents')
 
         logger.info(f"finished importing {inserted} documents")

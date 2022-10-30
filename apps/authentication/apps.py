@@ -1,8 +1,8 @@
 from django.apps import AppConfig
 
 
-class TypesenseBindConfig(AppConfig):
-    name = "apps.typesense_bind"
+class AuthenticationConfig(AppConfig):
+    name = "apps.authentication"
 
     def ready(self):
         from . import signals  # noqa
