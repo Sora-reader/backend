@@ -2,11 +2,10 @@ from typing import List, Tuple
 
 from django.conf import settings
 from django.core.cache import cache
-from django.http import Http404
 from ninja import Router
 
 from apps.core.api.schemas import ErrorSchema, MessageSchema
-from apps.core.api.utils import sora_schema
+from apps.core.api.utils import get_model_or_404, sora_schema
 from apps.manga.annotate import manga_to_annotated_dict
 from apps.manga.api.schemas import (
     ChapterListOut,
@@ -22,7 +21,7 @@ from apps.parse.tasks import run_spider_task
 from apps.parse.types import ParsingStatus
 from apps.typesense_bind.query import query_dict_list_by_title
 
-router = Router(tags=["Manga"])
+manga_router = Router(tags=["Manga"])
 
 
 def is_error_payload(data):
@@ -74,21 +73,14 @@ def handle_parsing_with_caching(
     return 200, fallback
 
 
-def get_manga_or_404(pk, prefetch: List[str] = None):
-    manga = Manga.objects.filter(pk=pk).prefetch_related(*(prefetch or [])).first()
-    if not manga:
-        raise Http404("No manga found")
-    return manga
-
-
-@router.get("/search/", response=List[MangaSchema])
+@manga_router.get("/search/", response=List[MangaSchema])
 def search_manga(request, title: str):
     return query_dict_list_by_title(title)
 
 
-@router.get("/{manga_id}/", response=sora_schema(MangaOut))
+@manga_router.get("/{manga_id}/", response=sora_schema(MangaOut))
 def get_manga(request, manga_id: int):
-    manga = get_manga_or_404(pk=manga_id)
+    manga = get_model_or_404(Manga, pk=manga_id)
 
     return handle_parsing_with_caching(
         DETAIL_PARSER,
@@ -97,12 +89,12 @@ def get_manga(request, manga_id: int):
     )
 
 
-@router.get("/{manga_id}/chapters/", response=sora_schema(ChapterListOut))
+@manga_router.get("/{manga_id}/chapters/", response=sora_schema(ChapterListOut))
 def get_chapters(request, manga_id: int):
-    manga = get_manga_or_404(pk=manga_id, prefetch=["chapters"])
+    manga = get_model_or_404(Manga, pk=manga_id, prefetch=["chapters"])
 
     if not manga.rss_url:
-        return 425, MessageSchema(message="Detail's were not yet parsed")
+        return 425, MessageSchema(message="Details were not yet parsed.")
 
     return handle_parsing_with_caching(
         CHAPTER_PARSER,
@@ -111,12 +103,12 @@ def get_chapters(request, manga_id: int):
     )
 
 
-@router.get("/{manga_id}/chapters/{chapter_id}/images/", response=sora_schema(ImageListOut))
+@manga_router.get("/{manga_id}/chapters/{chapter_id}/images/", response=sora_schema(ImageListOut))
 def get_chapter_images(request, manga_id: int, chapter_id: int):
     chapter = Chapter.objects.filter(pk=chapter_id, manga_id=manga_id).first()
 
     if not chapter:
-        return 400, ErrorSchema(error="No chapter found")
+        return 400, ErrorSchema(error="No chapter found.")
 
     res = handle_parsing_with_caching(
         IMAGE_PARSER,

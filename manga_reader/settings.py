@@ -110,7 +110,7 @@ INSTALLED_APPS = [
     "django_rq",
     "apps.core",
     "apps.authentication.apps.AuthenticationConfig",
-    "apps.manga",
+    "apps.manga.apps.MangaConfig",
     "apps.parse",
     "apps.typesense_bind.apps.TypesenseBindConfig",
 ]

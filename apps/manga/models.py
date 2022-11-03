@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.db.models.fields import DecimalField, FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
@@ -114,3 +115,38 @@ class Manga(BaseModel):
     @property
     def authors(self) -> QuerySet[Author]:
         return Author.objects.filter(manga_relations__manga=self)
+
+
+class SaveListMangaThrough(models.Model):
+    class Meta:
+        unique_together = ("save_list", "manga")
+        # TODO: Add constraint for manga to be only in 1 of user's lists
+
+    save_list = ForeignKey("SaveList", models.CASCADE)
+    manga = ForeignKey("Manga", models.CASCADE)
+
+
+class SaveListNameChoices(models.TextChoices):
+    reading = "Читаю"
+    favorite = "Избранные"
+    read_later = "Читать позже"
+    dropped = "Брошенные"
+
+
+class SaveList(BaseModel):
+    class Meta:
+        unique_together = ("user", "session", "name")
+        constraints = [
+            models.CheckConstraint(
+                check=Q(user__isnull=False) | Q(session__isnull=False), name="not_both_null"
+            )
+        ]
+
+    name = models.TextField(choices=SaveListNameChoices.choices, null=False, blank=False)
+
+    user = models.ForeignKey(
+        "auth.User", related_name="lists", on_delete=models.CASCADE, blank=True, null=True
+    )
+    session = models.TextField(blank=True, null=True)
+
+    mangas = models.ManyToManyField("Manga", related_name="lists", through=SaveListMangaThrough)
