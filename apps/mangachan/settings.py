@@ -5,18 +5,18 @@ import django
 os.environ["DJANGO_SETTINGS_MODULE"] = "manga_reader.settings"  # noqa
 django.setup()  # noqa
 
+from apps.mangachan.pipelines import MangachanPipeline  # noqa
 from apps.parse.scrapy.base_settings import *  # noqa
-from apps.readmanga.pipelines import ReadmangaPipeline  # noqa
 
-BOT_NAME = "readmanga"
+BOT_NAME = "mangachan"
 SPIDER_MODULES = [
-    "apps.readmanga.list",
-    "apps.readmanga.detail",
-    "apps.readmanga.chapter",
-    "apps.readmanga.images",
+    "apps.mangachan.list",
+    "apps.mangachan.detail",
+    "apps.mangachan.chapter",
+    "apps.mangachan.images",
 ]
 # Remove for now as GAE workspace is immutable
-LOG_FILE = "parse-readmanga.log"
+LOG_FILE = "parse-mangachan.log"
 
 DOWNLOADER_MIDDLEWARES = {
     "apps.parse.middleware.ErrorLoggerMiddleware": 340,
@@ -24,5 +24,5 @@ DOWNLOADER_MIDDLEWARES = {
     "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 400,
 }
 ITEM_PIPELINES = {
-    ReadmangaPipeline: 300,
+    MangachanPipeline: 300,
 }

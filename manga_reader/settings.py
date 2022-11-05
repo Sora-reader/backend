@@ -9,6 +9,7 @@ import environ
 import scrapy.utils.log
 from colorlog import ColoredFormatter
 
+from apps.parse.parser import CHAPTER_CACHE, DETAIL_CACHE, IMAGE_CACHE
 from apps.typesense_bind.client import create_client
 
 # TODO: docstrings in utils and stuff
@@ -85,7 +86,19 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
-    }
+    },
+    DETAIL_CACHE: {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}/2",
+    },
+    CHAPTER_CACHE: {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}/3",
+    },
+    IMAGE_CACHE: {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}/4",
+    },
 }
 
 ########

@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Q
-from django.db.models.fields import DecimalField, FloatField, TextField, URLField
+from django.db.models.fields import CharField, DecimalField, FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
@@ -81,21 +81,22 @@ class Manga(BaseModel):
     objects = models.Manager.from_queryset(FastQuerySet)()
     NAME_FIELD = "title"
 
-    title = TextField()
+    title = CharField(max_length=512, null=True, blank=True)
+
     # Identifier for source site. Can be a direct ID or a hash
-    identifier = TextField()
+    identifier = CharField(max_length=1024, null=True, blank=True)
 
     rating = DecimalField(null=True, blank=True, max_digits=4, decimal_places=2)
     thumbnail = URLField(max_length=2000, default="", blank=True)
     image = URLField(max_length=2000, default="", blank=True)
     description = TextField(default="", blank=True)
-    status = TextField(null=True, blank=True)
-    year = TextField(null=True, blank=True)
+    status = CharField(max_length=255, null=True, blank=True)
+    year = CharField(max_length=255, null=True, blank=True)
 
     # https://stackoverflow.com/questions/417142
     source_url = URLField(max_length=2000, unique=True)
     # There can be manga with no chapters, i.e. future releases
-    rss_url = URLField(max_length=2000, null=True, blank=True)
+    chapters_url = URLField(max_length=2000, null=True, blank=True)
 
     genres = ManyToManyField("Genre", related_name="mangas", blank=True)
     categories = ManyToManyField("Category", related_name="mangas", blank=True)
@@ -110,6 +111,8 @@ class Manga(BaseModel):
     def save(self, **kwargs):
         if not self.image:
             self.image = self.thumbnail
+        if self.source == "mangachan":
+            self.chapters_url = self.source_url
         return super().save(**kwargs)
 
     @property

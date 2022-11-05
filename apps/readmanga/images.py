@@ -1,21 +1,20 @@
 import re
 
-import scrapy
 from orjson import loads
 from scrapy.http import HtmlResponse
 
+from apps.parse.const import ParserType
 from apps.parse.exceptions import ParsingError
-from apps.parse.items import ImagesItem
-from apps.parse.spider import InjectUrlMixin
+from apps.parse.scrapy.items import ImagesItem
+from apps.parse.spider import BaseSpider
+from apps.readmanga import Readmanga
 
 COUNT_LINK_ELEMENTS = 3
 
 
-class ReadmangaImageSpider(InjectUrlMixin, scrapy.Spider):
-    name = "readmanga_image"
+@Readmanga.register(ParserType.image)
+class ReadmangaImageSpider(BaseSpider):
     custom_settings = {"ITEM_PIPELINES": {"apps.readmanga.pipelines.ReadmangaImagePipeline": 300}}
-    url: str = None
-    "Chapter url, like https://readmanga.live/podniatie_urovnia_v_odinochku__A5664/vol1/0"
 
     def __init__(self, *args, url: str, **kwargs):
         super().__init__(*args, **kwargs, start_urls=[url])

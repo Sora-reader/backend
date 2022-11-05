@@ -15,7 +15,6 @@ list_router = Router(tags=["Lists"])
 
 # TODO: better way to query with user/session
 # TODO: preserve order with LIST_NAMES and add it to custom queryset
-# TODO: stop using django extra?
 
 
 @list_router.get("/", response=List[SaveListOut])

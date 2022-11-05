@@ -3,7 +3,7 @@ from django.contrib.admin.filters import SimpleListFilter
 from django.db.models.query import QuerySet
 
 from apps.core.abc.admin import BaseAdmin, BaseTabularInline, ImagePreviewMixin, RelatedField
-from apps.manga.models import Author, Chapter, Genre, Manga, Person, PersonRelatedToManga
+from apps.manga.models import Author, Category, Chapter, Genre, Manga, Person, PersonRelatedToManga
 from apps.parse.source import CATALOGUE_NAMES
 
 
@@ -41,10 +41,10 @@ class SourceFilter(SimpleListFilter):
 @admin.register(Manga)
 class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
     search_fields = ("title",)
-    inlines = [
+    inlines = (
         ChapterInline,
         PersonInline,
-    ]
+    )
     list_display = (
         "custom_title",
         "source",
@@ -54,6 +54,7 @@ class MangaAdmin(BaseAdmin, ImagePreviewMixin, admin.ModelAdmin):
         "status",
         "genre_list",
     )
+    readonly_fields = ("identifier", "source_url", "chapters_url")
     list_filter = (
         "genres",
         SourceFilter,
@@ -84,6 +85,12 @@ class AuthorAdmin(PersonAdmin):
 
 @admin.register(Genre)
 class GenreAdmin(BaseAdmin, admin.ModelAdmin):
+    search_fields = ("name",)
+    list_display = ("name",)
+
+
+@admin.register(Category)
+class CategoryAdmin(BaseAdmin, admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name",)
 

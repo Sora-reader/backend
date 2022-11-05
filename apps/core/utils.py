@@ -10,5 +10,7 @@ def url_prefix(url: str) -> str:
 
     >>> url_prefix('https://readmanga.live/podniatie_urovnia_v_odinochku__A35c96')
     'https://readmanga.live'
+    >>> url_prefix('https://manga-chan.me/manga/8337-curtain.html')
+    'https://manga-chan.me'
     """
-    return re.match(r"(^https?://(.*))/.*$", url).group(1)
+    return re.match(r"(^https?://[^/]*)/.*$", url).group(1)

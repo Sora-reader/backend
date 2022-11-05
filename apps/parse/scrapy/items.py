@@ -12,7 +12,7 @@ class MangaItem(Item):
     status = Field()
     year = Field()
     source_url = Field()
-    rss_url = Field()
+    chapters_url = Field()
     # FKs
     chapters = Field()
     # M2Ms
@@ -25,10 +25,10 @@ class MangaItem(Item):
     screenwriters = Field()
 
 
-class MangaChapterItem(Item):
+class ChapterItem(Item):
     chapters = Field()
     # Meta
-    rss_url = Field()
+    chapters_url = Field()
 
 
 class ImagesItem(Item):

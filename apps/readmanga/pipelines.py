@@ -6,30 +6,67 @@ from django.db import transaction
 from scrapy.spiders import Spider
 
 from apps.core.abc.models import BaseModel
+from apps.manga.annotate import manga_to_annotated_dict
+from apps.manga.api.schemas import ChapterListOut, ImageListOut, MangaOut
 from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga, PersonRole
-from apps.parse.items import ImagesItem, MangaChapterItem
-from apps.parse.pipeline import BasePipeline
+from apps.parse.const import CacheType, ParserType
+from apps.parse.scrapy.items import ChapterItem, ImagesItem
+from apps.parse.scrapy.pipeline import CachedPipeline
+from apps.parse.spider import BaseSpider
+from apps.parse.types import ParsingStatus
 from apps.readmanga.chapter import ReadmangaChapterSpider
 from apps.readmanga.images import ReadmangaImageSpider
-from apps.readmanga.list import ReadmangaListSpider
 
 logger = logging.getLogger("scrapy")
 
 
 @transaction.atomic
-def bulk_get_or_create(cls: Type[BaseModel], names: List[str]) -> Tuple:
+def bulk_get_or_create(cls: Type[BaseModel], values: List[str], keyword: str = "name") -> Tuple:
     objects = []
-    for name in names:
-        objects.append(cls.objects.get_or_create(name=name))
+    for value in values:
+        objects.append(cls.objects.get_or_create(**{keyword: value}))
     return tuple(obj for obj, _ in objects)
 
 
-class ReadmangaImagePipeline(BasePipeline):
-    def process_item(self, item: ImagesItem, spider: ReadmangaImageSpider):
-        self.save_to_cache(item, spider)
+class ReadmangaImagePipeline(CachedPipeline):
+    timeout = 8 * 3600
+    type = CacheType.image
+
+    def get_cache_key(self, data: ImagesItem) -> str:
+        return data["chapter_url"]
+
+    def convert_data(self, data: ImagesItem):
+        return ImageListOut(status=ParsingStatus.up_to_date, data=data["images"])
+
+    def process(self, item: ImagesItem, spider: ReadmangaImageSpider):
+        # No need to process, just save to cache
+        pass
 
 
-class ReadmangaChapterPipeline(BasePipeline):
+class ReadmangaChapterPipeline(CachedPipeline):
+    timeout = 3600
+    type = CacheType.chapter
+
+    def get_cache_key(self, data: ChapterItem) -> str:
+        return data["chapters_url"]
+
+    def convert_data(self, data: ChapterItem):
+        return ChapterListOut(
+            status=ParsingStatus.up_to_date.value,
+            data=data["chapters"],
+        )
+
+    def process(self, item, spider):
+        # No need to process since we're overriding process_item and manually calling save_to_cache
+        pass
+
+    def process_item(self, chapters_data: ChapterItem, spider: ReadmangaChapterSpider):
+        chapter_list, chapters_url = chapters_data.values()
+        manga = Manga.objects.get(chapters_url=chapters_url)
+        chapter_list = bulk_get_or_create([{**c, "manga": manga} for c in chapter_list])
+
+        self.save_to_cache({"chapters_url": chapters_url, "chapters": chapter_list}, spider)
+
     @staticmethod
     @transaction.atomic
     def bulk_get_or_create(chapters: List[dict]) -> List[Chapter]:
@@ -38,15 +75,63 @@ class ReadmangaChapterPipeline(BasePipeline):
             objects.append(Chapter.objects.get_or_create(**chapter))
         return [obj for obj, _ in objects]
 
-    def process_item(self, chapters_data: MangaChapterItem, spider: ReadmangaChapterSpider):
-        chapter_list, rss_url = chapters_data.values()
-        manga = Manga.objects.get(rss_url=rss_url)
-        chapter_list = self.bulk_get_or_create([{**c, "manga": manga} for c in chapter_list])
 
-        self.save_to_cache({"rss_url": rss_url, "chapters": chapter_list}, spider)
+class ReadmangaPipeline(CachedPipeline):
+    timeout = 7 * 24 * 3600
+    type = CacheType.detail
 
+    def get_cache_key(self, data: Manga) -> str:
+        return data.source_url
 
-class ReadmangaPipeline(BasePipeline):
+    def convert_data(self, data: Manga):
+        return MangaOut(
+            status=ParsingStatus.up_to_date.value,
+            data=manga_to_annotated_dict(data),
+        )
+
+    def process(self, item, spider):
+        # Once again, manual cache call
+        pass
+
+    def process_item(self, item: dict, spider: BaseSpider) -> dict:
+        spider.logger.info(f"Processing item {item}")
+        data = deepcopy(item)
+
+        if spider.type == ParserType.list.value:
+            message = f"Error processing {data}: No title name was set"
+            spider.logger.error(message)
+            raise ValueError(message)
+
+        genres = data.pop("genres", [])
+        authors = data.pop("authors", [])
+        illustrators = data.pop("illustrators", [])
+        screenwriters = data.pop("screenwriters", [])
+        translators = data.pop("translators", [])
+        categories = data.pop("categories", [])
+
+        manga = self.get_or_create_or_update_manga(spider, data.pop("identifier"), **data)
+
+        # TODO: move it to model, like for sav_persons use atomic transaction
+        genres = bulk_get_or_create(Genre, genres)
+        manga.genres.clear()
+        manga.genres.add(*genres)
+
+        categories = bulk_get_or_create(Category, categories)
+        manga.categories.clear()
+        manga.categories.add(*categories)
+
+        PersonRelatedToManga.save_persons(manga, PersonRole.author, authors)
+        PersonRelatedToManga.save_persons(manga, PersonRole.illustrator, illustrators)
+        PersonRelatedToManga.save_persons(manga, PersonRole.screenwriter, screenwriters)
+        PersonRelatedToManga.save_persons(manga, PersonRole.translator, translators)
+
+        spider.logger.info(f"Saved manga {manga}")
+
+        if not spider.type == ParserType.list.value:
+            self.save_to_cache(manga, spider)
+
+        return item
+
     @staticmethod
     def get_or_create_or_update_manga(spider: Spider, identifier, **data) -> Manga:
         """Explicit is better than implicit."""
@@ -65,41 +150,3 @@ class ReadmangaPipeline(BasePipeline):
             spider.logger.info(f'Created item "{manga}"')
 
         return manga
-
-    def process_item(self, item: dict, spider: Spider) -> dict:
-        spider.logger.info(f"Processing item {item}")
-        data = deepcopy(item)
-
-        if isinstance(spider, ReadmangaListSpider) and not data.get("title", None):
-            message = f"Error processing {data}: No title name was set"
-            spider.logger.error(message)
-            raise KeyError(message)
-
-        genres = data.pop("genres", [])
-        authors = data.pop("authors", [])
-        illustrators = data.pop("illustrators", [])
-        screenwriters = data.pop("screenwriters", [])
-        translators = data.pop("translators", [])
-        categories = data.pop("categories", [])
-
-        identifier = data.pop("identifier")
-        manga = self.get_or_create_or_update_manga(spider, identifier, **data)
-
-        # TODO: move it to model, like for sav_persons use atomic transaction
-        genres = bulk_get_or_create(Genre, genres)
-        manga.genres.clear()
-        manga.genres.add(*genres)
-
-        categories = bulk_get_or_create(Category, categories)
-        manga.categories.clear()
-        manga.categories.add(*categories)
-
-        PersonRelatedToManga.save_persons(manga, PersonRole.author, authors)
-        PersonRelatedToManga.save_persons(manga, PersonRole.illustrator, illustrators)
-        PersonRelatedToManga.save_persons(manga, PersonRole.screenwriter, screenwriters)
-        PersonRelatedToManga.save_persons(manga, PersonRole.translator, translators)
-
-        spider.logger.info(f"Saved manga {manga}")
-        self.save_to_cache(manga, spider)
-
-        return item

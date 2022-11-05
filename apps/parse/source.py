@@ -19,6 +19,10 @@ CATALOGUES = {
         "source": "https://rumix.me",
         "settings": "apps.readmanga.settings",
     },
+    "mangachan": {
+        "source": "https://manga-chan.me",
+        "settings": "apps.mangachan.settings",
+    },
 }
 CATALOGUE_NAMES = [k.lower() for k in CATALOGUES.keys()]
 

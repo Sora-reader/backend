@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from django.conf import settings
-from django.core.cache import cache
+from django.core.cache import caches
 from ninja import Router
 
 from apps.core.api.schemas import ErrorSchema, MessageSchema
@@ -16,7 +16,14 @@ from apps.manga.api.schemas import (
 )
 from apps.manga.models import Chapter, Manga
 from apps.parse.exceptions import ParsingError
-from apps.parse.parser import CHAPTER_PARSER, DETAIL_PARSER, IMAGE_PARSER
+from apps.parse.parser import (
+    CHAPTER_CACHE,
+    CHAPTER_PARSER,
+    DETAIL_CACHE,
+    DETAIL_PARSER,
+    IMAGE_CACHE,
+    IMAGE_PARSER,
+)
 from apps.parse.tasks import run_spider_task
 from apps.parse.types import ParsingStatus
 from apps.typesense_bind.query import query_dict_list_by_title
@@ -30,6 +37,8 @@ def is_error_payload(data):
 
 def handle_parsing_with_caching(
     spider: str,
+    cache_name: str,
+    catalogue: str,
     link: str,
     fallback: ParsingSchemaOut,
 ) -> Tuple[int, ParsingSchemaOut | ErrorSchema]:
@@ -47,7 +56,9 @@ def handle_parsing_with_caching(
         3. Empty cache means we need to run parsing -> run spider and return fallback value.
         4. Nothing from above means there can only be parsed data inside cache -> return it.
     """
+    cache = caches[cache_name]
     parsing_cache = cache.get(link)
+    # parsing_cache = None
 
     if parsing_cache and parsing_cache != ParsingStatus.parsing.value:
         # If there's an error in cache, then it means parsing failed
@@ -66,7 +77,7 @@ def handle_parsing_with_caching(
         if not settings.DEBUG:
             f = f.delay
         try:
-            f(spider, url=link)
+            f(spider, catalogue_name=catalogue, url=link)
         except ParsingError as e:
             return 400, ErrorSchema(error=str(e))
 
@@ -84,6 +95,8 @@ def get_manga(request, manga_id: int):
 
     return handle_parsing_with_caching(
         DETAIL_PARSER,
+        DETAIL_CACHE,
+        manga.source,
         manga.source_url,
         MangaOut(status=ParsingStatus.parsing.value, data=manga_to_annotated_dict(manga)),
     )
@@ -93,12 +106,14 @@ def get_manga(request, manga_id: int):
 def get_chapters(request, manga_id: int):
     manga = get_model_or_404(Manga, pk=manga_id, prefetch=["chapters"])
 
-    if not manga.rss_url:
+    if not manga.chapters_url:
         return 425, MessageSchema(message="Details were not yet parsed.")
 
     return handle_parsing_with_caching(
-        CHAPTER_PARSER,
-        manga.rss_url,
+        DETAIL_PARSER if manga.source == "mangachan" else CHAPTER_PARSER,
+        CHAPTER_CACHE,
+        manga.source,
+        manga.chapters_url,
         ChapterListOut(status=ParsingStatus.parsing.value, data=list(manga.chapters.all())),
     )
 
@@ -112,6 +127,7 @@ def get_chapter_images(request, manga_id: int, chapter_id: int):
 
     res = handle_parsing_with_caching(
         IMAGE_PARSER,
+        IMAGE_CACHE,
         chapter.link,
         ImageListOut(status=ParsingStatus.parsing.value, data=[]),
     )

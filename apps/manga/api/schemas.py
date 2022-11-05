@@ -22,7 +22,7 @@ class MangaSchema(ModelSchema):
         model_fields = (
             "id",
             "source_url",
-            "rss_url",
+            "chapters_url",
             "title",
             "rating",
             "thumbnail",
