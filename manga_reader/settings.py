@@ -1,5 +1,6 @@
 import copy
 import logging
+import logging.config
 import os
 from functools import partial
 from pathlib import Path
@@ -8,8 +9,9 @@ import dj_database_url
 import environ
 import scrapy.utils.log
 from colorlog import ColoredFormatter
+from django.core.management import BaseCommand
 
-from apps.parse.parser import CHAPTER_CACHE, DETAIL_CACHE, IMAGE_CACHE
+from apps.parse.types import CacheType
 from apps.typesense_bind.client import create_client
 
 # TODO: docstrings in utils and stuff
@@ -24,6 +26,8 @@ env = environ.Env(
     TYPESENSE_PROTOCOL=(str, "http"),
     TYPESENSE_API_KEY=(str, "api"),
     PROXY=(str, ""),
+    GOOGLE_CLIENT=(str, ""),
+    GOOGLE_SECRET=(str, ""),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
@@ -77,25 +81,24 @@ RQ_QUEUES = {
     }
 }
 
-typesense_host = env("TYPESENSE_HOST")
-typesense_protocol = env("TYPESENSE_PROTOCOL")
-typesense_api_key = env("TYPESENSE_API_KEY")
-TS_CLIENT = create_client(typesense_host, typesense_api_key, typesense_protocol)
+TS_CLIENT = create_client(
+    env("TYPESENSE_HOST"), env("TYPESENSE_API_KEY"), env("TYPESENSE_PROTOCOL")
+)
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
     },
-    DETAIL_CACHE: {
+    CacheType.detail.value: {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": f"{REDIS_URL}/2",
     },
-    CHAPTER_CACHE: {
+    CacheType.chapter.value: {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": f"{REDIS_URL}/3",
     },
-    IMAGE_CACHE: {
+    CacheType.image.value: {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": f"{REDIS_URL}/4",
     },
@@ -121,11 +124,13 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "django_rq",
+    "apps.typesense_bind.apps.TypesenseBindConfig",
     "apps.core",
     "apps.authentication.apps.AuthenticationConfig",
     "apps.manga.apps.MangaConfig",
     "apps.parse",
-    "apps.typesense_bind.apps.TypesenseBindConfig",
+    "apps.readmanga.apps.Config",
+    "apps.mangachan.apps.Config",
 ]
 
 #########
@@ -234,9 +239,8 @@ AUTHENTICATION_BACKENDS = (
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APP": {
-            "client_id": "",
-            "secret": "",
-            "key": "",
+            "client_id": env("GOOGLE_CLIENT"),
+            "secret": env("GOOGLE_SECRET"),
         },
         "SCOPE": [
             "profile",
@@ -249,18 +253,10 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
@@ -333,15 +329,12 @@ SoraColoredLogger = partial(
     },
 )
 
-color_formatter = SoraColoredLogger(COLORED_FORMAT)
-colorless_formatter = logging.Formatter(COLORLESS_FORMAT, datefmt=LOGGER_DATE_FORMAT)
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
     "formatters": {
         "colored": {
-            "()": "manga_reader.settings.SoraColoredLogger",
+            "()": SoraColoredLogger,
             "format": COLORED_FORMAT,
         }
     },
@@ -349,19 +342,21 @@ LOGGING = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "colored",
+            "level": "INFO",
         },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "WARNING",
     },
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": env("DJANGO_LOG_LEVEL"),
+            "level": "INFO",
+            "propagate": True,
+        },
+        "system": {
+            "handlers": ["console"],
+            "level": "INFO",
             "propagate": False,
         },
-        "management": {
+        "scrapyscript": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
@@ -376,11 +371,37 @@ _get_handler = copy.copy(scrapy.utils.log._get_handler)  # noqa
 
 def _get_handler_custom(*args, **kwargs):
     handler = _get_handler(*args, **kwargs)
-    formatter = color_formatter
+    formatter = SoraColoredLogger(COLORED_FORMAT)
     if isinstance(handler, logging.FileHandler):
-        formatter = colorless_formatter
+        formatter = logging.Formatter(COLORLESS_FORMAT, datefmt=LOGGER_DATE_FORMAT)
     handler.setFormatter(formatter)
     return handler
 
 
 scrapy.utils.log._get_handler = _get_handler_custom
+
+# Hack into BaseCommand to use logging instead of stdout/stderr
+
+_system_logger = logging.getLogger("system")
+
+
+class _StdoutLoggingStub:
+    def write(self, arg):
+        _system_logger.info(arg.strip("\n"))
+
+
+class _StderrLoggingStub:
+    def write(self, arg):
+        _system_logger.error(arg.strip("\n"))
+
+
+_base_command_init = BaseCommand.__init__
+
+
+def _init_patch_stdio(self, *args, **kwargs):
+    _base_command_init(self, *args, **kwargs)
+    self.stdout = _StdoutLoggingStub()
+    self.stderr = _StderrLoggingStub()
+
+
+BaseCommand.__init__ = _init_patch_stdio

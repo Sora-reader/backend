@@ -1,7 +1,7 @@
-from apps.parse.catalogue import BaseCatalogue
+from apps.parse.catalogue import Catalogue
 
 
-class Mangachan(BaseCatalogue):
+class Mangachan(Catalogue):
     name = "mangachan"
     source = "https://manga-chan.me"
     settings = "apps.mangachan.settings"

@@ -6,9 +6,9 @@ from scrapy.spiders.crawl import CrawlSpider, Rule
 
 from apps.core.utils import url_prefix
 from apps.mangachan import Mangachan
-from apps.parse.const import ParserType
 from apps.parse.scrapy.items import MangaItem
-from apps.parse.spider import BaseSpider
+from apps.parse.scrapy.spider import BaseSpider
+from apps.parse.types import ParserType
 
 _manga_tile = '//div[@class = "content_row"]'
 
@@ -21,7 +21,7 @@ def clear_genres(genres):
     return [g.replace("_", " ") for g in genres]
 
 
-@Mangachan.register(ParserType.list, cache=False, url=False)
+@Mangachan.register(ParserType.list, url=False)
 class MangachanListSpider(BaseSpider, CrawlSpider):
     start_urls = [f"{Mangachan.source}/catalog"]
     rules = [

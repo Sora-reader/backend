@@ -6,10 +6,8 @@ from scrapy.http import HtmlResponse
 from apps.core.utils import url_prefix
 from apps.mangachan import Mangachan
 from apps.mangachan.list import clear_genres
-from apps.parse.const import ParserType
 from apps.parse.scrapy.items import ChapterItem, MangaItem
-
-_identifier = "//span[contains(@class, 'rating-block')]/@data-subject-id"
+from apps.parse.types import ParserType
 
 
 def clear_description(desc):
@@ -28,6 +26,7 @@ class MangachanDetailSpider(scrapy.Spider):
     }
 
     def parse(self, response: HtmlResponse, **kwargs):
+        raise Exception("asdas")
         identifier = response.url[len(url_prefix(response.url)) :]
 
         description = response.xpath('//div[@id="description"]/text()').extract_first()

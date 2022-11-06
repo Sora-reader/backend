@@ -1,13 +1,11 @@
-import logging
 import sys
 
 from django.core.management.base import BaseCommand, CommandParser
 
-from apps.parse.parser import CHAPTER_PARSER, DETAIL_PARSER, IMAGE_PARSER, PARSER_TYPES
-from apps.parse.source import CATALOGUE_NAMES
+from apps.parse.catalogue import Catalogue
+from apps.parse.exceptions import ParsingError
 from apps.parse.tasks import run_spider_task
-
-logger = logging.getLogger("management")
+from apps.parse.types import ParserType
 
 
 class Command(BaseCommand):
@@ -15,33 +13,33 @@ class Command(BaseCommand):
         parser.add_argument(
             "type",
             type=str,
-            choices=PARSER_TYPES,
+            choices=list(ParserType),
             help="which type of data to parse",
         )
         parser.add_argument(
             "catalogue",
             type=str,
             default="readmanga",
-            choices=CATALOGUE_NAMES,
+            choices=Catalogue.get_names(),
             help="parser to use which respresents a website source",
         )
         parser.add_argument(
             "--url",
             type=str,
-            required=sys.argv[2] in [DETAIL_PARSER, CHAPTER_PARSER, IMAGE_PARSER],
+            required=sys.argv[2] in list(ParserType),
             help="A link which to parse (detail/chapter/rss url)",
         )
 
     def handle(self, *args, **options):
         catalogue_name: str = options["catalogue"]
         try:
-            logger.info("Running parser")
+            self.stdout.write("Running parser")
             run_spider_task(options["type"], catalogue_name, url=options["url"])
-            logger.info("Finished parsing")
+            self.stdout.write("Finished parsing")
         # except (AttributeError, KeyError):
-        #     logger.error(f"Can't find Catalogue [{catalogue_name}]")
-        # except ParsingError as e:
-        #     logger.error(str(e))
+        #     self.stderr.write(f"Can't find Catalogue [{catalogue_name}]")
+        except ParsingError as e:
+            self.stderr.write(str(e))
         except Exception as e:
+            self.stderr.write(f"Some errors occurred in the parser {catalogue_name} {e}")
             raise e
-            logger.error(f"Some errors occurred in the parser {catalogue_name} {e}")

@@ -3,6 +3,8 @@ from typing import Any
 
 from django.core.cache import caches
 
+from apps.parse.types import CacheType
+
 
 class BasePipeline:
     pass
@@ -37,5 +39,5 @@ class CachedPipeline(BasePipeline, ABC):
         if self.__class__.convert:
             data = self.convert_data(data)
 
-        cache = caches[str(self.__class__.type)]
+        cache = caches[CacheType.from_parser_type(self.__class__.type)]
         cache.set(key, data, timeout=self.__class__.timeout)

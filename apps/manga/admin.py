@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 
 from apps.core.abc.admin import BaseAdmin, BaseTabularInline, ImagePreviewMixin, RelatedField
 from apps.manga.models import Author, Category, Chapter, Genre, Manga, Person, PersonRelatedToManga
-from apps.parse.source import CATALOGUE_NAMES
+from apps.parse.catalogue import Catalogue
 
 
 class ChapterInline(BaseTabularInline):
@@ -29,7 +29,7 @@ class SourceFilter(SimpleListFilter):
     parameter_name = "source"
 
     def lookups(self, request, model_admin):
-        return zip(CATALOGUE_NAMES, CATALOGUE_NAMES)
+        return zip(Catalogue.get_names(), Catalogue.get_names())
 
     def queryset(self, request, queryset: QuerySet):
         value = self.value()

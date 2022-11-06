@@ -2,9 +2,9 @@ import re
 
 from scrapy.http import XmlResponse
 
-from apps.parse.const import ParserType
 from apps.parse.scrapy.items import ChapterItem
-from apps.parse.spider import BaseSpider
+from apps.parse.scrapy.spider import BaseSpider
+from apps.parse.types import ParserType
 from apps.readmanga import Readmanga
 
 ITEM_TAG = "//item"

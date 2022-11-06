@@ -7,7 +7,7 @@ from django.db.models.query import QuerySet
 from apps.core.abc.models import BaseModel
 from apps.core.fast import FastQuerySet
 from apps.core.utils import url_prefix
-from apps.parse.source import SOURCE_TO_CATALOGUE_MAP
+from apps.parse.catalogue import Catalogue
 
 
 class Category(BaseModel):
@@ -106,7 +106,7 @@ class Manga(BaseModel):
 
     @property
     def source(self):
-        return SOURCE_TO_CATALOGUE_MAP[url_prefix(self.source_url)]
+        return Catalogue.from_source(url_prefix(self.source_url))
 
     def save(self, **kwargs):
         if not self.image:

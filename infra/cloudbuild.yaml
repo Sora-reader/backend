@@ -26,6 +26,8 @@ steps:
       - 'TYPESENSE_HOST=${_TYPESENSE_HOST}'
       - 'TYPESENSE_PROTOCOL=${_TYPESENSE_PROTOCOL}'
       - 'TYPESENSE_API_KEY=${_TYPESENSE_API_KEY}'
+      - 'GOOGLE_CLIENT=${_GOOGLE_CLIENT}'
+      - 'GOOGLE_SECRET=${_GOOGLE_SECRET}'
 
   - name: python
     id: install-deps

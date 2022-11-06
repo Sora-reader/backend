@@ -1,9 +1,9 @@
 from scrapy.http import HtmlResponse
 
 from apps.core.utils import url_prefix
-from apps.parse.const import ParserType
 from apps.parse.scrapy.items import MangaItem
-from apps.parse.spider import BaseSpider
+from apps.parse.scrapy.spider import BaseSpider
+from apps.parse.types import ParserType
 from apps.readmanga import Readmanga
 
 _identifier = "//span[contains(@class, 'rating-block')]/@data-subject-id"

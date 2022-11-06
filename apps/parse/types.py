@@ -1,7 +1,24 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ParsingStatus(str, Enum):
+class ParserType(StrEnum):
+    list = "list"
+    detail = "detail"
+    chapter = "chapter"
+    image = "image"
+
+
+class CacheType(StrEnum):
+    detail = "detail"
+    chapter = "chapter"
+    image = "image"
+
+    @classmethod
+    def from_parser_type(cls, type_: str | ParserType) -> str:
+        return getattr(cls, type_)
+
+
+class ParsingStatus(StrEnum):
     """Parsing status ENUM."""
 
     parsing = "parsing"

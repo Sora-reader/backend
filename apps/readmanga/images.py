@@ -3,10 +3,10 @@ import re
 from orjson import loads
 from scrapy.http import HtmlResponse
 
-from apps.parse.const import ParserType
 from apps.parse.exceptions import ParsingError
 from apps.parse.scrapy.items import ImagesItem
-from apps.parse.spider import BaseSpider
+from apps.parse.scrapy.spider import BaseSpider
+from apps.parse.types import ParserType
 from apps.readmanga import Readmanga
 
 COUNT_LINK_ELEMENTS = 3

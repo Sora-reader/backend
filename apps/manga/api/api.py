@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from django.conf import settings
 from django.core.cache import caches
@@ -15,17 +15,10 @@ from apps.manga.api.schemas import (
     ParsingSchemaOut,
 )
 from apps.manga.models import Chapter, Manga
+from apps.mangachan import Mangachan
 from apps.parse.exceptions import ParsingError
-from apps.parse.parser import (
-    CHAPTER_CACHE,
-    CHAPTER_PARSER,
-    DETAIL_CACHE,
-    DETAIL_PARSER,
-    IMAGE_CACHE,
-    IMAGE_PARSER,
-)
 from apps.parse.tasks import run_spider_task
-from apps.parse.types import ParsingStatus
+from apps.parse.types import CacheType, ParserType, ParsingStatus
 from apps.typesense_bind.query import query_dict_list_by_title
 
 manga_router = Router(tags=["Manga"])
@@ -36,18 +29,21 @@ def is_error_payload(data):
 
 
 def handle_parsing_with_caching(
-    spider: str,
-    cache_name: str,
+    parser_type: str,
     catalogue: str,
     link: str,
     fallback: ParsingSchemaOut,
+    cache_type: Optional[str] = None,
 ) -> Tuple[int, ParsingSchemaOut | ErrorSchema]:
     """
     Abstract logic of handling cache statuses and results/errors.
 
-    :param spider: Spider name.
+    :param parser_type: Parser type.
+    :param catalogue: Catalogue name.
     :param link: Parsing link and a cache key.
     :param fallback: Fallback response value for when parsing just started or already running.
+    :param cache_type: Cache which will be used to extract data. Can be used when running,
+    for example, detail spider which also writes to chapter cache
 
     Scenarios:
         1. "parsing" value inside cache means parsing is already running -> return fallback value.
@@ -56,9 +52,10 @@ def handle_parsing_with_caching(
         3. Empty cache means we need to run parsing -> run spider and return fallback value.
         4. Nothing from above means there can only be parsed data inside cache -> return it.
     """
-    cache = caches[cache_name]
+    if not cache_type:
+        cache_type = CacheType.from_parser_type(parser_type)
+    cache = caches[cache_type]
     parsing_cache = cache.get(link)
-    # parsing_cache = None
 
     if parsing_cache and parsing_cache != ParsingStatus.parsing.value:
         # If there's an error in cache, then it means parsing failed
@@ -77,7 +74,9 @@ def handle_parsing_with_caching(
         if not settings.DEBUG:
             f = f.delay
         try:
-            f(spider, catalogue_name=catalogue, url=link)
+            f(parser_type, catalogue_name=catalogue, url=link)
+        except Exception as e:
+            return 400, ErrorSchema(error=str(e))
         except ParsingError as e:
             return 400, ErrorSchema(error=str(e))
 
@@ -94,8 +93,7 @@ def get_manga(request, manga_id: int):
     manga = get_model_or_404(Manga, pk=manga_id)
 
     return handle_parsing_with_caching(
-        DETAIL_PARSER,
-        DETAIL_CACHE,
+        ParserType.detail,
         manga.source,
         manga.source_url,
         MangaOut(status=ParsingStatus.parsing.value, data=manga_to_annotated_dict(manga)),
@@ -110,24 +108,26 @@ def get_chapters(request, manga_id: int):
         return 425, MessageSchema(message="Details were not yet parsed.")
 
     return handle_parsing_with_caching(
-        DETAIL_PARSER if manga.source == "mangachan" else CHAPTER_PARSER,
-        CHAPTER_CACHE,
+        ParserType.detail if manga.source == Mangachan.name else ParserType.chapter,
         manga.source,
         manga.chapters_url,
         ChapterListOut(status=ParsingStatus.parsing.value, data=list(manga.chapters.all())),
+        CacheType.chapter,
     )
 
 
 @manga_router.get("/{manga_id}/chapters/{chapter_id}/images/", response=sora_schema(ImageListOut))
 def get_chapter_images(request, manga_id: int, chapter_id: int):
-    chapter = Chapter.objects.filter(pk=chapter_id, manga_id=manga_id).first()
+    chapter = (
+        Chapter.objects.filter(pk=chapter_id, manga_id=manga_id).prefetch_related("manga").first()
+    )
 
     if not chapter:
         return 400, ErrorSchema(error="No chapter found.")
 
     res = handle_parsing_with_caching(
-        IMAGE_PARSER,
-        IMAGE_CACHE,
+        ParserType.image,
+        chapter.manga.source,
         chapter.link,
         ImageListOut(status=ParsingStatus.parsing.value, data=[]),
     )

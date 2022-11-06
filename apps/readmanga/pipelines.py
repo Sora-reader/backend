@@ -9,11 +9,10 @@ from apps.core.abc.models import BaseModel
 from apps.manga.annotate import manga_to_annotated_dict
 from apps.manga.api.schemas import ChapterListOut, ImageListOut, MangaOut
 from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga, PersonRole
-from apps.parse.const import CacheType, ParserType
 from apps.parse.scrapy.items import ChapterItem, ImagesItem
 from apps.parse.scrapy.pipeline import CachedPipeline
-from apps.parse.spider import BaseSpider
-from apps.parse.types import ParsingStatus
+from apps.parse.scrapy.spider import BaseSpider
+from apps.parse.types import CacheType, ParserType, ParsingStatus
 from apps.readmanga.chapter import ReadmangaChapterSpider
 from apps.readmanga.images import ReadmangaImageSpider
 
@@ -63,9 +62,12 @@ class ReadmangaChapterPipeline(CachedPipeline):
     def process_item(self, chapters_data: ChapterItem, spider: ReadmangaChapterSpider):
         chapter_list, chapters_url = chapters_data.values()
         manga = Manga.objects.get(chapters_url=chapters_url)
-        chapter_list = bulk_get_or_create([{**c, "manga": manga} for c in chapter_list])
+        chapter_list = self.bulk_get_or_create([{**c, "manga": manga} for c in chapter_list])
 
-        self.save_to_cache({"chapters_url": chapters_url, "chapters": chapter_list}, spider)
+        chapter = {"chapters_url": chapters_url, "chapters": chapter_list}
+        self.save_to_cache(chapter, spider)
+
+        return chapter
 
     @staticmethod
     @transaction.atomic

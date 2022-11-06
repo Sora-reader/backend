@@ -19,8 +19,8 @@ SPIDER_MODULES = [
 LOG_FILE = "parse-mangachan.log"
 
 DOWNLOADER_MIDDLEWARES = {
-    "apps.parse.middleware.ErrorLoggerMiddleware": 340,
-    "apps.parse.middleware.ProxyMiddleware": 350,
+    "apps.parse.scrapy.middleware.ErrorLoggerMiddleware": 340,
+    "apps.parse.scrapy.middleware.ProxyMiddleware": 350,
     "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 400,
 }
 ITEM_PIPELINES = {

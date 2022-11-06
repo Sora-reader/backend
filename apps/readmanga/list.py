@@ -6,9 +6,9 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders.crawl import CrawlSpider, Rule
 
 from apps.core.utils import url_prefix
-from apps.parse.const import ParserType
 from apps.parse.scrapy.items import MangaItem
-from apps.parse.spider import BaseSpider
+from apps.parse.scrapy.spider import BaseSpider
+from apps.parse.types import ParserType
 from apps.readmanga import Readmanga
 
 _manga_tile = '//div[@class = "tiles row"]//div[contains(@class, "tile col-md-6")]'
@@ -21,7 +21,7 @@ _rating = '//div[@class = "compact-rate"]/@title'
 _genres = '//div[@class = "tile-info"]//a[contains(@class, "badge")]/text()'
 
 
-@Readmanga.register(ParserType.list, cache=False, url=False)
+@Readmanga.register(ParserType.list, url=False)
 class ReadmangaListSpider(BaseSpider, CrawlSpider):
     start_urls = [f"{Readmanga.source}/list"]
     rules = [

@@ -1,4 +1,3 @@
-import logging
 
 from django.core.management.base import BaseCommand
 from typesense.exceptions import ObjectNotFound
@@ -8,8 +7,6 @@ from apps.manga.models import Manga
 from apps.typesense_bind.client import get_ts_client
 from apps.typesense_bind.functions import upsert_collection
 from apps.typesense_bind.schema import schema, schema_name
-
-logger = logging.getLogger("management")
 
 
 class Command(BaseCommand):
@@ -22,7 +19,7 @@ class Command(BaseCommand):
             pass
 
         client.collections.create(schema)
-        logger.info("Recreated collection")
+        self.stdout.write("Recreated collection")
 
         mangas = fast_annotate_manga_query(Manga.objects.all())
 
@@ -30,9 +27,9 @@ class Command(BaseCommand):
         step = 1000
         end = len(mangas)
         inserted = 0
-        logger.info(f"Importing {end} documents")
+        self.stdout.write(f"Importing {end} documents")
         for chunk_start in range(start, end, step):
             inserted += len(upsert_collection(client, mangas[chunk_start:chunk_start + step]))
-            logger.info(f'=> imported {inserted} documents')
+            self.stdout.write(f'=> imported {inserted} documents')
 
-        logger.info(f"finished importing {inserted} documents")
+        self.stdout.write(f"finished importing {inserted} documents")
