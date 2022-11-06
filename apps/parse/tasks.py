@@ -25,13 +25,13 @@ def run_spider_task(parser_type: str, catalogue_name: str = "readmanga", url: st
     if p.errors:
         errors = [f"{str(cls)}={val}" for cls, val in p.errors]
         # errors = []
-        msg = f"Parsing failed with errors:\n" + "\n".join(errors)
+        msg = "Parsing failed with errors:\n" + "\n".join(errors)
         cache.set(url, to_error_schema(msg))
         raise ParsingError(msg)
 
     if url:
         cache_res = cache.get(url)
         if cache_res == ParsingStatus.parsing.value:
-            msg = f"Parsing failed but returned no errors, please, try again later."
+            msg = "Parsing failed but returned no errors, please, try again later."
             cache.set(url, to_error_schema(msg))
             raise ParsingError(msg)
