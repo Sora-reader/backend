@@ -10,5 +10,5 @@ worker_count=$(expr $core_count \* 2 + 1)
 worker_count=$([ "$worker_count" -gt 12 ] && echo 12 || echo "$worker_count")
 
 info "Running the server on $HOST:$PORT"
-uvicorn manga_reader.asgi:application \
+gunicorn manga_reader.asgi:application \
   --host $HOST --port $PORT --workers $core_count
