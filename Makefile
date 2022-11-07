@@ -11,7 +11,7 @@ COMPOSE = docker-compose.yml
 port ?= 8000
 
 .PHONY: help env venv shell shell-sql \
- 		check fix githooks jmeter watch-sass
+ 		jmeter test check fix githooks watch-sass
 
 .ONESHELL:
 
@@ -58,6 +58,9 @@ jmeter: ## Run jmeter tests
 	cd tests
 	rm -rf .jmeter_report .jmeter_results
 	jmeter -n -t Manga.jmx -l .jmeter_results -e -o .jmeter_report && firefox .jmeter_report/index.html
+
+test: ## Run django tests
+	@$(interpreter) pytest
 
 check: check-venv ## Run linters
 	@$(print) "flake8"

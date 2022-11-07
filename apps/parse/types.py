@@ -1,14 +1,14 @@
-from enum import StrEnum
+from enum import Enum
 
 
-class ParserType(StrEnum):
+class ParserType(str, Enum):
     list = "list"
     detail = "detail"
     chapter = "chapter"
     image = "image"
 
 
-class CacheType(StrEnum):
+class CacheType(str, Enum):
     detail = "detail"
     chapter = "chapter"
     image = "image"
@@ -18,7 +18,7 @@ class CacheType(StrEnum):
         return getattr(cls, type_)
 
 
-class ParsingStatus(StrEnum):
+class ParsingStatus(str, Enum):
     """Parsing status ENUM."""
 
     parsing = "parsing"

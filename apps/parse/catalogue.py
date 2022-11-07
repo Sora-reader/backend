@@ -65,6 +65,10 @@ class Catalogue(metaclass=_AutoRegisterCatalogue):
     def get_parser(cls, type_: str | ParserType) -> type:
         return cls._parser_map[type_]
 
+    @classmethod
+    def get_parser_map(cls) -> dict:
+        return cls._parser_map
+
     @staticmethod
     def get(name: str):
         return _AutoRegisterCatalogue.catalogue_map[name]
