@@ -9,7 +9,7 @@ steps:
         apt update
         apt install python3 python3-pip -y
         pip3 install poetry
-        poetry export --without-hashes >| requirements.txt
+        poetry export --with dev --without-hashes >| requirements.txt
 
   - name: ubuntu
     id: env-setup

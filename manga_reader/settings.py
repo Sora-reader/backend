@@ -31,22 +31,8 @@ env = environ.Env(
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-
 # Django debug toolbar IPs
-# INTERNAL_IPS = [
-#     "127.0.0.1",
-# ]
-
-
-# Stub to stop debug toolbar from failing on collectstatic phase
-def show_toolbar(request):
-    return True
-
-
-SHOW_TOOLBAR_CALLBACK = show_toolbar
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
-}
+INTERNAL_IPS = ["127.0.0.1"]
 
 ###########
 # Project #
@@ -130,7 +116,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "django_extensions",
-    "debug_toolbar",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -144,6 +129,8 @@ INSTALLED_APPS = [
     "apps.readmanga.apps.Config",
     "apps.mangachan.apps.Config",
 ]
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
 
 #########
 # ADMIN #
