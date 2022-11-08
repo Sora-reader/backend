@@ -29,7 +29,7 @@ class SourceFilter(SimpleListFilter):
     parameter_name = "source"
 
     def lookups(self, request, model_admin):
-        return zip(Catalogue.get_names(), Catalogue.get_names())
+        return zip(Catalogue.get_sources(), Catalogue.get_names())
 
     def queryset(self, request, queryset: QuerySet):
         value = self.value()

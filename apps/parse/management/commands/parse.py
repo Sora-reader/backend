@@ -3,7 +3,7 @@ import sys
 from django.core.management.base import BaseCommand, CommandParser
 
 from apps.parse.catalogue import Catalogue
-from apps.parse.exceptions import ParsingError
+from apps.parse.exceptions import NotFound, ParsingError
 from apps.parse.tasks import run_spider_task
 from apps.parse.types import ParserType
 
@@ -36,8 +36,8 @@ class Command(BaseCommand):
             self.stdout.write("Running parser")
             run_spider_task(options["type"], catalogue_name, url=options["url"])
             self.stdout.write("Finished parsing")
-        # except (AttributeError, KeyError):
-        #     self.stderr.write(f"Can't find Catalogue [{catalogue_name}]")
+        except NotFound as e:
+            self.stderr.write(f"Can't find {e}")
         except ParsingError as e:
             self.stderr.write(str(e))
         except Exception as e:

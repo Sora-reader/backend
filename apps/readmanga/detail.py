@@ -10,15 +10,15 @@ _identifier = "//span[contains(@class, 'rating-block')]/@data-subject-id"
 
 _description = "//meta[@itemprop='description'][1]/@content"
 _chapters_url = "//head/link[@type='application/rss+xml'][1]/@href"
-_year = "//span[@class='elem_year ']/a[@class='element-link'][1]/text()"
+_year = "//span[@class='elem_year']/a[@class='element-link'][1]/text()"
 _rating = "//span[@class='rating-block']/@data-score"
 
 _categories = '//span[@class = "elem_category "]/a[@class="element-link"]/text()'
 
-_authors = "//span[@class='elem_author ']/a[@class='person-link']/text()"
-_translators = "//span[@class='elem_translator ']/a[@class='person-link']/text()"
-_illustrators = '//span[@class = "elem_illustrator "]/a[@class="person-link"]/text()'
-_screenwriters = '//span[@class="elem_screenwriter "]/a[@class="person-link"]/text()'
+_authors = "//span[@class='elem_author']/a[@class='person-link']/text()"
+_translators = "//span[@class='elem_translator']/a[@class='person-link']/text()"
+_illustrators = '//span[@class = "elem_illustrator"]/a[@class="person-link"]/text()'
+_screenwriters = '//span[@class="elem_screenwriter"]/a[@class="person-link"]/text()'
 
 
 @Readmanga.register(ParserType.detail)
