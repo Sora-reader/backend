@@ -95,3 +95,11 @@ fix: check-venv ## Run code formatters
 
 watch-sass:
 	@/bin/find -type d -name 'scss' -not -path '*/staticfiles/*' | xargs -P 0 -l -i bash -c 'sass --watch "$$1:$${1:0:-5}/css"' - '{}'
+
+#########
+# Infra #
+#########
+
+webhook-server:
+	cd infra
+	nohup ./webhook -hooks hooks.yaml -verbose &

@@ -183,3 +183,6 @@ nohup.out
 tests/.jmeter*
 dbs/
 *.pid
+
+# Show be an executable of the webhook server
+infra/webhook
