@@ -26,7 +26,6 @@ class MangachanDetailSpider(scrapy.Spider):
     }
 
     def parse(self, response: HtmlResponse, **kwargs):
-        raise Exception("asdas")
         identifier = response.url[len(url_prefix(response.url)) :]
 
         description = response.xpath('//div[@id="description"]/text()').extract_first()
