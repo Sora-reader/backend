@@ -93,7 +93,7 @@ services:
       - prod
       - dev
     restart: unless-stopped
-    image: postgres:12
+    image: postgres:15
     ports:
       - "8882:5432"
     volumes:

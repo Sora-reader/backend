@@ -75,8 +75,6 @@ def handle_parsing_with_caching(
             f = f.delay
         try:
             f(parser_type, catalogue_name=catalogue, url=link)
-        except Exception as e:
-            return 400, ErrorSchema(error=str(e))
         except ParsingError as e:
             return 400, ErrorSchema(error=str(e))
 

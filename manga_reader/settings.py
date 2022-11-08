@@ -384,13 +384,21 @@ _system_logger = logging.getLogger("system")
 
 
 class _StdoutLoggingStub:
-    def write(self, arg):
+    def write(self, arg, *args, **kwargs):
         _system_logger.info(arg.strip("\n"))
+
+    @staticmethod
+    def flush(*args, **kwargs):
+        pass
 
 
 class _StderrLoggingStub:
-    def write(self, arg):
+    def write(self, arg, *args, **kwargs):
         _system_logger.error(arg.strip("\n"))
+
+    @staticmethod
+    def flush(*args, **kwargs):
+        pass
 
 
 _base_command_init = BaseCommand.__init__

@@ -138,11 +138,12 @@ class SaveListNameChoices(models.TextChoices):
 
 class SaveList(BaseModel):
     class Meta:
-        unique_together = ("user", "session", "name")
         constraints = [
+            # There's also a unique index with the name of save_list_user_name_unique
+            # Django doesn't support those for now, so it's just a migrations with raw SQL
             models.CheckConstraint(
                 check=Q(user__isnull=False) | Q(session__isnull=False), name="not_both_null"
-            )
+            ),
         ]
 
     name = models.TextField(choices=SaveListNameChoices.choices, null=False, blank=False)
