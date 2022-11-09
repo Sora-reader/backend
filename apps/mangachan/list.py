@@ -17,10 +17,6 @@ _thumbnail = "//div[@class = 'manga_images']//img/@src"
 _genres = "//div[@class = 'genre']/a/text()"
 
 
-def clear_genres(genres):
-    return [g.replace("_", " ") for g in genres]
-
-
 @Mangachan.register(ParserType.list, url=False)
 class MangachanListSpider(BaseSpider, CrawlSpider):
     start_urls = [f"{Mangachan.source}/catalog"]
@@ -57,9 +53,6 @@ class MangachanListSpider(BaseSpider, CrawlSpider):
             rating = None
 
             genres = response.xpath(_genres).extract()
-
-            # Post-processing
-            genres = clear_genres(genres)
 
             if not source_url.startswith("http"):
                 source_url = url_prefix(self.start_urls[0]) + source_url

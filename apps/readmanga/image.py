@@ -16,9 +16,6 @@ COUNT_LINK_ELEMENTS = 3
 class ReadmangaImageSpider(BaseSpider):
     custom_settings = {"ITEM_PIPELINES": {"apps.readmanga.pipelines.ReadmangaImagePipeline": 300}}
 
-    def __init__(self, *args, url: str, **kwargs):
-        super().__init__(*args, **kwargs, start_urls=[url])
-
     def parse(self, response: HtmlResponse, **kwargs):
         images = re.search(r"rm_h.initReader\(.*(\[{2}.*]{2}).*\)", response.text)
         if not images:

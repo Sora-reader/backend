@@ -1,12 +1,11 @@
 import re
 
-import scrapy
 from scrapy.http import HtmlResponse
 
 from apps.core.utils import url_prefix
 from apps.mangachan import Mangachan
-from apps.mangachan.list import clear_genres
 from apps.parse.scrapy.items import ChapterItem, MangaItem
+from apps.parse.scrapy.spider import BaseSpider
 from apps.parse.types import ParserType
 
 
@@ -17,7 +16,7 @@ def clear_description(desc):
 
 
 @Mangachan.register(ParserType.detail)
-class MangachanDetailSpider(scrapy.Spider):
+class MangachanDetailSpider(BaseSpider):
     custom_settings = {
         "ITEM_PIPELINES": {
             "apps.mangachan.pipelines.MangachanPipeline": 300,
@@ -50,9 +49,6 @@ class MangachanDetailSpider(scrapy.Spider):
                 other_fields[field] = data
 
         description = clear_description(description)
-
-        genres = other_fields.get("genres", [])
-        other_fields["genres"] = clear_genres(genres)
 
         chapters = []
         for row in response.xpath('//div[@class="manga2"]/a'):

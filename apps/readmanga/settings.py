@@ -13,7 +13,7 @@ SPIDER_MODULES = [
     "apps.readmanga.list",
     "apps.readmanga.detail",
     "apps.readmanga.chapter",
-    "apps.readmanga.images",
+    "apps.readmanga.image",
 ]
 # Remove for now as GAE workspace is immutable
 LOG_FILE = "parse-readmanga.log"

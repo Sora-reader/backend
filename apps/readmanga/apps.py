@@ -8,5 +8,5 @@ class Config(AppConfig):
         from . import Readmanga  # noqa
         from .chapter import ReadmangaChapterSpider  # noqa
         from .detail import ReadmangaDetailSpider  # noqa
-        from .images import ReadmangaImageSpider  # noqa
+        from .image import ReadmangaImageSpider  # noqa
         from .list import ReadmangaListSpider  # noqa

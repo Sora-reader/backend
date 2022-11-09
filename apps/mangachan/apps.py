@@ -7,4 +7,5 @@ class Config(AppConfig):
     def ready(self):
         from . import Mangachan  # noqa
         from .detail import MangachanDetailSpider  # noqa
+        from .image import MangachanImageSpider  # noqa
         from .list import MangachanListSpider  # noqa

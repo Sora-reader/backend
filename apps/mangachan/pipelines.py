@@ -1,6 +1,14 @@
 from copy import deepcopy
 
-from apps.readmanga.pipelines import ReadmangaChapterPipeline, ReadmangaPipeline
+from apps.readmanga.pipelines import (
+    ReadmangaChapterPipeline,
+    ReadmangaImagePipeline,
+    ReadmangaPipeline,
+)
+
+
+class MangachanImagePipeline(ReadmangaImagePipeline):
+    pass
 
 
 class MangachanChapterPipeline(ReadmangaChapterPipeline):

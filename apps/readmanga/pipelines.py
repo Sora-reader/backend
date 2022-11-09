@@ -9,12 +9,13 @@ from apps.core.abc.models import BaseModel
 from apps.manga.annotate import manga_to_annotated_dict
 from apps.manga.api.schemas import ChapterListOut, ImageListOut, MangaOut
 from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga, PersonRole
+from apps.parse.cleaning import normalized_category_names, without_common_prefix
 from apps.parse.scrapy.items import ChapterItem, ImagesItem
 from apps.parse.scrapy.pipeline import CachedPipeline
 from apps.parse.scrapy.spider import BaseSpider
 from apps.parse.types import CacheType, ParserType, ParsingStatus
 from apps.readmanga.chapter import ReadmangaChapterSpider
-from apps.readmanga.images import ReadmangaImageSpider
+from apps.readmanga.image import ReadmangaImageSpider
 
 logger = logging.getLogger("scrapy")
 
@@ -62,7 +63,15 @@ class ReadmangaChapterPipeline(CachedPipeline):
     def process_item(self, chapters_data: ChapterItem, spider: ReadmangaChapterSpider):
         chapter_list, chapters_url = chapters_data.values()
         manga = Manga.objects.get(chapters_url=chapters_url)
-        chapter_list = self.bulk_get_or_create([{**c, "manga": manga} for c in chapter_list])
+
+        clean_chapter_titles = without_common_prefix([c["title"] for c in chapter_list])
+
+        chapter_list = self.bulk_get_or_create(
+            [
+                {**c, "title": title, "manga": manga}
+                for title, c in zip(clean_chapter_titles, chapter_list)
+            ]
+        )
 
         chapter = {"chapters_url": chapters_url, "chapters": chapter_list}
         self.save_to_cache(chapter, spider)
@@ -114,11 +123,11 @@ class ReadmangaPipeline(CachedPipeline):
         manga = self.get_or_create_or_update_manga(spider, data.pop("identifier"), **data)
 
         # TODO: move it to model, like for sav_persons use atomic transaction
-        genres = bulk_get_or_create(Genre, genres)
+        genres = bulk_get_or_create(Genre, normalized_category_names(genres))
         manga.genres.clear()
         manga.genres.add(*genres)
 
-        categories = bulk_get_or_create(Category, categories)
+        categories = bulk_get_or_create(Category, normalized_category_names(categories))
         manga.categories.clear()
         manga.categories.add(*categories)
 

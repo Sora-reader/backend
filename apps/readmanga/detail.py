@@ -13,6 +13,7 @@ _chapters_url = "//head/link[@type='application/rss+xml'][1]/@href"
 _year = "//span[@class='elem_year']/a[@class='element-link'][1]/text()"
 _rating = "//span[@class='rating-block']/@data-score"
 
+_genres = '//span[@class = "elem_genre "]/a[@class="element-link"]/text()'
 _categories = '//span[@class = "elem_category "]/a[@class="element-link"]/text()'
 
 _authors = "//span[@class='elem_author']/a[@class='person-link']/text()"
@@ -31,6 +32,7 @@ class ReadmangaDetailSpider(BaseSpider):
         year = response.xpath(_year).extract_first("")
         rating = response.xpath(_rating).extract_first(0.0)
 
+        genres = response.xpath(_genres).extract()
         categories = response.xpath(_categories).extract()
 
         authors = response.xpath(_authors).extract()
@@ -49,6 +51,7 @@ class ReadmangaDetailSpider(BaseSpider):
                 chapters_url=chapters_url,
                 year=year,
                 rating=rating,
+                genres=genres,
                 categories=categories,
                 authors=authors,
                 translators=translators,
