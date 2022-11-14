@@ -350,6 +350,10 @@ LOGGING = {
         }
     },
     "handlers": {
+        "elasticapm": {
+            "level": "INFO",
+            "class": "elasticapm.contrib.django.handlers.LoggingHandler",
+        },
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "colored",
@@ -358,17 +362,17 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console"],
+            "handlers": ["console", "elasticapm"],
             "level": "INFO",
             "propagate": True,
         },
         "system": {
-            "handlers": ["console"],
+            "handlers": ["console", "elasticapm"],
             "level": "INFO",
             "propagate": False,
         },
         "scrapyscript": {
-            "handlers": ["console"],
+            "handlers": ["console", "elasticapm"],
             "level": "INFO",
             "propagate": False,
         },
