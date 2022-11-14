@@ -48,7 +48,7 @@ ELASTIC_APM = {
     # 'SECRET_TOKEN': '3Nix5IfFFykT0x6VON',
     "SECRET_TOKEN": "",
     # Set the custom APM Server URL (default: http://localhost:8200)
-    # 'SERVER_URL': 'https://b43ca62ab9484354922a2857f523ac2e.apm.europe-west3.gcp.cloud.es.io:443',
+    "SERVER_URL": "http://70.34.249.112:8200",
     # Set the service environment
     "ENVIRONMENT": "production",
 }
