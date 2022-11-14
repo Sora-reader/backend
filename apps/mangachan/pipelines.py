@@ -8,7 +8,7 @@ from apps.readmanga.pipelines import (
 
 
 class MangachanImagePipeline(ReadmangaImagePipeline):
-    pass
+    timeout = None
 
 
 class MangachanChapterPipeline(ReadmangaChapterPipeline):

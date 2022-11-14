@@ -11,7 +11,7 @@ def fast_annotate_manga_query(query: FastQuerySet) -> List[dict]:
     """Use 'fast' module to annotate all required fields for manga"""
     return (
         query.cast(id=CharField())
-        .map(source=("source_url__startswith", Catalogue.source_to_catalogue_name_map()))
+        .map(source=("source_url__startswith", Catalogue.map.source_to_name_map))
         .m2m_agg(
             authors=(
                 "person_relations__person__name",

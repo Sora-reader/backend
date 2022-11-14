@@ -21,7 +21,7 @@ def parametrize(param_list):
     return decorator
 
 
-catalogue_names = Catalogue.get_names()
+catalogue_names = Catalogue.map.names
 
 
 class CatalogueTestCase(TestCase):
@@ -30,15 +30,15 @@ class CatalogueTestCase(TestCase):
 
     @parametrize([dict(catalogue_name=name) for name in catalogue_names])
     def test_every_catalogue_at_least_1_parser(self, catalogue_name):
-        self.assertTrue(Catalogue.get(catalogue_name).get_parser_map())
+        self.assertTrue(Catalogue.from_name(catalogue_name).parser_map)
 
     @parametrize([dict(catalogue_name=name) for name in catalogue_names])
     def test_finds_list_parser(self, catalogue_name):
-        self.assertTrue(Catalogue.get(catalogue_name).get_parser(ParserType.list))
+        self.assertTrue(Catalogue.from_name(catalogue_name).from_parser_name(ParserType.list))
 
     @parametrize([dict(catalogue_name=name) for name in catalogue_names])
     def test_finds_detail_parser(self, catalogue_name):
-        self.assertTrue(Catalogue.get(catalogue_name).get_parser(ParserType.detail))
+        self.assertTrue(Catalogue.from_name(catalogue_name).from_parser_name(ParserType.detail))
 
     # TODO: add tests for chapter_parser in mangachan after refactor
     # TODO: add tests for image_parser

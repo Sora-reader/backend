@@ -14,7 +14,8 @@ class ChapterInline(BaseTabularInline):
     verbose_name_plural = "Chapters"
     readonly_fields = ("chapter_link",)
 
-    def chapter_link(self, obj):
+    @staticmethod
+    def chapter_link(obj):
         return obj.chapter.link
 
 
@@ -29,7 +30,7 @@ class SourceFilter(SimpleListFilter):
     parameter_name = "source"
 
     def lookups(self, request, model_admin):
-        return zip(Catalogue.get_sources(), Catalogue.get_names())
+        return zip(Catalogue.map.sources, Catalogue.map.names)
 
     def queryset(self, request, queryset: QuerySet):
         value = self.value()
@@ -104,5 +105,6 @@ class ChapterAdmin(BaseAdmin, admin.ModelAdmin):
         "manga": 5,
     }
 
-    def manga_name(self, obj):
+    @staticmethod
+    def manga_name(obj):
         return obj.manga.title

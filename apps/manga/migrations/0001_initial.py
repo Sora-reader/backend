@@ -9,103 +9,211 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('name', models.TextField(unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                ("name", models.TextField(unique=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Genre',
+            name="Genre",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('name', models.TextField(unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                ("name", models.TextField(unique=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Manga',
+            name="Manga",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('title', models.TextField()),
-                ('alt_title', models.TextField(blank=True, null=True)),
-                ('rating', models.DecimalField(decimal_places=2, default=0, max_digits=4)),
-                ('thumbnail', models.URLField(blank=True, default='', max_length=2000)),
-                ('image', models.URLField(blank=True, default='', max_length=2000)),
-                ('description', models.TextField(blank=True, default='')),
-                ('status', models.TextField(blank=True, null=True)),
-                ('year', models.TextField(blank=True, null=True)),
-                ('source_url', models.URLField(max_length=2000, unique=True)),
-                ('rss_url', models.URLField(blank=True, max_length=2000, null=True)),
-                ('categories', models.ManyToManyField(blank=True, related_name='mangas', to='manga.category')),
-                ('genres', models.ManyToManyField(blank=True, related_name='mangas', to='manga.genre')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                ("title", models.TextField()),
+                ("alt_title", models.TextField(blank=True, null=True)),
+                ("rating", models.DecimalField(decimal_places=2, default=0, max_digits=4)),
+                ("thumbnail", models.URLField(blank=True, default="", max_length=2000)),
+                ("image", models.URLField(blank=True, default="", max_length=2000)),
+                ("description", models.TextField(blank=True, default="")),
+                ("status", models.TextField(blank=True, null=True)),
+                ("year", models.TextField(blank=True, null=True)),
+                ("source_url", models.URLField(max_length=2000, unique=True)),
+                ("rss_url", models.URLField(blank=True, max_length=2000, null=True)),
+                (
+                    "categories",
+                    models.ManyToManyField(blank=True, related_name="mangas", to="manga.category"),
+                ),
+                (
+                    "genres",
+                    models.ManyToManyField(blank=True, related_name="mangas", to="manga.genre"),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Person',
+            name="Person",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('name', models.TextField(unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                ("name", models.TextField(unique=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='PersonRelatedToManga',
+            name="PersonRelatedToManga",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.TextField(choices=[('author', 'Author'), ('illustrator', 'Illustrator'), ('screenwriter', 'Screenwriter'), ('translator', 'Translator')])),
-                ('manga', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='person_relations', to='manga.manga')),
-                ('person', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='manga_relations', to='manga.person')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "role",
+                    models.TextField(
+                        choices=[
+                            ("author", "Author"),
+                            ("illustrator", "Illustrator"),
+                            ("screenwriter", "Screenwriter"),
+                            ("translator", "Translator"),
+                        ]
+                    ),
+                ),
+                (
+                    "manga",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="person_relations",
+                        to="manga.manga",
+                    ),
+                ),
+                (
+                    "person",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="manga_relations",
+                        to="manga.person",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='manga',
-            name='people_related',
-            field=models.ManyToManyField(related_name='mangas', through='manga.PersonRelatedToManga', to='manga.person'),
+            model_name="manga",
+            name="people_related",
+            field=models.ManyToManyField(
+                related_name="mangas", through="manga.PersonRelatedToManga", to="manga.person"
+            ),
         ),
         migrations.CreateModel(
-            name='Chapter',
+            name="Chapter",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.TextField()),
-                ('link', models.URLField(max_length=2000)),
-                ('number', models.FloatField()),
-                ('volume', models.FloatField()),
-                ('manga', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='chapters', to='manga.manga')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("title", models.TextField()),
+                ("link", models.URLField(max_length=2000)),
+                ("number", models.FloatField()),
+                ("volume", models.FloatField()),
+                (
+                    "manga",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="chapters",
+                        to="manga.manga",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Author',
-            fields=[
-            ],
+            name="Author",
+            fields=[],
             options={
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
             },
-            bases=('manga.person',),
+            bases=("manga.person",),
         ),
     ]

@@ -14,5 +14,5 @@ def create_save_lists(**kwargs):
 
 
 @receiver(post_save, sender=User)
-def signal_handler(instance, **kwargs):
+def signal_handler(instance, **kwargs):  # noqa
     create_save_lists(user=instance)

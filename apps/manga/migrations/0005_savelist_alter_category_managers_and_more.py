@@ -10,47 +10,100 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('manga', '0004_remove_manga_alt_title_manga_identifier'),
+        ("manga", "0004_remove_manga_alt_title_manga_identifier"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SaveList',
+            name="SaveList",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('name', models.TextField(choices=[('Читаю', 'Reading'), ('Избранные', 'Favorite'), ('Читать позже', 'Read Later'), ('Брошеные', 'Dropped')])),
-                ('session', models.TextField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                (
+                    "name",
+                    models.TextField(
+                        choices=[
+                            ("Читаю", "Reading"),
+                            ("Избранные", "Favorite"),
+                            ("Читать позже", "Read Later"),
+                            ("Брошенные", "Dropped"),
+                        ]
+                    ),
+                ),
+                ("session", models.TextField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='SaveListMangaThrough',
+            name="SaveListMangaThrough",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('manga', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manga.manga')),
-                ('save_list', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manga.savelist')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "manga",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="manga.manga"
+                    ),
+                ),
+                (
+                    "save_list",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="manga.savelist"
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('save_list', 'manga')},
+                "unique_together": {("save_list", "manga")},
             },
         ),
         migrations.AddField(
-            model_name='savelist',
-            name='mangas',
-            field=models.ManyToManyField(related_name='lists', through='manga.SaveListMangaThrough', to='manga.manga'),
+            model_name="savelist",
+            name="mangas",
+            field=models.ManyToManyField(
+                related_name="lists", through="manga.SaveListMangaThrough", to="manga.manga"
+            ),
         ),
         migrations.AddField(
-            model_name='savelist',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='lists', to=settings.AUTH_USER_MODEL),
+            model_name="savelist",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="lists",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddConstraint(
-            model_name='savelist',
-            constraint=models.CheckConstraint(check=models.Q(('user__isnull', False), ('session__isnull', False), _connector='OR'), name='not_both_null'),
+            model_name="savelist",
+            constraint=models.CheckConstraint(
+                check=models.Q(
+                    ("user__isnull", False), ("session__isnull", False), _connector="OR"
+                ),
+                name="not_both_null",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='savelist',
-            unique_together={('user', 'session', 'name')},
+            name="savelist",
+            unique_together={("user", "session", "name")},
         ),
     ]

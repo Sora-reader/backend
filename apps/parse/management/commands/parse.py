@@ -20,8 +20,8 @@ class Command(BaseCommand):
             "catalogue",
             type=str,
             default="readmanga",
-            choices=Catalogue.get_names(),
-            help="parser to use which respresents a website source",
+            choices=Catalogue.map.names,
+            help="parser to use which represents a website source",
         )
         parser.add_argument(
             "--url",

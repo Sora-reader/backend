@@ -8,7 +8,7 @@ from apps.authentication.utils import redirect_with_cookie
 
 
 @receiver(pre_social_login)
-def pre_social_login_handler(request, sociallogin, *args, **kwargs):
+def pre_social_login_handler(request, sociallogin, *args, **kwargs):  # noqa
     """
     Take email out and try to find user with the same email
     If the user exists, verify email if needed, login and redirect to home

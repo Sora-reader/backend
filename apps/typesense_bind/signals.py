@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 @receiver(post_save, sender=Manga)
-def update_collection(instance: Manga, **kwargs):
+def update_collection(instance: Manga, **kwargs):  # noqa
     client = get_ts_client()
     data = manga_to_annotated_dict(instance)
     upsert_collection(client, [data])

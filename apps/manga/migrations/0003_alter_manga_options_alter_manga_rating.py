@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manga', '0002_chapter_created_chapter_modified'),
+        ("manga", "0002_chapter_created_chapter_modified"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='manga',
-            options={'verbose_name': 'Manga', 'verbose_name_plural': 'Manga'},
+            name="manga",
+            options={"verbose_name": "Manga", "verbose_name_plural": "Manga"},
         ),
         migrations.AlterField(
-            model_name='manga',
-            name='rating',
+            model_name="manga",
+            name="rating",
             field=models.DecimalField(blank=True, decimal_places=2, max_digits=4, null=True),
         ),
     ]

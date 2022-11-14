@@ -82,12 +82,12 @@ def handle_parsing_with_caching(
 
 
 @manga_router.get("/search/", response=List[MangaSchema])
-def search_manga(request, title: str):
+def search_manga(_, title: str):
     return query_dict_list_by_title(title)
 
 
 @manga_router.get("/{manga_id}/", response=sora_schema(MangaOut))
-def get_manga(request, manga_id: int):
+def get_manga(_, manga_id: int):
     manga = get_model_or_404(Manga, pk=manga_id)
 
     return handle_parsing_with_caching(
@@ -99,7 +99,7 @@ def get_manga(request, manga_id: int):
 
 
 @manga_router.get("/{manga_id}/chapters/", response=sora_schema(ChapterListOut))
-def get_chapters(request, manga_id: int):
+def get_chapters(_, manga_id: int):
     manga = get_model_or_404(Manga, pk=manga_id, prefetch=["chapters"])
 
     if not manga.chapters_url:
@@ -115,7 +115,7 @@ def get_chapters(request, manga_id: int):
 
 
 @manga_router.get("/{manga_id}/chapters/{chapter_id}/images/", response=sora_schema(ImageListOut))
-def get_chapter_images(request, manga_id: int, chapter_id: int):
+def get_chapter_images(_, manga_id: int, chapter_id: int):
     chapter = (
         Chapter.objects.filter(pk=chapter_id, manga_id=manga_id).prefetch_related("manga").first()
     )

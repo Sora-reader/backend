@@ -13,7 +13,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="manage.py" />
-    <option name="PARAMETERS" value="parse detail mangachan --url https://manga-chan.me/manga/77319-blessed.html" />
+    <option name="PARAMETERS" value="parse detail readmanga --url https://readmanga.live/kovboi_bibop__padaiuchaia_zvezda" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

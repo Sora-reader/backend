@@ -5,12 +5,12 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('manga', '0006_rename_rss_url_manga_chapters_url_and_more'),
+        ("manga", "0006_rename_rss_url_manga_chapters_url_and_more"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='savelist',
+            name="savelist",
             unique_together=set(),
         ),
         # It's a PostgreSQL 15 feature

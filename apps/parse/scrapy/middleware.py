@@ -8,7 +8,7 @@ from scrapy.spiders import Spider
 
 class ErrorLoggerMiddleware(object):
     @staticmethod
-    def error_logger(spider: Spider, failure: HttpError, *args, **kwargs):
+    def error_logger(spider: Spider, failure: HttpError, *args, **kwargs):  # noqa
         if hasattr(failure, "response"):
             url = failure.response.url
         else:

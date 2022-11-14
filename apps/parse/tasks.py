@@ -10,8 +10,8 @@ from apps.parse.types import CacheType, ParsingStatus
 
 @job
 def run_spider_task(parser_type: str, catalogue_name: str = "readmanga", url: str = None):
-    catalogue = Catalogue.get(catalogue_name)
-    spider = catalogue.get_parser(parser_type)
+    catalogue = Catalogue.from_name(catalogue_name)
+    spider = catalogue.from_parser_name(parser_type)
     cache = caches[CacheType.from_parser_type(parser_type)]
 
     j = Job(spider, url=url)

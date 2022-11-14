@@ -1,11 +1,32 @@
-from typing import Dict, Type
+from typing import Dict, List, Type
+
+from django.utils.functional import classproperty
 
 from apps.parse.exceptions import CatalogueNotFound, ParserNotFound
+from apps.parse.scrapy.spider import BaseSpider
 from apps.parse.types import ParserType
 
 
+class CatalogueMap(dict, Dict[str, Type["Catalogue"]]):
+    @property
+    def names(self) -> List[str]:
+        return [c.name for c in self.values()]
+
+    @property
+    def sources(self) -> List[str]:
+        return [c.source for c in self.values()]
+
+    @property
+    def name_to_source_map(self) -> Dict[str, str]:
+        return {c.name: c.source for c in self.values()}
+
+    @property
+    def source_to_name_map(self) -> Dict[str, str]:
+        return {c.source: c.name for c in self.values()}
+
+
 class _AutoRegisterCatalogue(type):
-    catalogue_map: Dict[str, Type["Catalogue"]] = {}
+    catalogue_map = CatalogueMap()
 
     def __init__(cls: Type["Catalogue"], cls_name, cls_bases, cls_dict):
         super().__init__(cls_name, cls_bases, cls_dict)
@@ -14,6 +35,9 @@ class _AutoRegisterCatalogue(type):
             # Create parser map for catalogue
             cls._parser_map = {}
             _AutoRegisterCatalogue.catalogue_map[cls.name] = cls
+
+    def get_map(cls):
+        return cls.catalogue_map
 
     def __str__(cls: Type["Catalogue"]):
         return cls.name
@@ -31,7 +55,7 @@ class Catalogue(metaclass=_AutoRegisterCatalogue):
     name: str
     source: str
     settings: str
-    _parser_map: Dict[str, type]
+    _parser_map: Dict[str, Type["BaseSpider"]]
 
     @staticmethod
     def _create_init(cls):
@@ -48,7 +72,7 @@ class Catalogue(metaclass=_AutoRegisterCatalogue):
 
     @classmethod
     def register(cls, type_: str | ParserType, url: bool = True):
-        def reg(parser: type):
+        def reg(parser: Type["BaseSpider"]):
             cls._parser_map[type_] = parser
             attrs = {
                 "name": f"{cls.name}_{type_}",
@@ -63,35 +87,12 @@ class Catalogue(metaclass=_AutoRegisterCatalogue):
 
         return reg
 
-    @classmethod
-    def get_parser(cls, type_: str | ParserType) -> type:
-        res = cls._parser_map.get(type_, None)
-        if not res:
-            raise ParserNotFound
-        return res
-
-    @classmethod
-    def get_parser_map(cls) -> dict:
-        return cls._parser_map
-
     @staticmethod
-    def get(name: str):
+    def from_name(name: str):
         res = _AutoRegisterCatalogue.catalogue_map.get(name, None)
         if not res:
             raise CatalogueNotFound
         return res
-
-    @staticmethod
-    def get_map():
-        return _AutoRegisterCatalogue.catalogue_map
-
-    @classmethod
-    def get_names(cls) -> list:
-        return list(_AutoRegisterCatalogue.catalogue_map.keys())
-
-    @classmethod
-    def get_sources(cls) -> list:
-        return [c.source for c in _AutoRegisterCatalogue.catalogue_map.values()]
 
     @staticmethod
     def from_source(url: str):
@@ -102,6 +103,17 @@ class Catalogue(metaclass=_AutoRegisterCatalogue):
             raise CatalogueNotFound
         return filtered_list[0]
 
+    @classproperty
+    def map(self):
+        return _AutoRegisterCatalogue.catalogue_map
+
     @classmethod
-    def source_to_catalogue_name_map(cls):
-        return {c.source: c.name for c in cls.get_map().values()}
+    def from_parser_name(cls, type_: str | ParserType):
+        res = cls._parser_map.get(type_, None)
+        if not res:
+            raise ParserNotFound
+        return res
+
+    @classproperty
+    def parser_map(self):
+        return self._parser_map

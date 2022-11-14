@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manga', '0003_alter_manga_options_alter_manga_rating'),
+        ("manga", "0003_alter_manga_options_alter_manga_rating"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='manga',
-            name='alt_title',
+            model_name="manga",
+            name="alt_title",
         ),
         migrations.AddField(
-            model_name='manga',
-            name='identifier',
-            field=models.TextField(default=''),
+            model_name="manga",
+            name="identifier",
+            field=models.TextField(default=""),
             preserve_default=False,
         ),
     ]

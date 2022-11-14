@@ -6,38 +6,45 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manga', '0005_savelist_alter_category_managers_and_more'),
+        ("manga", "0005_savelist_alter_category_managers_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='manga',
-            old_name='rss_url',
-            new_name='chapters_url',
+            model_name="manga",
+            old_name="rss_url",
+            new_name="chapters_url",
         ),
         migrations.AlterField(
-            model_name='manga',
-            name='identifier',
+            model_name="manga",
+            name="identifier",
             field=models.CharField(blank=True, max_length=1024, null=True),
         ),
         migrations.AlterField(
-            model_name='manga',
-            name='status',
+            model_name="manga",
+            name="status",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='manga',
-            name='title',
+            model_name="manga",
+            name="title",
             field=models.CharField(blank=True, max_length=512, null=True),
         ),
         migrations.AlterField(
-            model_name='manga',
-            name='year',
+            model_name="manga",
+            name="year",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='savelist',
-            name='name',
-            field=models.TextField(choices=[('Читаю', 'Reading'), ('Избранные', 'Favorite'), ('Читать позже', 'Read Later'), ('Брошенные', 'Dropped')]),
+            model_name="savelist",
+            name="name",
+            field=models.TextField(
+                choices=[
+                    ("Читаю", "Reading"),
+                    ("Избранные", "Favorite"),
+                    ("Читать позже", "Read Later"),
+                    ("Брошенные", "Dropped"),
+                ]
+            ),
         ),
     ]

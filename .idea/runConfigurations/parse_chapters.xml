@@ -13,7 +13,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="manage.py" />
-    <option name="PARAMETERS" value="parse chapters readmanga --url https://readmanga.live/rss/manga?name=podniatie_urovnia_v_odinochku" />
+    <option name="PARAMETERS" value="parse chapter readmanga --url https://readmanga.live/rss/manga?name=neveroiatnye_prikliucheniia_djodjo__diavolski_razbitoe_serdce_crazy_diamond" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
