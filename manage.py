@@ -7,6 +7,7 @@ import sys
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "manga_reader.settings")
+    os.environ.setdefault("APM_NAME", "django-backend")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

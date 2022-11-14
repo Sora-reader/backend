@@ -28,6 +28,7 @@ env = environ.Env(
     PROXY=(str, ""),
     GOOGLE_CLIENT=(str, ""),
     GOOGLE_SECRET=(str, ""),
+    APM_NAME=(str, "rq-worker"),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
@@ -43,14 +44,11 @@ ROOT_URLCONF = "manga_reader.urls"
 WSGI_APPLICATION = "manga_reader.wsgi.application"
 
 ELASTIC_APM = {
-    "SERVICE_NAME": "django-backend",
-    # Use if APM Server requires a secret token
-    # 'SECRET_TOKEN': '3Nix5IfFFykT0x6VON',
+    "SERVICE_NAME": env("APM_NAME"),
     "SECRET_TOKEN": "",
-    # Set the custom APM Server URL (default: http://localhost:8200)
     "SERVER_URL": "http://70.34.249.112:8200",
-    # Set the service environment
     "ENVIRONMENT": "production",
+    "DJANGO_TRANSACTION_NAME_FROM_ROUTE": True,
 }
 
 ############
