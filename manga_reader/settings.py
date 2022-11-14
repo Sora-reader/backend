@@ -376,6 +376,12 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+        # Log errors from the Elastic APM module to the console (recommended)
+        "elasticapm.errors": {
+            "level": "ERROR",
+            "handlers": ["console"],
+            "propagate": False,
+        },
     },
 }
 
