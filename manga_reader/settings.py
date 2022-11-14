@@ -42,6 +42,17 @@ SHELL_PLUS_PRINT_SQL_TRUNCATE = None
 ROOT_URLCONF = "manga_reader.urls"
 WSGI_APPLICATION = "manga_reader.wsgi.application"
 
+ELASTIC_APM = {
+    "SERVICE_NAME": "django-backend",
+    # Use if APM Server requires a secret token
+    # 'SECRET_TOKEN': '3Nix5IfFFykT0x6VON',
+    "SECRET_TOKEN": "",
+    # Set the custom APM Server URL (default: http://localhost:8200)
+    # 'SERVER_URL': 'https://b43ca62ab9484354922a2857f523ac2e.apm.europe-west3.gcp.cloud.es.io:443',
+    # Set the service environment
+    "ENVIRONMENT": "production",
+}
+
 ############
 # Security #
 ############
@@ -107,6 +118,7 @@ CACHES = {
 ########
 
 INSTALLED_APPS = [
+    "elasticapm.contrib.django",
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -202,6 +214,7 @@ JAZZMIN_UI_TWEAKS = {
 ##############
 
 MIDDLEWARE = [
+    "elasticapm.contrib.django.middleware.TracingMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

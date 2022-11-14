@@ -416,6 +416,28 @@ sentry = ["raven (>=6.1.0)"]
 testing = ["mock (>=2.0.0)"]
 
 [[package]]
+name = "elastic-apm"
+version = "6.13.1"
+description = "The official Python module for Elastic APM"
+category = "main"
+optional = false
+python-versions = "<4,>=3.6"
+
+[package.dependencies]
+certifi = "*"
+urllib3 = "*"
+wrapt = ">=1.14.1"
+
+[package.extras]
+aiohttp = ["aiohttp"]
+flask = ["blinker"]
+opentelemetry = ["opentelemetry-api", "opentelemetry-sdk"]
+opentracing = ["opentracing (>=2.0.0)"]
+sanic = ["sanic"]
+starlette = ["starlette"]
+tornado = ["tornado"]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.0.1"
 description = "Backport of PEP 654 (exception groups)"
@@ -1482,7 +1504,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "2a0cef598aad07757ffe6702d914a1288360d84c07e1a36237da095709ea3ef2"
+content-hash = "b2b33216cc98e9a1264c74b6dcd2a9d07348136581b1bb98b9b7bd4a93477925"
 
 [metadata.files]
 appnope = [
@@ -1792,6 +1814,10 @@ django-ninja = [
 django-rq = [
     {file = "django-rq-2.6.0.tar.gz", hash = "sha256:f03b1eb68afe218175989c14b1266c7b446d5152f629888a078d0022059b255e"},
     {file = "django_rq-2.6.0-py2.py3-none-any.whl", hash = "sha256:b1964ad656ae103d8b4714f8745e739586917b126f02c844791d9059940b01a0"},
+]
+elastic-apm = [
+    {file = "elastic-apm-6.13.1.tar.gz", hash = "sha256:ddbf909cf2b1429de19debe5c424fe74fafb9a12e13e5b8bfad5ff1e075cdd23"},
+    {file = "elastic_apm-6.13.1-py2.py3-none-any.whl", hash = "sha256:9aa5d489aa857a25bed28fa746e74c0a4b24f4a9c8d838f36dbb491df0093fa6"},
 ]
 exceptiongroup = [
     {file = "exceptiongroup-1.0.1-py3-none-any.whl", hash = "sha256:4d6c0aa6dd825810941c792f53d7b8d71da26f5e5f84f20f9508e8f2d33b140a"},
