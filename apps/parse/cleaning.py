@@ -15,6 +15,9 @@ def without_common_prefix(words):
         if not word:
             return words
         cnt[word[0]] += 1
+
+    if not cnt:
+        return words
     first_letter = list(cnt)[0]
 
     filter_list = [word for word in words if word[0] == first_letter]
