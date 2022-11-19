@@ -11,6 +11,10 @@ from apps.parse.catalogue import Catalogue
 
 
 class Category(BaseModel):
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+
     name = TextField(unique=True)
 
 

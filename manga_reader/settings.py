@@ -8,8 +8,10 @@ from pathlib import Path
 import dj_database_url
 import environ
 import scrapy.utils.log
+import sentry_sdk
 from colorlog import ColoredFormatter
 from django.core.management import BaseCommand
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from apps.parse.types import CacheType
 from apps.typesense_bind.client import create_client
@@ -29,6 +31,7 @@ env = environ.Env(
     GOOGLE_CLIENT=(str, ""),
     GOOGLE_SECRET=(str, ""),
     APM_NAME=(str, "rq-worker"),
+    SENTRY_DSN=(str, ""),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
@@ -51,6 +54,13 @@ ELASTIC_APM = {
     "DJANGO_TRANSACTION_NAME_FROM_ROUTE": True,
 }
 
+sentry_sdk.init(
+    dsn=env("SENTRY_DSN"),
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+)
+
 ############
 # Security #
 ############
@@ -69,6 +79,19 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "baggage",
+    "sentry-trace",
+]
 
 SESSION_COOKIE_SAMESITE = None
 SESSION_COOKIE_NAME = "sessionId"

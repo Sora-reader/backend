@@ -28,6 +28,7 @@ steps:
       - 'TYPESENSE_API_KEY=${_TYPESENSE_API_KEY}'
       - 'GOOGLE_CLIENT=${_GOOGLE_CLIENT}'
       - 'GOOGLE_SECRET=${_GOOGLE_SECRET}'
+      - 'SENTRY_DSN=${_SENTRY_DSN}'
 
   - name: python
     id: install-deps

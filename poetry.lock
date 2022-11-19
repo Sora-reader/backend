@@ -1227,6 +1227,39 @@ reference = "error-handling"
 resolved_reference = "f948561adcdc1cf38dfbdd9da5a984ae23770bdb"
 
 [[package]]
+name = "sentry-sdk"
+version = "1.11.0"
+description = "Python client for Sentry (https://sentry.io)"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+certifi = "*"
+urllib3 = {version = ">=1.26.11", markers = "python_version >= \"3.6\""}
+
+[package.extras]
+aiohttp = ["aiohttp (>=3.5)"]
+beam = ["apache-beam (>=2.12)"]
+bottle = ["bottle (>=0.12.13)"]
+celery = ["celery (>=3)"]
+chalice = ["chalice (>=1.16.0)"]
+django = ["django (>=1.8)"]
+falcon = ["falcon (>=1.4)"]
+fastapi = ["fastapi (>=0.79.0)"]
+flask = ["blinker (>=1.1)", "flask (>=0.11)"]
+httpx = ["httpx (>=0.16.0)"]
+pure-eval = ["asttokens", "executing", "pure-eval"]
+pymongo = ["pymongo (>=3.1)"]
+pyspark = ["pyspark (>=2.4.4)"]
+quart = ["blinker (>=1.1)", "quart (>=0.16.1)"]
+rq = ["rq (>=0.6)"]
+sanic = ["sanic (>=0.8)"]
+sqlalchemy = ["sqlalchemy (>=1.2)"]
+starlette = ["starlette (>=0.19.1)"]
+tornado = ["tornado (>=5)"]
+
+[[package]]
 name = "service-identity"
 version = "21.1.0"
 description = "Service identity verification for pyOpenSSL & cryptography."
@@ -1504,7 +1537,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "b2b33216cc98e9a1264c74b6dcd2a9d07348136581b1bb98b9b7bd4a93477925"
+content-hash = "68b47e11468e59a795195a272e96f9d582a3ef188445410d380ca5fb1e7cdc2a"
 
 [metadata.files]
 appnope = [
@@ -2265,6 +2298,10 @@ scrapy = [
     {file = "Scrapy-2.7.1.tar.gz", hash = "sha256:30fa408353d24b1df979df2ea4afbd19b4ae02fb2207f218d246332f1e1cf14e"},
 ]
 scrapyscript = []
+sentry-sdk = [
+    {file = "sentry-sdk-1.11.0.tar.gz", hash = "sha256:e7b78a1ddf97a5f715a50ab8c3f7a93f78b114c67307785ee828ef67a5d6f117"},
+    {file = "sentry_sdk-1.11.0-py2.py3-none-any.whl", hash = "sha256:f467e6c7fac23d4d42bc83eb049c400f756cd2d65ab44f0cc1165d0c7c3d40bc"},
+]
 service-identity = [
     {file = "service-identity-21.1.0.tar.gz", hash = "sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34"},
     {file = "service_identity-21.1.0-py2.py3-none-any.whl", hash = "sha256:f0b0caac3d40627c3c04d7a51b6e06721857a0e10a8775f2d1d7e72901b3a7db"},
