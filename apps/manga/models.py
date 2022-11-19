@@ -10,6 +10,22 @@ from apps.core.utils import url_prefix
 from apps.parse.catalogue import Catalogue
 
 
+class OptionalUser(models.Model):
+    class Meta:
+        abstract = True
+
+    @staticmethod
+    def get_optional_user_constraint(prefix: str):
+        # There's also a unique index with the name of save_list_user_name_unique
+        # Django doesn't support those for now, so it's just a migrations with raw SQL
+        return models.CheckConstraint(
+            check=Q(user__isnull=False) | Q(session__isnull=False), name=f"{prefix}not_both_null"
+        )
+
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE, blank=True, null=True)
+    session = models.TextField(blank=True, null=True)
+
+
 class Category(BaseModel):
     class Meta:
         verbose_name = "Category"
@@ -77,6 +93,18 @@ class Chapter(BaseModel):
     volume = FloatField()
 
 
+class Bookmark(BaseModel, OptionalUser):
+    class Meta:
+        constraints = [OptionalUser.get_optional_user_constraint("bookmark_")]
+
+    manga = models.ForeignKey(
+        "Manga", related_name="bookmarks", on_delete=models.CASCADE, blank=False, null=False
+    )
+    chapter = models.ForeignKey(
+        "Chapter", related_name="bookmarks", on_delete=models.CASCADE, blank=False, null=False
+    )
+
+
 class Manga(BaseModel):
     class Meta:
         verbose_name = "Manga"
@@ -140,21 +168,10 @@ class SaveListNameChoices(models.TextChoices):
     dropped = "Брошенные"
 
 
-class SaveList(BaseModel):
+class SaveList(BaseModel, OptionalUser):
     class Meta:
-        constraints = [
-            # There's also a unique index with the name of save_list_user_name_unique
-            # Django doesn't support those for now, so it's just a migrations with raw SQL
-            models.CheckConstraint(
-                check=Q(user__isnull=False) | Q(session__isnull=False), name="not_both_null"
-            ),
-        ]
+        constraints = [OptionalUser.get_optional_user_constraint("")]
 
     name = models.TextField(choices=SaveListNameChoices.choices, null=False, blank=False)
-
-    user = models.ForeignKey(
-        "auth.User", related_name="lists", on_delete=models.CASCADE, blank=True, null=True
-    )
-    session = models.TextField(blank=True, null=True)
 
     mangas = models.ManyToManyField("Manga", related_name="lists", through=SaveListMangaThrough)
