@@ -216,6 +216,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "contextlib2"
+version = "21.6.0"
+description = "Backports and enhancements for the contextlib module"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "cryptography"
 version = "38.0.3"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
@@ -399,6 +407,48 @@ doc = ["markdown-include", "mkdocs", "mkdocs-material", "mkdocstrings"]
 test = ["black", "django-stubs", "flake8", "isort", "mypy (==0.931)", "psycopg2-binary", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django"]
 
 [[package]]
+name = "django-ninja-extra"
+version = "0.16.0"
+description = "Django Ninja Extra - Class Based Utility and more for Django Ninja(Fast Django REST framework)"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+asgiref = "*"
+contextlib2 = "*"
+Django = ">=2.2"
+django-ninja = ">=0.17.0"
+injector = "0.19.0"
+
+[package.extras]
+dev = ["pre-commit"]
+doc = ["markdown-include", "mdx-include (>=1.4.1,<2.0.0)", "mkdocs (>=1.1.2,<2.0.0)", "mkdocs-markdownextradata-plugin (>=0.1.7,<0.3.0)", "mkdocs-material (>=7.1.9,<8.0.0)", "mkdocstrings"]
+test = ["black", "django-stubs", "flake8", "injector (==0.19.0)", "isort", "mypy (==0.931)", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django"]
+
+[[package]]
+name = "django-ninja-jwt"
+version = "5.2.2"
+description = "Django Ninja JWT - JSON Web Token for Django-Ninja"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+Django = ">=2.1"
+django-ninja-extra = ">=0.14.2"
+ninja-schema = ">=0.12.8"
+pyjwt = [
+    {version = ">=1.7.1,<3"},
+    {version = "*", extras = ["crypto"]},
+]
+
+[package.extras]
+crypto = ["cryptography (>=3.3.1)"]
+doc = ["markdown-include", "mdx-include (>=1.4.1,<2.0.0)", "mkdocs", "mkdocs-markdownextradata-plugin (>=0.1.7,<0.3.0)", "mkdocs-material"]
+test = ["black (==21.12b0)", "click (==8.0.4)", "cryptography", "django-stubs", "flake8 (==4.0.1)", "isort (==5.10.1)", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django", "python-jose (==3.3.0)"]
+
+[[package]]
 name = "django-rq"
 version = "2.6.0"
 description = "An app that provides django integration for RQ (Redis Queue)"
@@ -414,6 +464,22 @@ rq = ">=1.2"
 [package.extras]
 sentry = ["raven (>=6.1.0)"]
 testing = ["mock (>=2.0.0)"]
+
+[[package]]
+name = "dnspython"
+version = "2.2.1"
+description = "DNS toolkit"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.extras]
+curio = ["curio (>=1.2,<2.0)", "sniffio (>=1.1,<2.0)"]
+dnssec = ["cryptography (>=2.6,<37.0)"]
+doh = ["h2 (>=4.1.0)", "httpx (>=0.21.1)", "requests (>=2.23.0,<3.0.0)", "requests-toolbelt (>=0.9.1,<0.10.0)"]
+idna = ["idna (>=2.1,<4.0)"]
+trio = ["trio (>=0.14,<0.20)"]
+wmi = ["wmi (>=1.5.1,<2.0.0)"]
 
 [[package]]
 name = "elastic-apm"
@@ -436,6 +502,18 @@ opentracing = ["opentracing (>=2.0.0)"]
 sanic = ["sanic"]
 starlette = ["starlette"]
 tornado = ["tornado"]
+
+[[package]]
+name = "email-validator"
+version = "1.3.0"
+description = "A robust email address syntax and deliverability validation library."
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+
+[package.dependencies]
+dnspython = ">=1.15.0"
+idna = ">=2.0.0"
 
 [[package]]
 name = "exceptiongroup"
@@ -550,6 +628,17 @@ description = "iniconfig: brain-dead simple config-ini parsing"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "injector"
+version = "0.19.0"
+description = "Injector - Python dependency injection framework, inspired by Guice"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+dev = ["black", "check-manifest", "dataclasses", "mypy", "pytest", "pytest-cov (>=2.5.1)"]
 
 [[package]]
 name = "ipdb"
@@ -710,6 +799,24 @@ description = "Experimental type system extensions for programs checked with the
 category = "dev"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "ninja-schema"
+version = "0.13.0"
+description = "Django Schema - Builds Pydantic Schemas from Django Models with default field type validations"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+Django = ">=2.0"
+pydantic = [
+    {version = "*"},
+    {version = "*", extras = ["email"]},
+]
+
+[package.extras]
+test = ["black", "django-stubs", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django"]
 
 [[package]]
 name = "nodeenv"
@@ -940,6 +1047,7 @@ optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
+email-validator = {version = ">=1.0.3", optional = true, markers = "extra == \"email\""}
 typing-extensions = ">=4.1.0"
 
 [package.extras]
@@ -1537,7 +1645,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "68b47e11468e59a795195a272e96f9d582a3ef188445410d380ca5fb1e7cdc2a"
+content-hash = "64613075889588ca860a53b317b98caab8ce36e45c014a332b09d079795c7791"
 
 [metadata.files]
 appnope = [
@@ -1761,6 +1869,10 @@ constantly = [
     {file = "constantly-15.1.0-py2.py3-none-any.whl", hash = "sha256:dd2fa9d6b1a51a83f0d7dd76293d734046aa176e384bf6e33b7e44880eb37c5d"},
     {file = "constantly-15.1.0.tar.gz", hash = "sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35"},
 ]
+contextlib2 = [
+    {file = "contextlib2-21.6.0-py2.py3-none-any.whl", hash = "sha256:3fbdb64466afd23abaf6c977627b75b6139a5a3e8ce38405c5b413aed7a0471f"},
+    {file = "contextlib2-21.6.0.tar.gz", hash = "sha256:ab1e2bfe1d01d968e1b7e8d9023bc51ef3509bba217bb730cee3827e1ee82869"},
+]
 cryptography = [
     {file = "cryptography-38.0.3-cp36-abi3-macosx_10_10_universal2.whl", hash = "sha256:984fe150f350a3c91e84de405fe49e688aa6092b3525f407a18b9646f6612320"},
     {file = "cryptography-38.0.3-cp36-abi3-macosx_10_10_x86_64.whl", hash = "sha256:ed7b00096790213e09eb11c97cc6e2b757f15f3d2f85833cd2d3ec3fe37c1722"},
@@ -1844,13 +1956,29 @@ django-ninja = [
     {file = "django-ninja-0.19.1.tar.gz", hash = "sha256:f52e6b5f25a83f7bda80398b3b97001011142911cff52a9dd711e63d711a36ab"},
     {file = "django_ninja-0.19.1-py3-none-any.whl", hash = "sha256:062ed2b18e357f0556bba73f14132a7c12a5a61ebb79552162b9903e4f975008"},
 ]
+django-ninja-extra = [
+    {file = "django-ninja-extra-0.16.0.tar.gz", hash = "sha256:34a8ae82a817a7601bb5b732bead66688fc843043851da08a048fba74209a827"},
+    {file = "django_ninja_extra-0.16.0-py3-none-any.whl", hash = "sha256:188755097d6b14c7130f8990a08ed003873413a05d24c47ddef168398235cac9"},
+]
+django-ninja-jwt = [
+    {file = "django-ninja-jwt-5.2.2.tar.gz", hash = "sha256:64a7d7ba525069ba9e4f931fc06bd1327a541c9485089dbcb6826a74cda3cab5"},
+    {file = "django_ninja_jwt-5.2.2-py3-none-any.whl", hash = "sha256:345371837b279ea327a2e6cc21b9a8fd0490acc1b029b1b526e844cf2643aff7"},
+]
 django-rq = [
     {file = "django-rq-2.6.0.tar.gz", hash = "sha256:f03b1eb68afe218175989c14b1266c7b446d5152f629888a078d0022059b255e"},
     {file = "django_rq-2.6.0-py2.py3-none-any.whl", hash = "sha256:b1964ad656ae103d8b4714f8745e739586917b126f02c844791d9059940b01a0"},
 ]
+dnspython = [
+    {file = "dnspython-2.2.1-py3-none-any.whl", hash = "sha256:a851e51367fb93e9e1361732c1d60dab63eff98712e503ea7d92e6eccb109b4f"},
+    {file = "dnspython-2.2.1.tar.gz", hash = "sha256:0f7569a4a6ff151958b64304071d370daa3243d15941a7beedf0c9fe5105603e"},
+]
 elastic-apm = [
     {file = "elastic-apm-6.13.1.tar.gz", hash = "sha256:ddbf909cf2b1429de19debe5c424fe74fafb9a12e13e5b8bfad5ff1e075cdd23"},
     {file = "elastic_apm-6.13.1-py2.py3-none-any.whl", hash = "sha256:9aa5d489aa857a25bed28fa746e74c0a4b24f4a9c8d838f36dbb491df0093fa6"},
+]
+email-validator = [
+    {file = "email_validator-1.3.0-py2.py3-none-any.whl", hash = "sha256:816073f2a7cffef786b29928f58ec16cdac42710a53bb18aa94317e3e145ec5c"},
+    {file = "email_validator-1.3.0.tar.gz", hash = "sha256:553a66f8be2ec2dea641ae1d3f29017ab89e9d603d4a25cdaac39eefa283d769"},
 ]
 exceptiongroup = [
     {file = "exceptiongroup-1.0.1-py3-none-any.whl", hash = "sha256:4d6c0aa6dd825810941c792f53d7b8d71da26f5e5f84f20f9508e8f2d33b140a"},
@@ -1891,6 +2019,10 @@ incremental = [
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
+]
+injector = [
+    {file = "injector-0.19.0-py2.py3-none-any.whl", hash = "sha256:2e5f5629d9c42f8ed8a3f8a5b4e9dc8ac80547cd95c7ce0bd0fc3f4baae6bc77"},
+    {file = "injector-0.19.0.tar.gz", hash = "sha256:3eaaf51cd3ba7be1354d92a5210c8bba43dd324300eafd214e1f2568834a912f"},
 ]
 ipdb = [
     {file = "ipdb-0.13.9.tar.gz", hash = "sha256:951bd9a64731c444fd907a5ce268543020086a697f6be08f7cc2c9a752a278c5"},
@@ -2006,6 +2138,10 @@ mccabe = [
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
+]
+ninja-schema = [
+    {file = "ninja-schema-0.13.0.tar.gz", hash = "sha256:4063c70ddac3943ea10f25918beb032a709f983b0951caf350d431c6f1d034c5"},
+    {file = "ninja_schema-0.13.0-py3-none-any.whl", hash = "sha256:7296a3557e82ef9c9a6f545e811332f42d04a4fefbf2cfcec36d2edf1ad253a3"},
 ]
 nodeenv = [
     {file = "nodeenv-1.7.0-py2.py3-none-any.whl", hash = "sha256:27083a7b96a25f2f5e1d8cb4b6317ee8aeda3bdd121394e5ac54e498028a042e"},

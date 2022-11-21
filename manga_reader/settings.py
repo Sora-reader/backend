@@ -149,6 +149,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "django_extensions",
+    "ninja_jwt",
+    "ninja_extra",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",

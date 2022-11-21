@@ -1,16 +1,16 @@
-from ninja import NinjaAPI
+from ninja_extra import NinjaExtraAPI
+from ninja_jwt.controller import NinjaJWTDefaultController
 
-from apps.authentication.api.api import router as auth_router
 from apps.manga.api.api import manga_router
 from apps.manga.api.bookmarks.api import bookmark_router
 from apps.manga.api.lists.api import list_router
 
-api = NinjaAPI(title="Sora API", docs_url="/docs/")
+api = NinjaExtraAPI(title="Sora API", docs_url="/docs/")
+api.register_controllers(NinjaJWTDefaultController)
 
 api.add_router("/manga/", manga_router)
 api.add_router("/lists/", list_router)
 api.add_router("/bookmarks/", bookmark_router)
-api.add_router("/auth/", auth_router)
 
 
 @api.get("/health", tags=["Meta"])

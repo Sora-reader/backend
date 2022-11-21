@@ -2,6 +2,7 @@ from allauth.exceptions import ImmediateHttpResponse
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from ninja_jwt.tokens import RefreshToken
 
 from apps.core.api.schemas import ErrorSchema
 
@@ -32,6 +33,6 @@ def auto_save_frontend_url(f):
 def redirect_with_cookie(request):
     """Get host url and session from session and send session token via a redirect."""
     host = request.session[frontend_url_key]
-    resp = redirect(f"{host}?t={request.session.session_key}")
+    resp = redirect(f"{host}?t={RefreshToken.for_user(request.user)}")
 
     raise ImmediateHttpResponse(resp)

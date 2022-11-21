@@ -3,14 +3,16 @@ from typing import List
 from django.db import IntegrityError
 from django.db.transaction import atomic
 from ninja import Router
+from ninja_jwt.authentication import JWTAuth
 
 from apps.core.api.schemas import ErrorSchema
 from apps.manga.annotate import fast_annotate_manga_query
 from apps.manga.api.lists.schemas import SaveListEditOut, SaveListOut
+from apps.manga.api.utils import get_user_kw
 from apps.manga.models import SaveList, SaveListMangaThrough
 from apps.manga.signals import create_save_lists
 
-list_router = Router(tags=["Lists"])
+list_router = Router(tags=["Lists"], auth=JWTAuth())
 
 
 # TODO: better way to query with user/session
@@ -19,12 +21,11 @@ list_router = Router(tags=["Lists"])
 
 @list_router.get("/", response=List[SaveListOut])
 def get_all_lists(request):
-    user_kw = dict(user=request.user)
+    user_kw = get_user_kw(request)
 
     if not request.user.is_authenticated:
         if not request.session.session_key:
             request.session.create()
-        user_kw = dict(session=request.session.session_key)
         create_save_lists(**user_kw)
 
     save_lists = SaveList.objects.filter(**user_kw).order_by("id").all()
@@ -41,11 +42,7 @@ def get_all_lists(request):
 
 @list_router.post("/{list_id}/{manga_id}/", response=SaveListEditOut)
 def add_manga_to_list(request, list_id: int, manga_id: int):
-    user_kw = (
-        dict(user=request.user)
-        if request.user.is_authenticated
-        else dict(session=request.session.session_key)
-    )
+    user_kw = get_user_kw(request)
 
     qs = SaveList.objects.filter(id=list_id, **user_kw)
     if not qs:
@@ -65,11 +62,7 @@ def add_manga_to_list(request, list_id: int, manga_id: int):
 
 @list_router.delete("/{list_id}/{manga_id}/", response=SaveListEditOut)
 def remove_manga_from_list(request, list_id: int, manga_id: int):
-    user_kw = (
-        dict(save_list__user=request.user)
-        if request.user.is_authenticated
-        else dict(save_list__session=request.session.session_key)
-    )
+    user_kw = get_user_kw(request, prefix="save_list__")
 
     count, _ = SaveListMangaThrough.objects.filter(
         manga_id=manga_id,
