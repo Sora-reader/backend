@@ -8,7 +8,6 @@ from ninja_jwt.authentication import JWTAuth
 from apps.core.api.schemas import ErrorSchema
 from apps.manga.annotate import fast_annotate_manga_query
 from apps.manga.api.lists.schemas import SaveListEditOut, SaveListOut
-from apps.manga.api.utils import get_user_kw
 from apps.manga.models import SaveList, SaveListMangaThrough
 from apps.manga.signals import create_save_lists
 
@@ -21,14 +20,12 @@ list_router = Router(tags=["Lists"], auth=JWTAuth())
 
 @list_router.get("/", response=List[SaveListOut])
 def get_all_lists(request):
-    user_kw = get_user_kw(request)
-
     if not request.user.is_authenticated:
         if not request.session.session_key:
             request.session.create()
-        create_save_lists(**user_kw)
+        create_save_lists(user=request.user)
 
-    save_lists = SaveList.objects.filter(**user_kw).order_by("id").all()
+    save_lists = SaveList.objects.filter(user=request.user).order_by("id").all()
 
     return [
         SaveListOut(
@@ -42,16 +39,15 @@ def get_all_lists(request):
 
 @list_router.post("/{list_id}/{manga_id}/", response=SaveListEditOut)
 def add_manga_to_list(request, list_id: int, manga_id: int):
-    user_kw = get_user_kw(request)
-
-    qs = SaveList.objects.filter(id=list_id, **user_kw)
+    qs = SaveList.objects.filter(user=request.user, id=list_id)
     if not qs:
         return ErrorSchema(error="List not found.")
 
     try:
         with atomic():
-            nested_user_kw = {f"save_list__{k}": v for k, v in user_kw.items()}
-            SaveListMangaThrough.objects.filter(manga_id=manga_id, **nested_user_kw).delete()
+            SaveListMangaThrough.objects.filter(
+                manga_id=manga_id, save_list__user=request.user
+            ).delete()
             SaveListMangaThrough.objects.create(save_list_id=list_id, manga_id=manga_id)
         return SaveListEditOut(count=1)
     except IntegrityError as e:
@@ -62,11 +58,7 @@ def add_manga_to_list(request, list_id: int, manga_id: int):
 
 @list_router.delete("/{list_id}/{manga_id}/", response=SaveListEditOut)
 def remove_manga_from_list(request, list_id: int, manga_id: int):
-    user_kw = get_user_kw(request, prefix="save_list__")
-
     count, _ = SaveListMangaThrough.objects.filter(
-        manga_id=manga_id,
-        save_list_id=list_id,
-        **user_kw,
+        manga_id=manga_id, save_list_id=list_id, save_list__user=request.user
     ).delete()
     return SaveListEditOut(count=count)

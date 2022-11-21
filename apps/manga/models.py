@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Q
 from django.db.models.fields import CharField, DecimalField, FloatField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
@@ -8,22 +7,6 @@ from apps.core.abc.models import BaseModel
 from apps.core.fast import FastQuerySet
 from apps.core.utils import url_prefix
 from apps.parse.catalogue import Catalogue
-
-
-class OptionalUser(models.Model):
-    class Meta:
-        abstract = True
-
-    @staticmethod
-    def get_optional_user_constraint(prefix: str):
-        # There's also a unique index with the name of save_list_user_name_unique
-        # Django doesn't support those for now, so it's just a migrations with raw SQL
-        return models.CheckConstraint(
-            check=Q(user__isnull=False) | Q(session__isnull=False), name=f"{prefix}not_both_null"
-        )
-
-    user = models.ForeignKey("auth.User", on_delete=models.CASCADE, blank=True, null=True)
-    session = models.TextField(blank=True, null=True)
 
 
 class Category(BaseModel):
@@ -85,7 +68,7 @@ class PersonRelatedToManga(models.Model):
 class Chapter(BaseModel):
     NAME_FIELD = "title"
 
-    manga = ForeignKey("Manga", models.CASCADE, related_name="chapters", null=True)
+    manga = ForeignKey("Manga", related_name="chapters", on_delete=models.CASCADE)
 
     title = TextField()
     link = URLField(max_length=2000)
@@ -93,16 +76,10 @@ class Chapter(BaseModel):
     volume = FloatField()
 
 
-class Bookmark(BaseModel, OptionalUser):
-    class Meta:
-        constraints = [OptionalUser.get_optional_user_constraint("bookmark_")]
-
-    manga = models.ForeignKey(
-        "Manga", related_name="bookmarks", on_delete=models.CASCADE, blank=False, null=False
-    )
-    chapter = models.ForeignKey(
-        "Chapter", related_name="bookmarks", on_delete=models.CASCADE, blank=False, null=False
-    )
+class Bookmark(BaseModel):
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    manga = models.ForeignKey("Manga", related_name="bookmarks", on_delete=models.CASCADE)
+    chapter = models.ForeignKey("Chapter", related_name="bookmarks", on_delete=models.CASCADE)
 
 
 class Manga(BaseModel):
@@ -157,8 +134,8 @@ class SaveListMangaThrough(models.Model):
         unique_together = ("save_list", "manga")
         # TODO: Add constraint for manga to be only in 1 of user's lists
 
-    save_list = ForeignKey("SaveList", models.CASCADE)
-    manga = ForeignKey("Manga", models.CASCADE)
+    save_list = ForeignKey("SaveList", on_delete=models.CASCADE)
+    manga = ForeignKey("Manga", on_delete=models.CASCADE)
 
 
 class SaveListNameChoices(models.TextChoices):
@@ -168,10 +145,8 @@ class SaveListNameChoices(models.TextChoices):
     dropped = "Брошенные"
 
 
-class SaveList(BaseModel, OptionalUser):
-    class Meta:
-        constraints = [OptionalUser.get_optional_user_constraint("")]
+class SaveList(BaseModel):
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
 
     name = models.TextField(choices=SaveListNameChoices.choices, null=False, blank=False)
-
     mangas = models.ManyToManyField("Manga", related_name="lists", through=SaveListMangaThrough)
