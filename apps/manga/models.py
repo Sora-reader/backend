@@ -146,6 +146,9 @@ class SaveListNameChoices(models.TextChoices):
 
 
 class SaveList(BaseModel):
+    class Meta:
+        unique_together = ("user", "name")
+
     user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
 
     name = models.TextField(choices=SaveListNameChoices.choices, null=False, blank=False)

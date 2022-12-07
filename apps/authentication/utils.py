@@ -12,7 +12,9 @@ frontend_url_key = "frontend_url"
 def save_frontend_url(request):
     """Use this method in initial API view that starts auth process to later send a session."""
     # Save as http to allow it to work on localhost, production UI redirects to HTTPS by default
-    url = request.POST["redirectUrl"]
+    url = request.POST.get("redirectUrl", None)
+    if not url:
+        return "No redirect url"
     if any([url.startswith(o) for o in settings.CSRF_TRUSTED_ORIGINS]):
         request.session[frontend_url_key] = url
     else:
