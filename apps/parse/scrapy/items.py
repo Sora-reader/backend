@@ -3,6 +3,7 @@ from scrapy import Field, Item
 
 class MangaItem(Item):
     identifier = Field()
+    popularity = Field()
 
     title = Field()
     description = Field()

@@ -1,5 +1,12 @@
 from django.db import models
-from django.db.models.fields import CharField, DecimalField, FloatField, TextField, URLField
+from django.db.models.fields import (
+    CharField,
+    DecimalField,
+    FloatField,
+    IntegerField,
+    TextField,
+    URLField,
+)
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query import QuerySet
 
@@ -94,6 +101,7 @@ class Manga(BaseModel):
 
     # Identifier for source site. Can be a direct ID or a hash
     identifier = CharField(max_length=1024, null=True, blank=True)
+    popularity = IntegerField("Позиция в рейтинге")
 
     rating = DecimalField(null=True, blank=True, max_digits=4, decimal_places=2)
     thumbnail = URLField(max_length=2000, default="", blank=True)

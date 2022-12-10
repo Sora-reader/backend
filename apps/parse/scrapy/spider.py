@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 
 import scrapy
@@ -8,4 +9,6 @@ class RegisteredSpider(scrapy.Spider, ABC):
 
 
 class BaseSpider(RegisteredSpider, ABC):
-    pass
+    @property
+    def logger(self):
+        return logging.getLogger("scrapyscript")

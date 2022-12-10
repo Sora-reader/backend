@@ -26,7 +26,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--url",
             type=str,
-            required=sys.argv[2] in list(ParserType),
+            required=sys.argv[2] in [p for p in ParserType if p != ParserType.list],
             help="A link which to parse (detail/chapter/rss url)",
         )
 

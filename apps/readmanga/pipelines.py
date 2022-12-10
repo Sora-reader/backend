@@ -105,10 +105,10 @@ class ReadmangaPipeline(CachedPipeline):
         pass
 
     def process_item(self, item: dict, spider: BaseSpider) -> dict:
-        spider.logger.info(f"Processing item {item}")
+        # spider.logger.info(f"Processing item {item}")
         data = deepcopy(item)
 
-        if spider.type == ParserType.list.value:
+        if "title" not in data and spider.type == ParserType.list.value:
             message = f"Error processing {data}: No title name was set"
             spider.logger.error(message)
             raise ValueError(message)

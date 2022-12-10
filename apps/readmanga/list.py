@@ -22,8 +22,8 @@ _genres = '//div[@class = "tile-info"]//a[contains(@class, "badge")]/text()'
 
 
 @Readmanga.register(ParserType.list, url=False)
-class ReadmangaListSpider(BaseSpider, CrawlSpider):
-    start_urls = [f"{Readmanga.source}/list"]
+class ReadmangaListSpider(CrawlSpider, BaseSpider):
+    start_urls = [f"{Readmanga.source}/list?sortType=rate"]
     rules = [
         Rule(
             LinkExtractor(restrict_xpaths=["//a[@class='nextLink']"]), follow=True, callback="parse"
@@ -38,8 +38,12 @@ class ReadmangaListSpider(BaseSpider, CrawlSpider):
 
     def parse(self, response, **kwargs):
         mangas: List[MangaItem] = []
+
+        url_offset = re.findall(r"offset=(\d+)", response.url)
+        offset = int(url_offset[-1]) if url_offset else 0
+
         descriptions = response.xpath(_manga_tile).extract()
-        for description in descriptions:
+        for popularity, description in enumerate(descriptions, offset + 1):
             response = HtmlResponse(url="", body=description, encoding="utf-8")
 
             identifier = response.xpath(_identifier).extract_first()
@@ -60,6 +64,7 @@ class ReadmangaListSpider(BaseSpider, CrawlSpider):
             mangas.append(
                 MangaItem(
                     identifier=identifier,
+                    popularity=popularity,
                     title=title,
                     thumbnail=thumbnail,
                     image=image,

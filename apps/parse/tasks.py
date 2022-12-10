@@ -12,21 +12,22 @@ from apps.parse.types import CacheType, ParsingStatus
 def run_spider_task(parser_type: str, catalogue_name: str = "readmanga", url: str = None):
     catalogue = Catalogue.from_name(catalogue_name)
     spider = catalogue.from_parser_name(parser_type)
-    cache = caches[CacheType.from_parser_type(parser_type)]
+    cache = None
 
     j = Job(spider, url=url)
     p = Processor(settings=get_project_settings())
 
     if url:
+        cache = caches[CacheType.from_parser_type(parser_type)]
         cache.set(url, ParsingStatus.parsing)
 
     p.run(j)
 
     if p.errors:
         errors = [f"{str(cls)}={val}" for cls, val in p.errors]
-        # errors = []
         msg = "Parsing failed with errors:\n" + "\n".join(errors)
-        cache.set(url, to_error_schema(msg))
+        if url:
+            cache.set(url, to_error_schema(msg))
         raise ParsingError(msg)
 
     if url:
