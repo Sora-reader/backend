@@ -46,14 +46,6 @@ SHELL_PLUS_PRINT_SQL_TRUNCATE = None
 ROOT_URLCONF = "manga_reader.urls"
 WSGI_APPLICATION = "manga_reader.wsgi.application"
 
-ELASTIC_APM = {
-    "SERVICE_NAME": env("APM_NAME"),
-    "SECRET_TOKEN": "",
-    "SERVER_URL": "http://70.34.249.112:8200",
-    "ENVIRONMENT": "production",
-    "DJANGO_TRANSACTION_NAME_FROM_ROUTE": True,
-}
-
 sentry_sdk.init(
     dsn=env("SENTRY_DSN"),
     integrations=[DjangoIntegration()],
@@ -139,7 +131,6 @@ CACHES = {
 ########
 
 INSTALLED_APPS = [
-    "elasticapm.contrib.django",
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -237,7 +228,6 @@ JAZZMIN_UI_TWEAKS = {
 ##############
 
 MIDDLEWARE = [
-    "elasticapm.contrib.django.middleware.TracingMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -373,10 +363,6 @@ LOGGING = {
         }
     },
     "handlers": {
-        "elasticapm": {
-            "level": "INFO",
-            "class": "elasticapm.contrib.django.handlers.LoggingHandler",
-        },
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "colored",
@@ -385,24 +371,18 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "elasticapm"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
         },
         "system": {
-            "handlers": ["console", "elasticapm"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
         "scrapyscript": {
-            "handlers": ["console", "elasticapm"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        # Log errors from the Elastic APM module to the console (recommended)
-        "elasticapm.errors": {
-            "level": "ERROR",
             "handlers": ["console"],
+            "level": "INFO",
             "propagate": False,
         },
     },
