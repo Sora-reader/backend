@@ -41,3 +41,7 @@ class CachedPipeline(BasePipeline, ABC):
 
         cache = caches[CacheType.from_parser_type(self.__class__.type)]
         cache.set(key, data, timeout=self.__class__.timeout)
+
+
+class ChapterPipeline(CachedPipeline, ABC):
+    pass

@@ -16,6 +16,5 @@ class MangachanImageSpider(BaseSpider):
         image_links = re.search(r'"fullimg":(\[.*\",?])', response.text).group(1)
         without_trailing_comma = re.sub(r",?]$", "]", image_links)
         image_links = loads(without_trailing_comma)
-        # TODO: fix loggers in scrapy
         self.logger.info(f"Parsed {len(image_links)} image links")
         return ImagesItem(chapter_url=self.start_urls[0], images=image_links)

@@ -30,11 +30,3 @@ RUN poetry install
 
 COPY . .
 RUN sudo chown -R $USERNAME:$USERNAME .
-
-RUN SECRET_KEY=1 poetry run python manage.py collectstatic --noinput
-
-RUN chmod +x scripts/entrypoint.sh
-CMD ["./scripts/entrypoint.sh"]
-
-EXPOSE "$PORT"
-EXPOSE 1233

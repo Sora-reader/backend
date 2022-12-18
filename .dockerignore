@@ -153,6 +153,7 @@ redis.conf
 staticfiles/
 infra/
 docker/
+docker-compose.yml
 .gcloudignore
 .ipython/
 .editorconfig

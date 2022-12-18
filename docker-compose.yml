@@ -49,31 +49,13 @@ services:
       - ./:/app
       - sora_poetry:/home/sora/.cache/pypoetry
 
-  rq_dev:
-    profiles:
-      - dev
-    image: backend_web_dev
-    restart: unless-stopped
-    command: "bash -c 'until poetry run python manage.py rqworker default;\
-      do echo cant start, may be venv is not loaded yet, waiting;\
-      sleep 2;done'"
-    volumes:
-      - ./:/app
-      - sora_poetry:/home/sora/.cache/pypoetry
-    environment:
-      - PROXY
-      # Static
-      - SECRET_KEY=dev
-      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
-      - REDIS_URL=redis://redis:6379
-      - TYPESENSE_HOST=typesense
-    depends_on:
-      - web_dev
-
   rq:
     profiles:
       - prod
-    image: backend_web
+      - prod-partial
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile.rq
     restart: unless-stopped
     command: poetry run python manage.py rqworker default
     environment:
@@ -84,14 +66,26 @@ services:
       - DEBUG=0
       - REDIS_URL=redis://redis:6379
       - TYPESENSE_HOST=typesense
-    depends_on:
-      - web
+
+  rq_scheduler:
+    profiles:
+      - prod
+      - prod-partial
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile.rq
+    restart: unless-stopped
+    command: poetry run python manage.py rqscheduler
+    environment:
+      - PROXY
+      - SECRET_KEY
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
+      # Static
+      - DEBUG=0
+      - REDIS_URL=redis://redis:6379
+      - TYPESENSE_HOST=typesense
 
   db:
-    profiles:
-      - data
-      - prod
-      - dev
     restart: unless-stopped
     image: postgres:15
     ports:
@@ -109,10 +103,6 @@ services:
       timeout: 5s
 
   redis:
-    profiles:
-      - data
-      - prod
-      - dev
     image: redis
     command: redis-server
     restart: unless-stopped
@@ -131,10 +121,6 @@ services:
       timeout: 5s
 
   typesense:
-    profiles:
-      - data
-      - prod
-      - dev
     image: typesense/typesense:0.23.1
     restart: unless-stopped
     command: --data-dir /data --api-key=${TYPESENSE_API_KEY:-api} --enable-cors

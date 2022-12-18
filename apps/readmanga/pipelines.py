@@ -7,6 +7,7 @@ from scrapy.spiders import Spider
 
 from apps.core.abc.models import BaseModel
 from apps.manga.annotate import manga_to_annotated_dict
+from apps.manga.api.notifications.utils import notify_about_chapter
 from apps.manga.api.schemas import ChapterListOut, ImageListOut, MangaOut
 from apps.manga.models import Category, Chapter, Genre, Manga, PersonRelatedToManga, PersonRole
 from apps.parse.cleaning import normalized_category_names, without_common_prefix
@@ -63,6 +64,12 @@ class ReadmangaChapterPipeline(CachedPipeline):
     def process_item(self, chapters_data: ChapterItem, spider: ReadmangaChapterSpider):
         chapter_list, chapters_url = chapters_data.values()
         manga = Manga.objects.get(chapters_url=chapters_url)
+        # https://readmanga.live/rss/manga?name=neveroiatnye_prikliucheniia_djodjo__diavolski_razbitoe_serdce_crazy_diamond
+        # https://readmanga.live/rss/manga?name=neveroiatnye_prikliucheniia_djodjo__diavolski_razbitoe_serdce_crazy_diamond
+
+        latest_chapter = None
+        if manga.chapters.exists():
+            latest_chapter = manga.chapters.latest("id")
 
         clean_chapter_titles = without_common_prefix([c["title"] for c in chapter_list])
 
@@ -72,6 +79,15 @@ class ReadmangaChapterPipeline(CachedPipeline):
                 for title, c in zip(clean_chapter_titles, chapter_list)
             ]
         )
+
+        # Create Notifications
+        if manga.chapters.exists():
+            new_chapters = chapter_list
+        else:
+            new_chapters = [chapter for chapter in chapter_list if chapter.id > latest_chapter.id]
+
+        for new_chapter in new_chapters:
+            notify_about_chapter(new_chapter)
 
         chapter = {"chapters_url": chapters_url, "chapters": chapter_list}
         self.save_to_cache(chapter, spider)
@@ -122,7 +138,7 @@ class ReadmangaPipeline(CachedPipeline):
 
         manga = self.get_or_create_or_update_manga(spider, data.pop("identifier"), **data)
 
-        # TODO: move it to model, like for sav_persons use atomic transaction
+        # TODO: move it to model, like for save_persons use atomic transaction
         genres = bulk_get_or_create(Genre, normalized_category_names(genres))
         manga.genres.clear()
         manga.genres.add(*genres)

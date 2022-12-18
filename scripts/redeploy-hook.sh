@@ -6,4 +6,4 @@ git fetch --all
 git reset --hard "origin/$(git branch --show-current)"
 
 cd ..
-docker-compose --profile prod up -d --build && docker-compose stop web
+docker-compose --profile prod-partial up -d --build

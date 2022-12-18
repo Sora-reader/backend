@@ -126,6 +126,10 @@ CACHES = {
     },
 }
 
+# TODO: Use while providing custom CDN
+# Should be able to fit 50 mangas in 10GB
+MANGA_MAX_SIZE_KB = 10485760 / 50
+
 ########
 # Apps #
 ########

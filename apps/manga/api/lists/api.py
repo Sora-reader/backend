@@ -9,22 +9,12 @@ from apps.core.api.schemas import ErrorSchema
 from apps.manga.annotate import fast_annotate_manga_query
 from apps.manga.api.lists.schemas import SaveListEditOut, SaveListOut
 from apps.manga.models import SaveList, SaveListMangaThrough
-from apps.manga.signals import create_save_lists
 
 list_router = Router(tags=["Lists"], auth=JWTAuth())
 
 
-# TODO: better way to query with user/session
-# TODO: preserve order with LIST_NAMES and add it to custom queryset
-
-
 @list_router.get("/", response=List[SaveListOut])
 def get_all_lists(request):
-    if not request.user.is_authenticated:
-        if not request.session.session_key:
-            request.session.create()
-        create_save_lists(user=request.user)
-
     save_lists = SaveList.objects.filter(user=request.user).order_by("id").all()
 
     return [

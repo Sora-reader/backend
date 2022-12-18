@@ -140,7 +140,6 @@ class Manga(BaseModel):
 class SaveListMangaThrough(models.Model):
     class Meta:
         unique_together = ("save_list", "manga")
-        # TODO: Add constraint for manga to be only in 1 of user's lists
 
     save_list = ForeignKey("SaveList", on_delete=models.CASCADE)
     manga = ForeignKey("Manga", on_delete=models.CASCADE)
@@ -161,3 +160,11 @@ class SaveList(BaseModel):
 
     name = models.TextField(choices=SaveListNameChoices.choices, null=False, blank=False)
     mangas = models.ManyToManyField("Manga", related_name="lists", through=SaveListMangaThrough)
+
+
+class ChapterNotification(BaseModel):
+    class Meta:
+        unique_together = ("user", "chapter")
+
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    chapter = models.ForeignKey("Chapter", on_delete=models.CASCADE)
