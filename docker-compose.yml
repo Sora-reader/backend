@@ -104,7 +104,8 @@ services:
 
   redis:
     image: redis
-    command: redis-server
+    # Disabled RDB snapshots
+    command: redis-server --save '' --appendonly no
     restart: unless-stopped
     expose:
       - 6379
