@@ -1,0 +1,47 @@
+steps:
+  - name: ubuntu
+    id: poetry-export
+    waitFor: [ '-' ]
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        apt update
+        apt install python3 python3-pip -y
+        pip3 install poetry
+        poetry export --with dev --without-hashes >| requirements.txt
+
+  - name: ubuntu
+    id: env-setup
+    waitFor: [ '-' ]
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        printenv >| .env
+    env:
+      - 'SECRET_KEY=${_SECRET_KEY}'
+      - 'DATABASE_URL=${_DATABASE_URL}'
+      - 'REDIS_URL=${_REDIS_URL}'
+      - 'TYPESENSE_HOST=${_TYPESENSE_HOST}'
+      - 'TYPESENSE_PROTOCOL=${_TYPESENSE_PROTOCOL}'
+      - 'TYPESENSE_API_KEY=${_TYPESENSE_API_KEY}'
+      - 'GOOGLE_CLIENT=${_GOOGLE_CLIENT}'
+      - 'GOOGLE_SECRET=${_GOOGLE_SECRET}'
+      - 'SENTRY_DSN=${_SENTRY_DSN}'
+
+  - name: python
+    id: install-deps
+    waitFor: [ poetry-export ]
+    entrypoint: pip
+    args: [ "install", "-r", "requirements.txt", "--user", "--no-warn-script-location" ]
+
+  - name: python
+    id: collectstatic
+    waitFor: [ env-setup, install-deps ]
+    entrypoint: python
+    args: [ "manage.py", "collectstatic", "--noinput" ]
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    waitFor: [ collectstatic ]
+    args: [ "app", "deploy", "--appyaml=infra/app.yaml" ]

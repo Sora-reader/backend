@@ -1,0 +1,5 @@
+dispatch:
+  - url: "backend.sora-reader.app/*"
+    service: backend
+  - url: "sora-reader.app/*"
+    service: frontend

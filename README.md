@@ -5,6 +5,11 @@
 ![image](https://user-images.githubusercontent.com/18076967/131153731-0196375e-b650-4b0f-b188-f20b2eba37f1.png)
 
 
+## Notes
+
+- Postgres 15+ is mandatory for NULLS NOT DISTINCT indexes
+- [webhook-server](https://github.com/adnanh/webhook/releases)
+
 ## Installation requirements
 
 - PostgreSQL(and `libpq-dev`)

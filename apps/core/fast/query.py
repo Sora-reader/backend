@@ -1,10 +1,11 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, Tuple, Union
+from typing import Tuple, Union
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.expressions import Case, Value, When
 from django.db.models.fields import TextField
+from django.db.models.functions import Cast
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from typing_extensions import Annotated
@@ -20,6 +21,7 @@ class FastQuerySet(QuerySet):
     """
 
     model: BaseModel
+    mangle_prefix = "_fast_"
 
     TYPE_MAP: Annotated[dict, "Mapping to convert DB returned types into JSON-valid types"] = {
         datetime: str,
@@ -27,26 +29,39 @@ class FastQuerySet(QuerySet):
         Decimal: float,
     }
 
-    def mangle_annotation(self, field: str) -> str:
-        """Mangle annotation if needed name to not coflict with any of model's fields."""
-        return f"_fast_{field}"
+    @classmethod
+    def mangle_annotation(cls, field: str) -> str:
+        """Mangle annotation if needed name to not conflict with any of model's fields."""
+        return cls.mangle_prefix + field
 
     @classmethod
     def demangle_annotation(cls, field: str) -> str:
-        """Mangle annotation if needed name to not coflict with any of model's fields."""
-        return field.split("_fast_")[-1]
+        """Reverse field mangling."""
+        return field.split(cls.mangle_prefix)[-1]
 
-    def m2m_agg(self, **kwargs: Dict[str, Tuple[str, dict]]):
+    def cast(self, **kwargs):
+        """
+        Simply cast values to a type.
+
+        Example: qs.cast(id=CharField()) will result in {"id": "123", ...}
+        """
+        return self.annotate(
+            **{
+                self.mangle_annotation(field): Cast(field, output_field=TextField())
+                for field, output_field in kwargs.items()
+            }
+        )
+
+    def m2m_agg(self, **kwargs: str | Tuple[str, Q]):
         """
         Annotate M2Ms with distinct ArrayAgg for a specified field.
 
         Accept kwargs with value of:
             1. Field string, like 'field__nested_field'
-            2. A tuple of field string and a Expression filter, like ('field', Q(field='string'))
+            2. A tuple of field string and an Expression filter, like ('field', Q(field='string'))
         """
         annotation = {}
         for field, args in kwargs.items():
-            output = None
             if type(args) is tuple:
                 output = ArrayAgg(args[0], filter=args[1], distinct=True)
             else:
@@ -60,7 +75,7 @@ class FastQuerySet(QuerySet):
 
         return self.annotate(**annotation)
 
-    def map(self, **kwargs: Dict[str, Tuple[str, dict]]):
+    def map(self, **kwargs: Tuple[str, dict]):
         """
         Annotate queryset with CASE...WHEN generated to map provided field with python dict.
 
@@ -85,7 +100,9 @@ class FastQuerySet(QuerySet):
         result = []
         annotations = self.query.annotations.keys()
         values = map(
-            lambda v: self.mangle_annotation(v) if self.mangle_annotation(v) in annotations else v,
+            lambda field: self.mangle_annotation(field)
+            if self.mangle_annotation(field) in annotations
+            else field,
             args,
         )
 

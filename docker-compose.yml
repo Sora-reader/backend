@@ -1,40 +1,111 @@
-# Compose for development using volumes to ensure hot reload
-version: "3"
-
 services:
   web:
+    profiles:
+      - prod
     build:
-      context: ./
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: docker/web/Dockerfile
+    restart: unless-stopped
     expose:
       - 8000
     environment:
+      - ALLOWED_HOSTS
+      - SECRET_KEY
+      - PROXY
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
+      # Static
+      - DEBUG=0
+      - HOST=0.0.0.0
       - PORT=8000
+      - REDIS_URL=redis://redis:6379
+      - TYPESENSE_HOST=typesense
     ports:
-      - "8888:8000"
+      - "${PORT:-80}:8000"
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8000/api/health" ]
+      interval: 5s
+      timeout: 5s
+
+  web_dev:
+    profiles:
+      - dev
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile.dev
+    expose:
+      - 8000
+    environment:
+      - PROXY
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
+      # Static
+      - SECRET_KEY=Dev
+      - HOST=0.0.0.0
+      - PORT=8000
+      - REDIS_URL=redis://redis:6379
+      - TYPESENSE_HOST=typesense
+    ports:
+      - "${PORT:-8000}:8000"
     volumes:
       - ./:/app
-      # exclude dotenvs in volume
-      - /app/.envs
-    env_file:
-      - ./.envs/docker.env
-    depends_on:
-      - db
-      - redis
+      - sora_poetry:/home/sora/.cache/pypoetry
+
+  rq:
+    profiles:
+      - prod
+      - prod-partial
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile.rq
+    restart: unless-stopped
+    command: poetry run python manage.py rqworker default
+    environment:
+      - PROXY
+      - SECRET_KEY
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
+      # Static
+      - DEBUG=0
+      - REDIS_URL=redis://redis:6379
+      - TYPESENSE_HOST=typesense
+
+  rq_scheduler:
+    profiles:
+      - prod
+      - prod-partial
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile.rq
+    restart: unless-stopped
+    command: poetry run python manage.py rqscheduler
+    environment:
+      - PROXY
+      - SECRET_KEY
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sora}
+      # Static
+      - DEBUG=0
+      - REDIS_URL=redis://redis:6379
+      - TYPESENSE_HOST=typesense
 
   db:
     restart: unless-stopped
-    image: postgres:12
+    image: postgres:15
     ports:
       - "8882:5432"
     volumes:
       - sora_postgres:/var/lib/postgresql/data
-    env_file:
-      - .envs/docker.env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-sora}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    healthcheck:
+      # Wait for postgres to actually start before consider service 'healthy'
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
 
   redis:
     image: redis
-    command: redis-server
+    # Disabled RDB snapshots
+    command: redis-server --save '' --appendonly no
     restart: unless-stopped
     expose:
       - 6379
@@ -45,18 +116,22 @@ services:
       - sora_redis:/usr/local/etc/redis/redis.conf
     environment:
       - REDIS_REPLICATION_MODE=master
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
 
-  elasticsearch:
-    image: elasticsearch:7.14.2
+  typesense:
+    image: typesense/typesense:0.23.1
     restart: unless-stopped
-    environment:
-      - discovery.type=single-node
+    command: --data-dir /data --api-key=${TYPESENSE_API_KEY:-api} --enable-cors
     volumes:
-      - esdata1:/usr/share/elasticsearch/data
+      - tsdata:/data
     ports:
-      - 9200:9200
+      - "8108:8108"
 
 volumes:
-  esdata1:
+  tsdata:
+  sora_poetry:
   sora_redis:
   sora_postgres:

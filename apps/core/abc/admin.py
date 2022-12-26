@@ -2,12 +2,12 @@ from functools import cached_property
 from typing import Dict, Optional, Tuple, Type, Union
 
 from django.contrib import admin
-from django.db.models import Model
+from django.db.models import Model, QuerySet
 from django.db.models.fields import Field
 from django.utils.html import format_html
 
 from apps.core.abc.models import BaseModel
-from apps.parse.models import Manga
+from apps.manga.models import Manga
 
 
 class ImagePreviewMixin:
@@ -65,7 +65,7 @@ class RelatedField:
             return self.lookup._meta.verbose_name_plural.capitalize()
         return self.description
 
-    def get_queryset(self) -> list:
+    def get_queryset(self) -> QuerySet:
         queryset = None
         if self.lookup_type is property:
             queryset = self.lookup.__get__(self.obj)
@@ -79,7 +79,7 @@ class RelatedField:
                 queryset = getattr(self.obj, cached_relation)
             else:
                 # Search for all fields, find first relation matching model and add it to cache
-                for field in self.obj._meta.get_fields():
+                for field in self.obj._meta.get_fields():  # noqa
                     if getattr(field, "related_model", None) is self.lookup:
                         queryset = getattr(self.obj, field.attname)
                         self.__class__.RELATED_CACHE[cache_key] = field.attname
@@ -103,6 +103,7 @@ class RelatedField:
         return queryset.filter(**filter_).all(), value_name
 
     def format_values(self, values) -> str:
+        output = None
         if self.lookup_type is property:
             if self.html:
                 output = format_html(self.separator.join([self.to_html(value) for value in values]))

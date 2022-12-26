@@ -1,34 +1,134 @@
 import copy
 import logging
+import logging.config
 import os
-from datetime import timedelta
 from functools import partial
 from pathlib import Path
 
+import dj_database_url
+import environ
 import scrapy.utils.log
 import sentry_sdk
 from colorlog import ColoredFormatter
+from django.core.management import BaseCommand
 from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.logging import ignore_logger
+
+from apps.parse.types import CacheType
+from apps.typesense_bind.client import create_client
+
+# TODO: docstrings in utils and stuff
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env(
+    DEBUG=(bool, True),
+    ALLOWED_HOSTS=(lambda a: a.split(" "), ["*"]),
+    DJANGO_LOG_LEVEL=(str, "INFO"),
+    REDIS_URL=(str, "redis://localhost:8883"),
+    TYPESENSE_HOST=(str, "localhost"),
+    TYPESENSE_PROTOCOL=(str, "http"),
+    TYPESENSE_API_KEY=(str, "api"),
+    PROXY=(str, ""),
+    GOOGLE_CLIENT=(str, ""),
+    GOOGLE_SECRET=(str, ""),
+    APM_NAME=(str, "rq-worker"),
+    SENTRY_DSN=(str, ""),
+)
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# Django debug toolbar IPs
+INTERNAL_IPS = ["127.0.0.1"]
 
 ###########
 # Project #
 ###########
 
 SHELL_PLUS_PRINT_SQL_TRUNCATE = None
-BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_URLCONF = "manga_reader.urls"
 WSGI_APPLICATION = "manga_reader.wsgi.application"
-WEBDRIVER_PATH = os.getenv("WEBDRIVER_PATH", None)
+
+sentry_sdk.init(
+    dsn=env("SENTRY_DSN"),
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+)
 
 ############
 # Security #
 ############
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = int(os.getenv("DEBUG", 1))
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(" ")
+SECRET_KEY = env("SECRET_KEY")
+DEBUG = env("DEBUG")
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Stub so it works while using cloudflare, I don't want to fix it for now, so here it is
+CSRF_TRUSTED_ORIGINS = [
+    "https://sora-reader.app",
+    "https://*.sora-reader.app",
+    "http://localhost:3000",
+]
+
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "baggage",
+    "sentry-trace",
+]
+
+SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_NAME = "sessionId"
+
+############
+# Scraping #
+############
+
+PROXY = env("PROXY")
+HEADERS = {
+    "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0",
+}
+REDIS_URL = env("REDIS_URL")
+RQ_QUEUES = {
+    "default": {
+        "URL": REDIS_URL,
+    }
+}
+
+TS_CLIENT = create_client(
+    env("TYPESENSE_HOST"), env("TYPESENSE_API_KEY"), env("TYPESENSE_PROTOCOL")
+)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
+    },
+    CacheType.detail.value: {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}/2",
+    },
+    CacheType.chapter.value: {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}/3",
+    },
+    CacheType.image.value: {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"{REDIS_URL}/4",
+    },
+}
+
+# TODO: Use while providing custom CDN
+# Should be able to fit 50 mangas in 10GB
+MANGA_MAX_SIZE_KB = 10485760 / 50
 
 ########
 # Apps #
@@ -42,21 +142,25 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
-    "apps.api_docs",
-    "apps.login.apps.LoginConfig",
-    "apps.parse",
-    "apps.core.apps.CoreConfig",
     "django_extensions",
-    "django.contrib.postgres",
-    "django_elasticsearch_dsl",
+    "ninja_jwt",
+    "ninja_extra",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "django_rq",
+    "apps.typesense_bind.apps.TypesenseBindConfig",
+    "apps.core",
+    "apps.authentication.apps.AuthenticationConfig",
+    "apps.manga.apps.MangaConfig",
+    "apps.parse",
+    "apps.readmanga.apps.Config",
+    "apps.mangachan.apps.Config",
 ]
-
-ELASTICSEARCH_DSL = {
-    "default": {"hosts": os.getenv("ELASTICSEARCH_HOST", "localhost:92000")},
-}
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
 
 #########
 # ADMIN #
@@ -107,7 +211,6 @@ JAZZMIN_SETTINGS = {
         "parse.genre",
         "auth",
         "login",
-        "authtoken",
         "core",
     ],
     "default_icon_parents": "fas fa-chevron-circle-right",
@@ -124,46 +227,6 @@ JAZZMIN_UI_TWEAKS = {
     "actions_sticky_top": True,
 }
 
-#######
-# API #
-#######
-
-REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": (),
-    "DEFAULT_AUTHENTICATION_CLASSES": (),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "PAGE_SIZE": int(os.getenv("PAGE_SIZE", 20)),
-}
-
-HEADERS = {
-    "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0",
-}
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": False,
-    "ALGORITHM": "HS256",
-    "SIGNING_KEY": SECRET_KEY,
-    "VERIFYING_KEY": None,
-    "AUDIENCE": None,
-    "ISSUER": None,
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication."
-    "default_user_authentication_rule",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
-    "JTI_CLAIM": "jti",
-    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-}
-
 ##############
 # Middleware
 ##############
@@ -178,52 +241,57 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
-
-########
-# CORS #
-########
-
-CORS_ALLOW_ALL_ORIGINS = True
 
 ############
 # Database #
 ############
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("DATABASE_NAME"),
-        "USER": os.getenv("DATABASE_USER"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
-        "HOST": os.getenv("DATABASE_HOST"),
-        "PORT": os.getenv("DATABASE_PORT"),
-    }
+    "default": dj_database_url.config(default="postgres://postgres:postgres@localhost:8882/sora"),
 }
 
 #################
 # Authorization #
 #################
 
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": env("GOOGLE_CLIENT"),
+            "secret": env("GOOGLE_SECRET"),
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 PASSWORD_HASHERS = [
-    "django.contrib.auth.hashers.Argon2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher",
 ]
 
 ###########
@@ -246,15 +314,13 @@ TEMPLATES = [
     },
 ]
 
-STATIC_URL = "/static/"
+STATIC_URL = "static/"
 STATIC_ROOT = "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-REDIS_URL = os.getenv("REDIS_URL")
+MEDIA_ROOT = BASE_DIR / "media"
 
 ################
 # Localization #
@@ -263,35 +329,13 @@ REDIS_URL = os.getenv("REDIS_URL")
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
-
-DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
-
-#############
-# GlitchTip #
-#############
-
-SENTRY_DSN = os.getenv("SENTRY_DSN", "")
-sentry_sdk.init(
-    dsn=SENTRY_DSN,
-    integrations=[DjangoIntegration()],
-    send_default_pii=True,
-)
-ignore_logger("django.security.DisallowedHost")
-
-########
-# Silk #
-########
-
-if DEBUG:
-    INSTALLED_APPS.append("silk")
-    MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
 
 ##########
 # Logging #
 ##########
+
+# Colored formatting into masses
 
 COLORED_FORMAT = (
     "%(log_color)s%(levelname)-8s%(reset)s"
@@ -299,11 +343,11 @@ COLORED_FORMAT = (
     "%(log_color)s%(message)s%(reset)s"
 )
 COLORLESS_FORMAT = "%(levelname)-8s[%(asctime)s] %(message)s"
-DATEFMT = "%Y-%m-%d %H:%M:%S"
+LOGGER_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 SoraColoredLogger = partial(
     ColoredFormatter,
-    datefmt=DATEFMT,
+    datefmt=LOGGER_DATE_FORMAT,
     log_colors={
         "DEBUG": "white",
         "INFO": "bold_cyan",
@@ -313,36 +357,34 @@ SoraColoredLogger = partial(
     },
 )
 
-color_formatter = SoraColoredLogger(COLORED_FORMAT)
-colorless_formatter = logging.Formatter(COLORLESS_FORMAT, datefmt=DATEFMT)
-
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "formatters": {
         "colored": {
-            "()": "manga_reader.settings.SoraColoredLogger",
+            "()": SoraColoredLogger,
             "format": COLORED_FORMAT,
         }
     },
     "handlers": {
         "console": {
-            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "colored",
+            "level": "INFO",
         },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "WARNING",
     },
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "level": "INFO",
+            "propagate": True,
+        },
+        "system": {
+            "handlers": ["console"],
+            "level": "INFO",
             "propagate": False,
         },
-        "management": {
+        "scrapyscript": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
@@ -350,22 +392,52 @@ LOGGING = {
     },
 }
 
-##########
-# Scrapy #
-##########
+# Hijack Scrapy's logging
 
-PROXY = os.getenv("PROXY")
-
-_get_handler = copy.copy(scrapy.utils.log._get_handler)
+_get_handler = copy.copy(scrapy.utils.log._get_handler)  # noqa
 
 
 def _get_handler_custom(*args, **kwargs):
     handler = _get_handler(*args, **kwargs)
-    formatter = color_formatter
+    formatter = SoraColoredLogger(COLORED_FORMAT)
     if isinstance(handler, logging.FileHandler):
-        formatter = colorless_formatter
+        formatter = logging.Formatter(COLORLESS_FORMAT, datefmt=LOGGER_DATE_FORMAT)
     handler.setFormatter(formatter)
     return handler
 
 
 scrapy.utils.log._get_handler = _get_handler_custom
+
+# Hack into BaseCommand to use logging instead of stdout/stderr
+
+_system_logger = logging.getLogger("system")
+
+
+class _StdoutLoggingStub:
+    def write(self, arg, *args, **kwargs):
+        _system_logger.info(arg.strip("\n"))
+
+    @staticmethod
+    def flush(*args, **kwargs):
+        pass
+
+
+class _StderrLoggingStub:
+    def write(self, arg, *args, **kwargs):
+        _system_logger.error(arg.strip("\n"))
+
+    @staticmethod
+    def flush(*args, **kwargs):
+        pass
+
+
+_base_command_init = BaseCommand.__init__
+
+
+def _init_patch_stdio(self, *args, **kwargs):
+    _base_command_init(self, *args, **kwargs)
+    self.stdout = _StdoutLoggingStub()
+    self.stderr = _StderrLoggingStub()
+
+
+BaseCommand.__init__ = _init_patch_stdio

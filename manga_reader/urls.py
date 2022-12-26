@@ -1,18 +1,16 @@
-from django.conf import settings
-from django.conf.urls import include
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 
-apipatterns = [
-    path("docs/", include("apps.api_docs.urls")),
-    path("manga/", include("apps.parse.api.urls")),
-    path("auth/", include("apps.login.urls")),
-]
+from manga_reader.api import api
 
 urlpatterns = [
-    path("api/", include(apipatterns)),
+    path("__debug__/", include("debug_toolbar.urls")),
+    #
+    path("api/auth/", include("apps.authentication.urls")),
+    path("api/", api.urls),
+    #
+    path("django-rq/", include("django_rq.urls")),
+    path("accounts/", include("allauth.urls")),
+    #
     re_path(r"^(?!api)\w*?", admin.site.urls),
 ]
-
-if settings.DEBUG:
-    urlpatterns.append(path("silk/", include("silk.urls", namespace="silk")))
