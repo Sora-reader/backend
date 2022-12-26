@@ -4,6 +4,7 @@ from ninja import Router
 from ninja_jwt.authentication import JWTAuth
 
 from apps.core.api.schemas import ErrorSchema
+from apps.core.api.utils import sora_schema
 from apps.manga.api.bookmarks.schemas import BookmarkEditOut, BookmarkOut
 from apps.manga.models import Bookmark
 
@@ -21,25 +22,25 @@ def get_bookmark(request, manga_id: int):
     return BookmarkOut(chapter_id=qs[0] if qs else None)
 
 
-@bookmark_router.post("/{manga_id}/{chapter_id}/", response=BookmarkEditOut)
+@bookmark_router.post("/{manga_id}/{chapter_id}/", response=sora_schema(BookmarkEditOut))
 def set_bookmarks(request, manga_id: int, chapter_id: int):
     try:
         with atomic():
             Bookmark.objects.update_or_create(
                 user=request.user, manga_id=manga_id, defaults={"chapter_id": chapter_id}
             )
-        return BookmarkEditOut(count=1)
+        return 200, BookmarkEditOut(count=1)
     except IntegrityError as e:
-        return ErrorSchema(error=str(e))
+        return 400, ErrorSchema(error=str(e))
 
 
-@bookmark_router.delete("/{manga_id}/{chapter_id}/", response=BookmarkEditOut)
+@bookmark_router.delete("/{manga_id}/{chapter_id}/", response=sora_schema(BookmarkEditOut))
 def remove_bookmark(request, manga_id: int, chapter_id: int):
     try:
         with atomic():
             Bookmark.objects.filter(
                 user=request.user, manga_id=manga_id, chapter_id=chapter_id
             ).delete()
-        return BookmarkEditOut(count=1)
+        return 200, BookmarkEditOut(count=1)
     except IntegrityError as e:
-        return ErrorSchema(error=str(e))
+        return 400, ErrorSchema(error=str(e))

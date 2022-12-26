@@ -64,8 +64,6 @@ class ReadmangaChapterPipeline(CachedPipeline):
     def process_item(self, chapters_data: ChapterItem, spider: ReadmangaChapterSpider):
         chapter_list, chapters_url = chapters_data.values()
         manga = Manga.objects.get(chapters_url=chapters_url)
-        # https://readmanga.live/rss/manga?name=neveroiatnye_prikliucheniia_djodjo__diavolski_razbitoe_serdce_crazy_diamond
-        # https://readmanga.live/rss/manga?name=neveroiatnye_prikliucheniia_djodjo__diavolski_razbitoe_serdce_crazy_diamond
 
         latest_chapter = None
         if manga.chapters.exists():
@@ -80,14 +78,11 @@ class ReadmangaChapterPipeline(CachedPipeline):
             ]
         )
 
-        # Create Notifications
-        if manga.chapters.exists():
-            new_chapters = chapter_list
-        else:
+        # Create Notifications only if chapters were already parsed once
+        if latest_chapter:
             new_chapters = [chapter for chapter in chapter_list if chapter.id > latest_chapter.id]
-
-        for new_chapter in new_chapters:
-            notify_about_chapter(new_chapter)
+            for new_chapter in new_chapters:
+                notify_about_chapter(new_chapter)
 
         chapter = {"chapters_url": chapters_url, "chapters": chapter_list}
         self.save_to_cache(chapter, spider)

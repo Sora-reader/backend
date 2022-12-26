@@ -6,6 +6,7 @@ from ninja import Router
 from ninja_jwt.authentication import JWTAuth
 
 from apps.core.api.schemas import ErrorSchema
+from apps.core.api.utils import sora_schema
 from apps.manga.annotate import fast_annotate_manga_query
 from apps.manga.api.lists.schemas import SaveListEditOut, SaveListOut
 from apps.manga.models import SaveList, SaveListMangaThrough
@@ -27,7 +28,7 @@ def get_all_lists(request):
     ]
 
 
-@list_router.post("/{list_id}/{manga_id}/", response=SaveListEditOut)
+@list_router.post("/{list_id}/{manga_id}/", response=sora_schema(SaveListEditOut))
 def add_manga_to_list(request, list_id: int, manga_id: int):
     qs = SaveList.objects.filter(user=request.user, id=list_id)
     if not qs:
